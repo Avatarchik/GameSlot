@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{352BD5EA-4B82-4311-AB26-744A2FD7C2CF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GameSlot</RootNamespace>
+    <AssemblyName>GameSlot</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\UpServer-master\bin\x64adv\Sites\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UpServer">
+      <HintPath>..\UpServer-master\bin\x64adv\UpServer.exe</HintPath>
+    </Reference>
+    <Reference Include="XData">
+      <HintPath>..\UpServer-master\bin\x64adv\Modules\XData.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configs.cs" />
+    <Compile Include="Database\XItemsShemaDOTA.cs" />
+    <Compile Include="Database\XLottery.cs" />
+    <Compile Include="Database\XLotteryBet.cs" />
+    <Compile Include="Database\XUser.cs" />
+    <Compile Include="Helpers\GroupHelper.cs" />
+    <Compile Include="Helpers\Helper.cs" />
+    <Compile Include="Helpers\LotteryHelper.cs" />
+    <Compile Include="Helpers\SteamItemsHelper.cs" />
+    <Compile Include="Helpers\UserHelper.cs" />
+    <Compile Include="Pages\Dota2Lottery.cs" />
+    <Compile Include="Pages\Errors\Error403.cs" />
+    <Compile Include="Pages\Errors\Error404.cs" />
+    <Compile Include="Pages\GroupPage.cs" />
+    <Compile Include="Pages\Includes\Head.cs" />
+    <Compile Include="Pages\Includes\Header.cs" />
+    <Compile Include="Pages\LoginPage.cs" />
+    <Compile Include="Pages\LogoutPage.cs" />
+    <Compile Include="Pages\MainPage.cs" />
+    <Compile Include="Pages\UserPages\MyGroupPage.cs" />
+    <Compile Include="SiteGameSlot.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Templates\Lottery.html" />
+    <Compile Include="Types\Bet.cs" />
+    <Compile Include="Types\SteamItem.cs" />
+    <Compile Include="Types\SteamUser.cs" />
+    <Compile Include="Types\UGroup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Group.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\Head.html" />
+    <EmbeddedResource Include="Templates\Includes\Header.html" />
+    <EmbeddedResource Include="Templates\Main.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\UserPages\MyGroup.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\js\jquery.js" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

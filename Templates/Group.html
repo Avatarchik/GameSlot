@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+{{include GameSlot Head}}
+<body>
+    {{include GameSlot Header}}
+    {{using GameSlot.Types}}
+
+    {{set UGroup Group = (UGroup) PageData["Group"]}}
+    {{set bool InGroup = (bool) PageData["InGroup"]}}
+    {{set bool InOtherGroup = (bool) PageData["InOtherGroup"]}}
+
+    Group name: {{=Group.Name}}<br />
+    Group URL: <a href="/group/{{=Group.ID}}">/group/{{=Group.ID}}</a><br />
+    In Group <b>{{=Group.UserCount}}</b> users<hr />
+
+    <div id="main_action">
+        {{if(!Helper.UserHelper.Authorized(client))}}
+            Авторизуйтесь, что бы войти в группу!
+        {{end}}
+        {{else if(!InGroup)}}
+            <button id="insert" onclick="entry();">Войти в группу!</button><br />
+
+            {{if(InOtherGroup)}}
+            <i>Вступив в новую группы, вы автоматически выходите из старой.</i>
+            {{end}}
+        {{end}}
+        {{else}}
+            Покинуть группу
+        {{end}}
+    </div>
+
+    
+    <div id="entry_to_group" style="display:none">
+        <button id="insert" onclick="entry();">Войти в группу!</button><br />
+    </div>
+
+    <div id="exit_from_group" style="display:none">
+        Покинуть группу
+    </div>
+
+    <script>
+        var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
+        /*ws.onmessage = function (evt) {
+            TODO: ОБНОВЛЕНИЕ ОНЛАЙН 
+        };
+        */
+
+        function entry() {
+            ws.send("entry");
+            $("div#main_action").attr("style", "display:none");
+            $("div#exit_from_group").attr("style", "");
+        }
+    </script>
+</body>
+</html>

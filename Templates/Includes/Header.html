@@ -1,0 +1,20 @@
+﻿{{if(!Helper.UserHelper.Authorized(client))}}
+    <a href="/login">LOGIN</a>
+{{end}}
+{{else}}
+    {{set UGroup group = new UGroup()}}
+    {{if(Helper.UserHelper.UsersGroup(client, out group))}}
+        Group name: {{=group.Name}}
+        <br />
+        GroupURL: <a href="/group/{{=group.ID}}">/group/{{=group.ID}}</a>
+        <hr />
+    {{end}}
+
+    Name: {{=client.Session["Name"]}}<br/>
+    Avatar: <img src="{{=client.Session["Avatar"]}}"/><br/>
+
+    <a href="/logout">LOGOUT</a><br />
+    <a href="/login">LOGIN TEST</a><br />
+    <a href="/mygroup">MY GROUP</a>
+{{end}}
+<hr />
