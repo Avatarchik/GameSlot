@@ -12,9 +12,11 @@
 
     Name: {{=client.Session["Name"]}}<br/>
     Avatar: <img src="{{=client.Session["Avatar"]}}"/><br/>
+    My SteamID: {{=client.Session["SteamID"]}} <br />
 
     <a href="/logout">LOGOUT</a><br />
     <a href="/login">LOGIN TEST</a><br />
-    <a href="/mygroup">MY GROUP</a>
+    <a href="/mygroup">MY GROUP</a><br />
+    <a href="/inventory/dota">MY INVENTORY</a>
 {{end}}
 <hr />

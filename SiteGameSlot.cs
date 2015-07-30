@@ -1,10 +1,12 @@
 ﻿using GameSlot.Helpers;
+using GameSlot.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UpServer;
+using GameSlot.Database;
 
 namespace GameSlot
 {
@@ -70,6 +72,11 @@ namespace GameSlot
         }
         public override bool PreInit(Client client)
         {
+            //List<SteamItem> Items;
+            //Helper.UserHelper.GetSteamInventory_Dota2(76561198134764617, out Items);
+            //XItemsShemaDOTA ii;
+           // Logger.ConsoleLog(Helper.ItemsSchemaHelper.TableShemaDOTA.SelectOne(data => data.DefIndex == 6299, out ii));
+            //Logger.ConsoleLog(ii.Name);
             return true;
         }
 

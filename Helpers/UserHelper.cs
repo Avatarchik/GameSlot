@@ -132,5 +132,54 @@ namespace GameSlot.Helpers
             group = null;
             return false;
         }
+
+        public bool GetSteamInventory(ulong UserSteamID, uint SteamGameID, out List<SteamItem> SteamItems)
+        {
+            //http://api.steampowered.com/IEconItems_570/GetPlayerItems/v0001/?key=D2D57807EDF7C09134C7F1BA077A9658&steamid=76561198208049985
+            //http://steamcommunity.com/id/unilogx/inventory/json/570/2
+            try
+            {
+
+
+                using (WebClient WebClient = new WebClient())
+                {
+                    string data = WebClient.DownloadString("http://api.steampowered.com/IEconItems_" + SteamGameID + "/GetPlayerItems/v0001/?key=" + Configs.STEAM_API + "&steamid=" + UserSteamID);
+                    if (data.Contains("\"status\": 1"))
+                    {
+                        SteamItems = new List<SteamItem>();
+                        string[] slots = data.Split('{');
+
+                        for (int i = 1; i < slots.Length; i++)
+                        {
+                            //Logger.ConsoleLog(i + "_" + slots.Length);
+                            string item = slots[i];
+                            if (item.Contains("\"id\":") && item.Contains("\"defindex\":"))
+                            {
+                                uint DefIndex = Convert.ToUInt32(Regex.Split(item, "\"defindex\": ")[1].Split(',')[0]);
+
+                                SteamItem Item;
+                                if (Helper.ItemsSchemaHelper.SelectSteamItemByDefIndex(DefIndex, Configs.DOTA2_STEAM_GAME_ID, out Item))
+                                {
+                                    if (Item.Price > -1) SteamItems.Add(Item);
+                                }
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+            catch { }
+
+            SteamItems = null;
+            return false;
+        }
+
+        public string GetSteamInventoryString(ulong UserSteamID, uint SteamGameID)
+        {
+            using(WebClient WebClient = new WebClient())
+            {
+                return WebClient.DownloadString("http://api.steampowered.com/IEconItems_" + SteamGameID + "/GetPlayerItems/v0001/?key=" + Configs.STEAM_API + "&steamid=" + UserSteamID);
+            }
+        }
     }
 }

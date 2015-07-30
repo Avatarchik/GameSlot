@@ -8,8 +8,10 @@ namespace GameSlot.Types
 {
     public class SteamItem
     {
+        public uint ID;
+        public uint DefIndex;
+
         public string Name;
         public double Price;
-        public string Rarity;
     }
 }

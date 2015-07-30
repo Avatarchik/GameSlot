@@ -98,7 +98,7 @@ namespace GameSlot.Helpers
                         {
                             XItemsShemaDOTA ItemsShema = Helper.ItemsSchemaHelper.TableShemaDOTA.SelectByID(i);
                             item.Name = ItemsShema.Name;
-                            item.Rarity = ItemsShema.Rarity;
+                            //item.Rarity = ItemsShema.Rarity;
                         }
 
                         item.Price = lotteryBet.Prices[i];

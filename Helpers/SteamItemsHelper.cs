@@ -1,4 +1,5 @@
 ﻿using GameSlot.Database;
+using GameSlot.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using UpServer;
 using XData;
 
 namespace GameSlot.Helpers
@@ -46,26 +48,31 @@ namespace GameSlot.Helpers
                     {
                         try
                         {
-                            string res = Regex.Split(data, "\"" + i + "\"")[1];
-                            if (res.Contains("\"name\""))
-                            {
-                                string name = Regex.Split(res, "\"name\"")[1].Split('"')[1];
-                                string img = Regex.Split(res, "\"image_inventory\"")[1].Split('"')[1];
-                                string rarity = Regex.Split(res, "\"item_rarity\"")[1].Split('"')[1];
+                            string[] result_item = Regex.Split(data, "\"" + i + "\"");
 
-                                if (!name.StartsWith("#") && img.Length > 0)
+                            for (int item_i = 1; item_i < result_item.Length; item_i++)
+                            {
+                                //Logger.ConsoleLog(item_i, ConsoleColor.Yellow);
+                                if (result_item[item_i].Contains("\"name\""))
                                 {
-                                    XItemsShemaDOTA item = new XItemsShemaDOTA();
-                                    item.Name = name;
-                                    item.Rarity = rarity;
-                                    item.DefIndex = i;
-                                    item.Image = img;
-                                    this.TableShemaDOTA.Insert(item);
-                                    //Logger.ConsoleLog("Added [" + i + "]: name: " + name + ", rarity: " + rarity);
+                                    string name = Regex.Split(result_item[item_i], "\"name\"")[1].Split('"')[1];
+                                    string img = Regex.Split(result_item[item_i], "\"image_inventory\"")[1].Split('"')[1];
+                                    string rarity = Regex.Split(result_item[item_i], "\"item_rarity\"")[1].Split('"')[1];
+
+                                    if (!name.StartsWith("#") && img.Length > 0)
+                                    {
+                                        XItemsShemaDOTA item = new XItemsShemaDOTA();
+                                        item.Name = name;
+                                        item.Rarity = rarity;
+                                        item.DefIndex = i;
+                                        item.Image = img;
+                                        this.TableShemaDOTA.Insert(item);
+                                        Logger.ConsoleLog("Added [" + i + "]: name: " + name + ", rarity: " + rarity);
+                                    }
                                 }
                             }
                         }
-                        catch { }
+                        catch{ }
                     }
                 }
                 catch (Exception Exception) { Console.WriteLine(Exception); Console.ReadKey(); }
@@ -80,17 +87,41 @@ namespace GameSlot.Helpers
                 {
                     string name = ItemName.Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29");
                     string data = webClient.DownloadString("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name);
-
-                    if (data.Contains("\"success\":true"))
+                    //Logger.ConsoleLog(data, ConsoleColor.Yellow);
+                    if (data.Contains("\"success\":true") && data.Contains("\"median_price\":\""))
                     {
-                        return double.Parse(data.Split(';')[1].Split('"')[0]);
+                        //Logger.ConsoleLog(data, ConsoleColor.Yellow);
+                        string price = Regex.Split(data, "\"median_price\":\"")[1].Split('"')[0].Replace("$", "");
+                        //Logger.ConsoleLog(price, ConsoleColor.Yellow);
+                        return double.Parse(price);
                     }
+                    
                 }
 
                 catch { }
             }
 
             return -1;
+        }
+
+        public bool SelectSteamItemByDefIndex(uint DefIndex, uint SteamGameID, out SteamItem SteamItem)
+        {
+            SteamItem = new SteamItem();
+
+            if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+            {
+                XItemsShemaDOTA item;
+                if (this.TableShemaDOTA.SelectOne(data => data.DefIndex == DefIndex, out item))
+                {
+                    SteamItem.ID = item.ID;
+                    SteamItem.DefIndex = DefIndex;
+                    SteamItem.Name = item.Name;
+                    SteamItem.Price = this.GetMarketPrice(item.Name, SteamGameID);
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

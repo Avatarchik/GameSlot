@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+{{include GameSlot Head}}
+<body>
+    {{include GameSlot Header}}
+    {{using GameSlot.Types}}
+    {{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
+    Инвентарь: 
+    <a href="/inventory/dota">DOTA2</a> 
+    <a href="/inventory/csgo">CSGO</a> <br />
+
+
+
+    <span id="totalPrice"></span>
+    <div id="inventory">Loading...</div>
+
+    <script>
+    var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
+    ws.onopen = function (evt) {
+        ws.send("GetInventory");
+    };
+
+    ws.onmessage = function (evt) {
+        var data = evt.data.split("{{=BaseFuncs.WSplit}}");
+
+        if (data[0] == "inventory_closed")
+        {
+            alert("Инвентарь закрыт!!")
+        }
+
+        else if(data[0] == "Inventory")
+        {
+            var items = data[2].split(';');
+            $("span#totalPrice").html("Шмоток: " + items.length + " На сумму: " + data[1] + "$<br><br>");
+            $("div#inventory").text("");
+            for(var i = 0; i < items.length -1; i++)
+            {
+                var item = items[i].split(':');
+                var name = item[0];
+                var price = item[1];
+                $("div#inventory").html($("div#inventory").html() + name + "[" + price + "]<br />");
+            }
+        }
+    };
+    </script>
+</body>
+</html>
