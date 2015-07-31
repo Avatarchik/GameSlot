@@ -36,7 +36,7 @@ namespace GameSlot.Database
         // 2 bts
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 151)]
         [FieldOffset(440)]
-        public string ProfileUrl;
+        public string ProfileURL;
 
         [MarshalAs(UnmanagedType.U4)]
         [FieldOffset(742)]

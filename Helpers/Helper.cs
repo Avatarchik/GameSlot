@@ -11,7 +11,7 @@ namespace GameSlot
     public class Helper
     {
         public static LotteryHelper LotteryHelper;
-        public static SteamItemsHelper ItemsSchemaHelper;
+        public static SteamItemsHelper SteamItemsHelper;
         public static UserHelper UserHelper;
         public static GroupHelper GroupHelper; 
 

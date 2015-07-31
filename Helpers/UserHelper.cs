@@ -32,7 +32,7 @@ namespace GameSlot.Helpers
                         SteamUser SteamUser = new SteamUser();
                         SteamUser.Name = Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(Regex.Split(data, "\"personaname\": \"")[1].Split('"')[0]));
                         SteamUser.Avatar = Regex.Split(data, "\"avatarfull\": \"")[1].Split('"')[0];
-                        SteamUser.ProfileUrl = Regex.Split(data, "\"profileurl\": \"")[1].Split('"')[0];
+                        SteamUser.ProfileURL = Regex.Split(data, "\"profileurl\": \"")[1].Split('"')[0];
                         SteamUser.SteamID = SteamID;
                         return SteamUser;
                     }
@@ -85,7 +85,7 @@ namespace GameSlot.Helpers
             {
                 bool Exist = this.SelectBySteamID(SteamID, out user);
                 user.Name = SteamUser.Name;
-                user.ProfileUrl = SteamUser.ProfileUrl;
+                user.ProfileURL = SteamUser.ProfileURL;
                 user.Avatar = SteamUser.Avatar;
 
                 if (Exist)
@@ -104,7 +104,7 @@ namespace GameSlot.Helpers
 
                 client.Session["User"] = user.ID;
                 client.Session["Avatar"] = user.Avatar;
-                client.Session["ProfileUrl"] = user.ProfileUrl;
+                client.Session["ProfileUrl"] = user.ProfileURL;
                 client.Session["Name"] = user.Name;
                 client.Session["SteamID"] = user.SteamID;
 
@@ -133,37 +133,70 @@ namespace GameSlot.Helpers
             return false;
         }
 
-        public bool GetSteamInventory(ulong UserSteamID, uint SteamGameID, out List<SteamItem> SteamItems)
+        public bool GetSteamInventory(string profileurl, uint SteamGameID, out List<SteamItem> SteamItems, Client client, bool WS_Send = false)
         {
             //http://api.steampowered.com/IEconItems_570/GetPlayerItems/v0001/?key=D2D57807EDF7C09134C7F1BA077A9658&steamid=76561198208049985
             //http://steamcommunity.com/id/unilogx/inventory/json/570/2
             try
             {
-
-
                 using (WebClient WebClient = new WebClient())
                 {
-                    string data = WebClient.DownloadString("http://api.steampowered.com/IEconItems_" + SteamGameID + "/GetPlayerItems/v0001/?key=" + Configs.STEAM_API + "&steamid=" + UserSteamID);
-                    if (data.Contains("\"status\": 1"))
+                    string data = WebClient.DownloadString(profileurl + "inventory/json/" + SteamGameID + "/2");
+                    if (data.Contains("{\"success\":true"))
                     {
                         SteamItems = new List<SteamItem>();
-                        string[] slots = data.Split('{');
+                        string[] Item = Regex.Split(data, "{\"id\":\"");
 
-                        for (int i = 1; i < slots.Length; i++)
+                        string WSItems = "";
+                        double TotalPrice = 0;
+
+                        for (int i = 1; i < Item.Length; i++)
                         {
-                            //Logger.ConsoleLog(i + "_" + slots.Length);
-                            string item = slots[i];
-                            if (item.Contains("\"id\":") && item.Contains("\"defindex\":"))
-                            {
-                                uint DefIndex = Convert.ToUInt32(Regex.Split(item, "\"defindex\": ")[1].Split(',')[0]);
+                            //Logger.ConsoleLog("On " + i + " from " + (Item.Length - 1));
+                            string classid = Regex.Split(Item[i], "\"classid\":\"")[1].Split('"')[0];
+                            string ItemContent = Regex.Split(data, "{\"appid\":\"" + SteamGameID + "\",\"classid\":\"" + classid + "\"")[1];
 
-                                SteamItem Item;
-                                if (Helper.ItemsSchemaHelper.SelectSteamItemByDefIndex(DefIndex, Configs.DOTA2_STEAM_GAME_ID, out Item))
+                            if (Regex.Split(ItemContent, "\"tradable\":")[1].Split(',')[0].Equals("1") && Regex.Split(ItemContent, "\"marketable\":")[1].Split(',')[0].Equals("1"))
+                            {
+                                // TODO: расшифровка странной херни, как в пирке! для названия
+                                string name = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
+
+                                SteamItem SteamItem;
+                                if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem))
                                 {
-                                    if (Item.Price > -1) SteamItems.Add(Item);
+                                    SteamItem = new SteamItem();
+                                    SteamItem.Name = name;
+                                    SteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(SteamItem.Name, SteamGameID);
+                                    SteamItem.NameColor = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0];
+
+                                    if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                    {
+                                        SteamItem.Type = Regex.Split(Regex.Split(ItemContent, "\"background_color\":\"")[1], ",\"type\":\"")[1].Split(',')[1].Split('"')[0];
+                                    }
+                                    SteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url_large\":\"")[1].Split('"')[0];
+                                    Helper.SteamItemsHelper.Insert(SteamItem, SteamGameID);
+                                }
+
+                                if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
+                                {
+                                    TotalPrice+= SteamItem.Price;
+
+                                    SteamItem.AssertID = Convert.ToUInt64(Item[i].Split('"')[0]);
+                                    SteamItems.Add(SteamItem);
+
+                                    if (WS_Send)
+                                    {
+                                        WSItems += SteamItem.Name + ":" + SteamItem.Price + ";";
+                                    }
                                 }
                             }
                         }
+
+                        if (WS_Send)
+                        {
+                            client.SendWebsocket("Inventory" + BaseFuncs.WSplit + SteamGameID + BaseFuncs.WSplit + TotalPrice + BaseFuncs.WSplit + WSItems);
+                        }
+
                         return true;
                     }
                 }
@@ -171,6 +204,12 @@ namespace GameSlot.Helpers
             catch { }
 
             SteamItems = null;
+
+            if (!WS_Send)
+            {
+                client.SendWebsocket("InventoryClosed" + BaseFuncs.WSplit + SteamGameID);
+            }
+
             return false;
         }
 

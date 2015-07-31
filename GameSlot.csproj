@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configs.cs" />
-    <Compile Include="Database\XItemsShemaDOTA.cs" />
+    <Compile Include="Database\XSteamItemDOTA.cs" />
     <Compile Include="Database\XLottery.cs" />
     <Compile Include="Database\XLotteryBet.cs" />
     <Compile Include="Database\XUser.cs" />
@@ -57,6 +57,7 @@
     <Compile Include="Helpers\LotteryHelper.cs" />
     <Compile Include="Helpers\SteamItemsHelper.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
+    <Compile Include="Pages\TestPage.cs" />
     <Compile Include="Pages\Dota2Lottery.cs" />
     <Compile Include="Pages\Errors\Error403.cs" />
     <Compile Include="Pages\Errors\Error404.cs" />
@@ -66,7 +67,7 @@
     <Compile Include="Pages\LoginPage.cs" />
     <Compile Include="Pages\LogoutPage.cs" />
     <Compile Include="Pages\MainPage.cs" />
-    <Compile Include="Pages\UserPages\InventoryDOTA.cs" />
+    <Compile Include="Pages\UserPages\Inventory.cs" />
     <Compile Include="Pages\UserPages\MyGroupPage.cs" />
     <Compile Include="SiteGameSlot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

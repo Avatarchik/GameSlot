@@ -9,9 +9,15 @@ namespace GameSlot.Types
     public class SteamItem
     {
         public uint ID;
-        public uint DefIndex;
 
         public string Name;
         public double Price;
+
+        public string NameColor;
+        public string Type;
+
+        public string Image;
+
+        public ulong AssertID;
     }
 }

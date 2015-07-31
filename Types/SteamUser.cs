@@ -11,6 +11,6 @@ namespace GameSlot.Types
         public string Name;
         public string Avatar;
         public ulong SteamID;
-        public string ProfileUrl;
+        public string ProfileURL;
     }
 }

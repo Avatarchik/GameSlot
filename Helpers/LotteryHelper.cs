@@ -96,7 +96,7 @@ namespace GameSlot.Helpers
 
                         if (lottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
                         {
-                            XItemsShemaDOTA ItemsShema = Helper.ItemsSchemaHelper.TableShemaDOTA.SelectByID(i);
+                            XSteamItemDOTA ItemsShema = Helper.SteamItemsHelper.TableDOTA.SelectByID(i);
                             item.Name = ItemsShema.Name;
                             //item.Rarity = ItemsShema.Rarity;
                         }

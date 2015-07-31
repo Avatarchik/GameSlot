@@ -46,7 +46,7 @@ namespace GameSlot
         }
         public override string Host
         {
-            get { return "uptrade.local;"; }
+            get { return "uptrade.local;gameslot.uptrade.pro"; }
         }
         public override uint CacheTime
         {
@@ -59,14 +59,12 @@ namespace GameSlot
         public static void OnLoad()
         {
             Helper.LotteryHelper = new LotteryHelper();
-            Helper.ItemsSchemaHelper = new SteamItemsHelper();
+            Helper.SteamItemsHelper = new SteamItemsHelper();
             Helper.UserHelper = new UserHelper();
             Helper.GroupHelper = new GroupHelper();
 
             Helper.LotteryHelper.CreateNew(Configs.DOTA2_STEAM_GAME_ID);
             Helper.LotteryHelper.CreateNew(Configs.CSGO_STEAM_GAME_ID);
-
-            Helper.ItemsSchemaHelper.InsertItemsDOTA();
 
             Logger.ConsoleLog("GAMESLOT LOTTERY site loaded!", ConsoleColor.Yellow);
         }
