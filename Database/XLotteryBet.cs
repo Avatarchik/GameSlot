@@ -27,7 +27,7 @@ namespace GameSlot.Database
         [FieldOffset(16)]
         public uint[] SteamItemIDs;
 
-        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U4, SizeConst = 24)]
+        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.R8, SizeConst = 24)]
         [FieldOffset(112)]
         public double[] Prices;
 

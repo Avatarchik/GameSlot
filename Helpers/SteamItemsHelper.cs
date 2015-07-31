@@ -21,7 +21,7 @@ namespace GameSlot.Helpers
         {
 
         }
-
+        //http://api.steampowered.com/IEconItems_730/GetSchemaURL/v2/?key=D2D57807EDF7C09134C7F1BA077A9658
         public void InsertItemsDOTA()
         {
             if (this.TableShemaDOTA.SelectAll().Count >= 1)
@@ -66,8 +66,9 @@ namespace GameSlot.Helpers
                                         item.Rarity = rarity;
                                         item.DefIndex = i;
                                         item.Image = img;
+                                        item.Price = this.GetMarketPrice(name, Configs.DOTA2_STEAM_GAME_ID);
                                         this.TableShemaDOTA.Insert(item);
-                                        Logger.ConsoleLog("Added [" + i + "]: name: " + name + ", rarity: " + rarity);
+                                        Logger.ConsoleLog("Added [" + i + "]: name: " + name + ", price: " + item.Price + ", DefIndex: " + i);
                                     }
                                 }
                             }
@@ -116,7 +117,7 @@ namespace GameSlot.Helpers
                     SteamItem.ID = item.ID;
                     SteamItem.DefIndex = DefIndex;
                     SteamItem.Name = item.Name;
-                    SteamItem.Price = this.GetMarketPrice(item.Name, SteamGameID);
+                    SteamItem.Price = item.Price;
                     return true;
                 }
             }
