@@ -12,7 +12,7 @@ using UpServer;
 
 namespace GameSlot.Pages.UserPages
 {
-    public class Inventory : SiteGameSlot
+    public class InventoryPage : SiteGameSlot
     {
         public override string URL
         {

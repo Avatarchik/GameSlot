@@ -46,7 +46,7 @@ namespace GameSlot
         }
         public override string Host
         {
-            get { return "uptrade.local;gameslot.uptrade.pro"; }
+            get { return "localhost;uptrade.local;gameslot.uptrade.pro"; }
         }
         public override uint CacheTime
         {

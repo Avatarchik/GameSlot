@@ -158,8 +158,8 @@ namespace GameSlot.Helpers
 
                             if (Regex.Split(ItemContent, "\"tradable\":")[1].Split(',')[0].Equals("1") && Regex.Split(ItemContent, "\"marketable\":")[1].Split(',')[0].Equals("1"))
                             {
-                                // TODO: расшифровка странной херни, как в пирке! для названия
                                 string name = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
+                                name = Encoding.GetEncoding(65001).GetString(Encoding.GetEncoding(65001).GetBytes(name));
 
                                 SteamItem SteamItem;
                                 if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem))

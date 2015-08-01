@@ -41,9 +41,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="UpServer">
       <HintPath>..\UpServer-master\bin\x64adv\UpServer.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="XData">
       <HintPath>..\UpServer-master\bin\x64adv\Modules\XData.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -67,7 +69,7 @@
     <Compile Include="Pages\LoginPage.cs" />
     <Compile Include="Pages\LogoutPage.cs" />
     <Compile Include="Pages\MainPage.cs" />
-    <Compile Include="Pages\UserPages\Inventory.cs" />
+    <Compile Include="Pages\UserPages\InventoryPage.cs" />
     <Compile Include="Pages\UserPages\MyGroupPage.cs" />
     <Compile Include="SiteGameSlot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
