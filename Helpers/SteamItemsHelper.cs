@@ -14,66 +14,43 @@ namespace GameSlot.Helpers
 {
     public class SteamItemsHelper
     {
-        public XTable<XSteamItemDOTA> TableDOTA = new XTable<XSteamItemDOTA>();
-        //public XTable<XItemsShemaCSGO> TableShemaCSGO = new XTable<XItemsShemaCSGO>();
+        public XTable<XSteamItem> Table = new XTable<XSteamItem>();
 
         public SteamItemsHelper()
         {
 
         }
 
-        public void Insert(SteamItem SteamItem, uint SteamGameID)
-        {
-            if (SteamItem.Name.Length > 0 && SteamItem.Image.Length > 10 && SteamItem.NameColor.Length == 6)
-            {
-                if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
-                {
-                    XSteamItemDOTA Item = new XSteamItemDOTA();
-                    Item.Name = SteamItem.Name;
-                    Item.Image = SteamItem.Image;
-                    Item.Price = SteamItem.Price;
-                    Item.NameColor = SteamItem.NameColor;
-                    Item.Type = SteamItem.Type;
-
-                    //Logger.ConsoleLog(Item.Name);
-                    this.TableDOTA.Insert(Item);
-                }
-                else if (SteamGameID == Configs.CSGO_STEAM_GAME_ID)
-                {
-
-                }
-            }
-        }
-
         public bool SelectByName(string name, uint SteamGameID, out SteamItem SteamItem)
         {
-            if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
-            {
-                XSteamItemDOTA XSteamItemDOTA;
-                if (this.SelectByName_DOTA(name, out XSteamItemDOTA))
-                {
-                    SteamItem = new SteamItem();
-                    SteamItem.ID = XSteamItemDOTA.ID;
-                    SteamItem.Name = XSteamItemDOTA.Name;
-                    SteamItem.Image = XSteamItemDOTA.Image;
-                    SteamItem.Price = XSteamItemDOTA.Price;
-                    SteamItem.NameColor = XSteamItemDOTA.NameColor;
-                    SteamItem.Type = XSteamItemDOTA.Type;
-                    return true;
-                }
-            }
-            else if (SteamGameID == Configs.CSGO_STEAM_GAME_ID)
-            {
 
+            XSteamItem XSteamItem;
+            if (this.SelectByName(name, SteamGameID, out XSteamItem))
+            {
+                SteamItem = new SteamItem();
+                SteamItem.ID = XSteamItem.ID;
+                SteamItem.Name = XSteamItem.Name;
+                SteamItem.Image = XSteamItem.Image;
+                SteamItem.Price = XSteamItem.Price;
+                SteamItem.NameColor = XSteamItem.NameColor;
+                SteamItem.Type = XSteamItem.Type;
+                SteamItem.SteamGameID = SteamGameID;
+
+                return true;
             }
 
             SteamItem = null;
             return false;
         }
 
-        public bool SelectByName_DOTA(string name, out XSteamItemDOTA SteamItemDOTA)
+        public bool SelectByName(string name, uint SteamGameID, out XSteamItem XSteamItem)
         {
-            return this.TableDOTA.SelectOne(data => data.Name.Equals(name), out SteamItemDOTA) ? true : false;
+            return this.Table.SelectOne(data => data.Name.Equals(name) && data.SteamGameID == SteamGameID, out XSteamItem) ? true : false;
+        }
+
+        public bool SelectByID(uint id, uint SteamGameID, out XSteamItem XSteamItem)
+        {
+            return this.Table.SelectOne(data => data.ID == id && data.SteamGameID == SteamGameID, out XSteamItem) ? true : false;
         }
 
         public double GetMarketPrice(string ItemName, uint SteamGameID)
@@ -96,7 +73,7 @@ namespace GameSlot.Helpers
                             price = Regex.Split(data, "\"lowest_price\":\"")[1].Split('"')[0].Replace("$", "");
                         }
 
-                        return double.Parse(price);
+                        return Convert.ToDouble(price);
                     }
 
                 }

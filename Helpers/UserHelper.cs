@@ -152,47 +152,54 @@ namespace GameSlot.Helpers
 
                         for (int i = 1; i < Item.Length; i++)
                         {
-                            //Logger.ConsoleLog("On " + i + " from " + (Item.Length - 1));
-                            string classid = Regex.Split(Item[i], "\"classid\":\"")[1].Split('"')[0];
-                            string ItemContent = Regex.Split(data, "{\"appid\":\"" + SteamGameID + "\",\"classid\":\"" + classid + "\"")[1];
-
-                            if (Regex.Split(ItemContent, "\"tradable\":")[1].Split(',')[0].Equals("1") && Regex.Split(ItemContent, "\"marketable\":")[1].Split(',')[0].Equals("1"))
+                            Logger.ConsoleLog("On " + i + " from " + (Item.Length - 1));
+                            if (this.Authorized(client))
                             {
-                                string name = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
-                                name = Encoding.GetEncoding(65001).GetString(Encoding.GetEncoding(65001).GetBytes(name));
+                                string classid = Regex.Split(Item[i], "\"classid\":\"")[1].Split('"')[0];
+                                string ItemContent = Regex.Split(data, "{\"appid\":\"" + SteamGameID + "\",\"classid\":\"" + classid + "\"")[1];
 
-                                SteamItem SteamItem;
-                                if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem))
+                                if (Regex.Split(ItemContent, "\"tradable\":")[1].Split(',')[0].Equals("1") && Regex.Split(ItemContent, "\"marketable\":")[1].Split(',')[0].Equals("1"))
                                 {
-                                    SteamItem = new SteamItem();
-                                    SteamItem.Name = name;
-                                    SteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(SteamItem.Name, SteamGameID);
-                                    SteamItem.NameColor = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0];
+                                    string name = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
+                                    name = Encoding.GetEncoding(65001).GetString(Encoding.GetEncoding(65001).GetBytes(name));
 
-                                    if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                    SteamItem SteamItem;
+                                    if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem))
                                     {
-                                        SteamItem.Type = Regex.Split(Regex.Split(ItemContent, "\"background_color\":\"")[1], ",\"type\":\"")[1].Split(',')[1].Split('"')[0];
+                                        XSteamItem XSteamItem = new XSteamItem();
+                                        SteamItem = new SteamItem();
+                                        SteamItem.Name = XSteamItem.Name = name;
+                                        SteamItem.Price = XSteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(SteamItem.Name, SteamGameID);
+                                        SteamItem.NameColor = XSteamItem.NameColor = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0];
+
+                                        if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                        {
+                                            SteamItem.Type = XSteamItem.Type = Regex.Split(Regex.Split(ItemContent, "\"background_color\":\"")[1], ",\"type\":\"")[1].Split(',')[1].Split('"')[0];
+                                        }
+
+                                        SteamItem.Image = XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url_large\":\"")[1].Split('"')[0];
+
+                                        XSteamItem.SteamGameID = SteamGameID;
+                                        Helper.SteamItemsHelper.Table.Insert(XSteamItem);
                                     }
-                                    SteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url_large\":\"")[1].Split('"')[0];
-                                    Helper.SteamItemsHelper.Insert(SteamItem, SteamGameID);
-                                }
 
-                                if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
-                                {
-                                    TotalPrice+= SteamItem.Price;
-
-                                    SteamItem.AssertID = Convert.ToUInt64(Item[i].Split('"')[0]);
-                                    SteamItems.Add(SteamItem);
-
-                                    if (WS_Send)
+                                    if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
                                     {
-                                        WSItems += SteamItem.Name + ":" + SteamItem.Price + ";";
+                                        TotalPrice += SteamItem.Price;
+
+                                        SteamItem.AssertID = Convert.ToUInt64(Item[i].Split('"')[0]);
+                                        SteamItems.Add(SteamItem);
+
+                                        if (WS_Send)
+                                        {
+                                            WSItems += SteamItem.Name + ":" + SteamItem.Price + ";";
+                                        }
                                     }
                                 }
                             }
                         }
 
-                        if (WS_Send)
+                        if (WS_Send && this.Authorized(client))
                         {
                             client.SendWebsocket("Inventory" + BaseFuncs.WSplit + SteamGameID + BaseFuncs.WSplit + TotalPrice + BaseFuncs.WSplit + WSItems);
                         }
@@ -205,7 +212,7 @@ namespace GameSlot.Helpers
 
             SteamItems = null;
 
-            if (!WS_Send)
+            if (WS_Send)
             {
                 client.SendWebsocket("InventoryClosed" + BaseFuncs.WSplit + SteamGameID);
             }

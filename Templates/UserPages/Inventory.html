@@ -23,9 +23,9 @@
         ws.onmessage = function (evt) {
             var data = evt.data.split("{{=BaseFuncs.WSplit}}");
 
-            if (data[0] == "inventory_closed")
+            if (data[0] == "InventoryClosed")
             {
-                $("div#inventory" + data[1]).html("Инвентарь закрыт!!");
+                $("div#inventory" + data[1]).html("Инвентарь закрыт!");
             }
 
             else if(data[0] == "Inventory")

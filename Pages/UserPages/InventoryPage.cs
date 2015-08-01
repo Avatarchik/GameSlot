@@ -32,12 +32,12 @@ namespace GameSlot.Pages.UserPages
                     string[] wsdata = Regex.Split(client.WSData, BaseFuncs.WSplit);
                     if (wsdata[0].Equals("GetInventory"))
                     {
-                        List<SteamItem> Items;
-                        Thread WS_thread_DOTA = new Thread(() => Helper.UserHelper.GetSteamInventory(User.ProfileURL, Configs.DOTA2_STEAM_GAME_ID, out Items, client, true));
-                        Thread WS_thread_CSGO = new Thread(() => Helper.UserHelper.GetSteamInventory(User.ProfileURL, Configs.CSGO_STEAM_GAME_ID, out Items, client, true));
+                        List<SteamItem> DotaItems, CSGOItems;
+                        Thread WS_thread_DOTA = new Thread(delegate() { Helper.UserHelper.GetSteamInventory(User.ProfileURL, Configs.DOTA2_STEAM_GAME_ID, out DotaItems, client, true); });
+                        Thread WS_thread_CSGO = new Thread(delegate() { Helper.UserHelper.GetSteamInventory(User.ProfileURL, Configs.CSGO_STEAM_GAME_ID, out CSGOItems, client, true); });
 
-                        WS_thread_CSGO.Start();
                         WS_thread_DOTA.Start();
+                        WS_thread_CSGO.Start();
                     }
 
                     return false;

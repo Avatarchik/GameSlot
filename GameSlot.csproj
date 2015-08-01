@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configs.cs" />
-    <Compile Include="Database\XSteamItemDOTA.cs" />
+    <Compile Include="Database\XSteamItem.cs" />
     <Compile Include="Database\XLottery.cs" />
     <Compile Include="Database\XLotteryBet.cs" />
     <Compile Include="Database\XUser.cs" />

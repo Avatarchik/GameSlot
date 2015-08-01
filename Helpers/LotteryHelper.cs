@@ -93,13 +93,11 @@ namespace GameSlot.Helpers
                     for (uint i = 0; i < lotteryBet.SteamItemIDs.Length; i++)
                     {
                         SteamItem item = new SteamItem();
+                        XSteamItem XItem;
+                        Helper.SteamItemsHelper.SelectByID(i, lottery.SteamGameID, out XItem);
+                        item.Name = XItem.Name;
+                        //item.Rarity = ItemsShema.Rarity;
 
-                        if (lottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
-                        {
-                            XSteamItemDOTA ItemsShema = Helper.SteamItemsHelper.TableDOTA.SelectByID(i);
-                            item.Name = ItemsShema.Name;
-                            //item.Rarity = ItemsShema.Rarity;
-                        }
 
                         item.Price = lotteryBet.Prices[i];
                         bet.Items.Add(item);

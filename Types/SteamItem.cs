@@ -19,5 +19,6 @@ namespace GameSlot.Types
         public string Image;
 
         public ulong AssertID;
+        public uint SteamGameID;
     }
 }

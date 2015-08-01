@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 844, CharSet = CharSet.Unicode, Pack = 1)]
-    public struct XSteamItemDOTA
+    [StructLayout(LayoutKind.Explicit, Size = 848, CharSet = CharSet.Unicode, Pack = 1)]
+    public struct XSteamItem
     {
         [MarshalAs(UnmanagedType.U4)]
         [FieldOffset(0)]
@@ -37,5 +37,9 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 31)]
         [FieldOffset(784)]
         public string Type;
+
+        [MarshalAs(UnmanagedType.U4)]
+        [FieldOffset(844)]
+        public uint SteamGameID;
     }
 }

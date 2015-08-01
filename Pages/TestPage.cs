@@ -27,8 +27,8 @@ namespace GameSlot.Pages
         }
         public override bool Init(Client client)
         {
-            XSteamItemDOTA XSteamItemDOTA;
-            foreach(XSteamItemDOTA Item in Helper.SteamItemsHelper.TableDOTA.SelectAll())
+            XSteamItem XSteamItemDOTA;
+            foreach (XSteamItem Item in Helper.SteamItemsHelper.Table.SelectAll())
             {
                 Logger.ConsoleLog("------------------------");
                 Logger.ConsoleLog("[" + Item.Name + "]");
