@@ -66,6 +66,9 @@ namespace GameSlot
             Helper.LotteryHelper.CreateNew(Configs.DOTA2_STEAM_GAME_ID);
             Helper.LotteryHelper.CreateNew(Configs.CSGO_STEAM_GAME_ID);
 
+            Helper.UserHelper.UpdateOnlineUsersInventory(Configs.DOTA2_STEAM_GAME_ID);
+            Helper.UserHelper.UpdateOnlineUsersInventory(Configs.CSGO_STEAM_GAME_ID);
+
             Logger.ConsoleLog("GAMESLOT LOTTERY site loaded!", ConsoleColor.Yellow);
         }
         public override bool PreInit(Client client)

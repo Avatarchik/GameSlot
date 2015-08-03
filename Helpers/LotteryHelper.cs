@@ -15,8 +15,7 @@ namespace GameSlot.Helpers
         public XTable<XLottery> Table = new XTable<XLottery>();
         public XTable<XLotteryBet> TableBet = new XTable<XLotteryBet>();
 
-        public static uint LastToken = 0;
-        public static int GameTime = 180;
+        private static uint LastToken = 0;
 
         public LotteryHelper()
         {
@@ -31,7 +30,7 @@ namespace GameSlot.Helpers
                 new_lot.SteamGameID = SteamGameID;
                 new_lot.Winner = 0;
                 new_lot.RaundNumber = new Random().NextDouble();
-                new_lot.EndTime = Helper.GetCurrentTime() + GameTime;
+                new_lot.EndTime = Helper.GetCurrentTime() + Configs.GameTime;
 
                 lottery = this.Table.SelectByID(this.Table.Insert(new_lot));
 

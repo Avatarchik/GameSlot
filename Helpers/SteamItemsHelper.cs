@@ -23,7 +23,6 @@ namespace GameSlot.Helpers
 
         public bool SelectByName(string name, uint SteamGameID, out SteamItem SteamItem)
         {
-
             XSteamItem XSteamItem;
             if (this.SelectByName(name, SteamGameID, out XSteamItem))
             {

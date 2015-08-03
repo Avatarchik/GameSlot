@@ -28,14 +28,16 @@ namespace GameSlot.Pages
         public override bool Init(Client client)
         {
             XSteamItem XSteamItemDOTA;
-            foreach (XSteamItem Item in Helper.SteamItemsHelper.Table.SelectAll())
+            string Test = "";
+            for (int i = 0; i < 1; i++)
             {
-                Logger.ConsoleLog("------------------------");
-                Logger.ConsoleLog("[" + Item.Name + "]");
-                Logger.ConsoleLog("\n");
-                Thread.Sleep(1000);
+                foreach (XSteamItem Item in Helper.SteamItemsHelper.Table.SelectAll())
+                {
+                    Test += Item.Name + " [" + Item.Price + "]<br />";
+                }
             }
-            client.HttpSend("OK");
+
+            client.HttpSend(Helper.SteamItemsHelper.Table.SelectAll().Count * 2 + "<hr />" + Test);
             return true;
         }
     }

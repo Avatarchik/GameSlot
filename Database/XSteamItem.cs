@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 848, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 1050, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XSteamItem
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -20,26 +20,26 @@ namespace GameSlot.Database
         public string Name;
 
         //2 bts
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 301)]
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 401)]
         [FieldOffset(152)]
         public string Image;
 
+        // 6 bts
         [MarshalAs(UnmanagedType.R8)]
-        [FieldOffset(754)]
+        [FieldOffset(960)]
         public double Price;
 
-        //4 bts
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 7)]
-        [FieldOffset(768)]
+        [FieldOffset(968)]
         public string NameColor;
 
         //2 bts
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 31)]
-        [FieldOffset(784)]
+        [FieldOffset(984)]
         public string Type;
 
         [MarshalAs(UnmanagedType.U4)]
-        [FieldOffset(844)]
+        [FieldOffset(1046)]
         public uint SteamGameID;
     }
 }

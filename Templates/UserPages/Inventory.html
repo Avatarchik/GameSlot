@@ -5,14 +5,15 @@
     {{include GameSlot Header}}
     {{using GameSlot.Types}}
 
-    {{set string inv_dota = ""}}
-    {{set string inv_csgo = ""}}
-
     Инвентарь:
-    <button onclick="change();" id="change_btn">Переключиться на DOTA</button><br />
+    <a href="/inventory/dota">DOTA 2</a> 
+    <a href="/inventory/csgo">CSGO</a><br />
 
-    <div id="inventory{{=Configs.DOTA2_STEAM_GAME_ID}}" style="display:none;"><span id="totalPrice{{=Configs.DOTA2_STEAM_GAME_ID}}"></span><div id="inventory_items{{=Configs.DOTA2_STEAM_GAME_ID}}">Loading DOTA...</div></div>
-    <div id="inventory{{=Configs.CSGO_STEAM_GAME_ID}}" style="display:block;"><span id="totalPrice{{=Configs.CSGO_STEAM_GAME_ID}}"></span><div id="inventory_items{{=Configs.CSGO_STEAM_GAME_ID}}">Loading CSGO...</div></div>
+    <div id="inventory">
+        <span id="totalPrice"></span>
+        <div id="inventory_items">Loading...</div>
+    </div>
+
 
     <script>
         var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
@@ -30,48 +31,24 @@
 
             else if(data[0] == "Inventory")
             {
-                var gameID = data[1];
-                var items = data[3].split(';');
+                var items = data[2].split(';');
 
-                $("div#inventory_items" + gameID).text("");
+                $("div#inventory_items").text("");
 
                 var items_content = "";
                 for(var i = 0; i < (items.length-1); i++)
                 {
-                    var item = items[i].split(':');
+                    var item = items[i].split(':split:');
                     var name = item[0];
                     var price = item[1];
-                    items_content += name + "[" + price + "]<br />";
+                    var image = "<img height='100px' width='100px' src='" + item[2] + "'>";
+                    items_content += image + name + "[" + price + "$]<br />";
                 }
 
-                $("div#inventory_items" + gameID).html(items_content);
-                $("span#totalPrice" + gameID).html("Шмоток: " + (items.length - 1) + " На сумму: " + data[2] + "$<br><br>");
+                $("div#inventory_items").html(items_content);
+                $("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");
             }
         };
-
-        var SteamGameID = "{{=Configs.CSGO_STEAM_GAME_ID}}";
-        var SteamGameID_DOTA = "{{=Configs.DOTA2_STEAM_GAME_ID}}";
-        var SteamGameID_CSGO = "{{=Configs.CSGO_STEAM_GAME_ID}}";
-
-        function change()
-        {
-            if(SteamGameID == SteamGameID_DOTA)
-            {
-                $("div#inventory" + SteamGameID_DOTA).attr("style", "display:none;");
-                $("div#inventory" + SteamGameID_CSGO).attr("style", "display:block;");
-                SteamGameID = SteamGameID_CSGO;
-                $("#change_btn").text("Переключиться на DOTA");
-            }
-            else if(SteamGameID == SteamGameID_CSGO)
-            {
-                $("div#inventory" + SteamGameID_DOTA).attr("style", "display:block;");
-                $("div#inventory" + SteamGameID_CSGO).attr("style", "display:none;");
-                SteamGameID = SteamGameID_DOTA;
-                $("#change_btn").text("Переключиться на CSGO");
-            }
-
-            return false;
-        }
     </script>
 </body>
 </html>

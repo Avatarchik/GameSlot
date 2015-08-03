@@ -14,6 +14,10 @@ namespace GameSlot
         public static string STEAM_API = "D2D57807EDF7C09134C7F1BA077A9658";
 
         // USD
-        public static double MIN_ITEMS_PRICE = 0.5;
+        public static double MIN_ITEMS_PRICE = 0;
+
+        // secs:
+        public static int GameTime = 180;
+        public static int InventoryUpdateTime = 30;
     }
 }
