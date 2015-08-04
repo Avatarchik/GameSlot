@@ -13,7 +13,7 @@
     </form>
 
     Group URL: <a href="/group/{{=Group.ID}}">/group/{{=Group.ID}}</a><br />
-    Group users count: {{=Group.UserCount}}
+    Group users count: <span id="users_count">{{=Group.UserCount}}</span>
 
     <script>
         var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
@@ -23,8 +23,9 @@
             var data = evt.data.split("{{=BaseFuncs.WSplit}}");
 
             if (data[0] == "UpdateGroupData") {
-                $("span#group_name").text(data[1]);
-                $("span#users_num").text(data[2]);
+                GroupName = data[1];
+                $("input#group_name").val(data[1]);
+                $("span#users_count").text(data[2]);
             }
         };
 

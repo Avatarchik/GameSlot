@@ -69,7 +69,7 @@ namespace GameSlot.Helpers
             {
                 if (GroupName != user_GroupID.GroupName && GroupName.Length > 2)
                 {
-                    user_GroupID.GroupName = GroupName;
+                    user_GroupID.GroupName = BaseFuncs.XSSReplacer(GroupName);
                     Helper.UserHelper.Table.UpdateByID(user_GroupID, user_GroupID.ID);
                     return true;
                 }
