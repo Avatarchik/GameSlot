@@ -33,17 +33,22 @@ namespace GameSlot.Pages
             {
                 if (client.ConnType == ConnectionType.WebSocket && client.WSData != null)
                 {
-
                     string[] wsdata = Regex.Split(client.WSData, BaseFuncs.WSplit);
 
                     if (wsdata[0].Equals("entry"))
                     {
-                        if (Helper.UserHelper.Authorized(client) && Helper.GroupHelper.EnterToGroup(Group.ID, client))
+                        XUser user;
+                        if (Helper.UserHelper.GetCurrentUser(client, out user))
                         {
-                            //TODO: Helper.UserHelper.WS_UpdateGroupData(GroupOwner.ID, this.URL + GroupOwner.ID, client); + html also!
+                            int OldGroup = user.GroupOwnerID;
+
+                            if (Helper.GroupHelper.EnterToGroup(Group.ID, client))
+                            {
+                                Helper.GroupHelper.WS_UpdateGroupData(Group.ID);
+                                Helper.GroupHelper.WS_UpdateGroupData(Convert.ToUInt32(OldGroup));
+                            }
                         }
                     }
-
                     return false;
                 }
                 else

@@ -17,14 +17,16 @@
 
     <script>
         var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
+        var my_group_page = new WebSocket("ws://{{=client.Host}}/group/{{=Group.ID}}");
 
-       /* ws.onmessage = function (evt) {
+        my_group_page.onmessage = function (evt) {
             var data = evt.data.split("{{=BaseFuncs.WSplit}}");
-            if (data[0] == "UpdName_ok") {
-                GroupName = data[1];
-                alert("name updated!")
+
+            if (data[0] == "UpdateGroupData") {
+                $("span#group_name").text(data[1]);
+                $("span#users_num").text(data[2]);
             }
-        };*/
+        };
 
         var GroupName = "{{=Group.Name}}";
         function validCheck(current_group_name)

@@ -33,8 +33,7 @@ namespace GameSlot.Pages.UserPages
                     {
                         if (Helper.GroupHelper.UpdateNameByID(User.ID, wsdata[1]))
                         {
-                            client.SendWebsocket("UpdName_ok" + BaseFuncs.WSplit + wsdata[1]);
-                            // TODO: Add WS_UpdateGroupData() AND to html part also ;
+                            Helper.GroupHelper.WS_UpdateGroupData(User.ID);
                         }
                     }
 

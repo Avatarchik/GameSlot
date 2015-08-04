@@ -323,7 +323,7 @@ namespace GameSlot.Helpers
                     //Logger.ConsoleLog("size: " + InventoryClients[User.ID].Count);
                     for (int i = 0; i < InventoryClients[SteamGameID][User.ID].Count; i++)
                     {
-                        InventoryPage.UpdateInventory_WS(StrItems, TotalPrice, InventoryClients[SteamGameID][User.ID][i], (UsersInventory == null) ? false : true);
+                        InventoryPage.WS_UpdateInventory(StrItems, TotalPrice, InventoryClients[SteamGameID][User.ID][i], (UsersInventory == null) ? false : true);
                     }
 
                     InventoryClients[SteamGameID].Remove(User.ID);

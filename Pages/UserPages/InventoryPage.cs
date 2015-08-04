@@ -59,7 +59,7 @@ namespace GameSlot.Pages.UserPages
                         {
                             if (!Inventory.Opened)
                             {
-                                UpdateInventory_WS("", 0d, client, false);
+                                WS_UpdateInventory("", 0d, client, false);
                             }
                             else
                             {
@@ -69,7 +69,7 @@ namespace GameSlot.Pages.UserPages
                                     StrItems += ItemToString(Item);
                                 }
 
-                                UpdateInventory_WS(StrItems, Inventory.TotalPrice, client, true);
+                                WS_UpdateInventory(StrItems, Inventory.TotalPrice, client, true);
                             }
                         }
                         else
@@ -90,7 +90,7 @@ namespace GameSlot.Pages.UserPages
             return false;
         }
 
-        public static void UpdateInventory_WS(string StrItems, double TotalPrice, Client client, bool InventoryOpened)
+        public static void WS_UpdateInventory(string StrItems, double TotalPrice, Client client, bool InventoryOpened)
         {
             if (InventoryOpened)
             {
@@ -104,7 +104,7 @@ namespace GameSlot.Pages.UserPages
 
         public static string ItemToString(SteamItem SteamItem)
         {
-            return SteamItem.Name + ":split:" + SteamItem.Price + ":split:" + SteamItem.Image + ";";
+            return SteamItem.Name + "↓" + SteamItem.Price + "↓" + SteamItem.Image + ";";
         }
     }
 }

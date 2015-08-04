@@ -4,10 +4,27 @@
 {{else}}
     {{set UGroup group = new UGroup()}}
     {{if(Helper.UserHelper.UsersGroup(client, out group))}}
-        Group name: {{=group.Name}}
+        Group name: <span id="group_name_owner">{{=group.Name}}</span>
         <br />
-        GroupURL: <a href="/group/{{=group.ID}}">/group/{{=group.ID}}</a>
+        GroupURL: <a href="/group/{{=group.ID}}" id="group_url_owner">/group/{{=group.ID}}</a>
         <hr />
+
+        <script>
+            var owner_group = new WebSocket("ws://{{=client.Host}}/group/{{=group.ID}}");
+            owner_group.onmessage = function (evt) {
+                var data = evt.data.split("{{=BaseFuncs.WSplit}}");
+
+                if (data[0] == "UpdateGroupData") {
+                    owner_group.send("UpdateOwnData");
+                }
+                else if (data[0] == "UpdateOwnData")
+                {
+                    $("a#group_url_owner").text("/group/" + data[1]);
+                    $("a#group_url_owner").attr("href", "/group/" + data[1]);
+                    $("span#group_name_owner").text(data[2]);
+                }
+            };
+        </script>
     {{end}}
 
     Name: {{=client.Session["Name"]}}<br/>

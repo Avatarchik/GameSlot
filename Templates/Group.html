@@ -10,9 +10,9 @@
     {{set bool InGroup = (bool) PageData["InGroup"]}}
     {{set bool InOtherGroup = (bool) PageData["InOtherGroup"]}}
 
-    Group name: {{=Group.Name}}<br />
+    Group name: <span id="group_name">{{=Group.Name}}</span><br />
     Group URL: <a href="/group/{{=Group.ID}}">/group/{{=Group.ID}}</a><br />
-    In Group <b>{{=Group.UserCount}}</b> users<hr />
+    In Group <b><span id="users_num">{{=Group.UserCount}}</span></b> users<hr />
 
     <div id="main_action">
         {{if(!Helper.UserHelper.Authorized(client))}}
@@ -41,10 +41,15 @@
 
     <script>
         var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
-        /*ws.onmessage = function (evt) {
-            TODO: ОБНОВЛЕНИЕ ОНЛАЙН 
+
+        ws.onmessage = function (evt) {
+            var data = evt.data.split("{{=BaseFuncs.WSplit}}");
+
+            if (data[0] == "UpdateGroupData") {
+                $("span#group_name").text(data[1]);
+                $("span#users_num").text(data[2]);
+            }
         };
-        */
 
         function entry() {
             ws.send("entry");

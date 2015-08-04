@@ -1,4 +1,5 @@
 ﻿using GameSlot.Database;
+using GameSlot.Pages;
 using GameSlot.Types;
 using System;
 using System.Collections.Generic;
@@ -76,17 +77,22 @@ namespace GameSlot.Helpers
             return false;
         }
 
-        public void WS_UpdateGroupData(uint GroupID, string url, Client client)
+        public void WS_UpdateGroupData(uint GroupID)
         {
-            // TODO: fix it
             UGroup group;
             if (this.SelectByID(GroupID, out group))
             {
-                foreach (Client cl in BaseFuncs.GetWebsocketClients<SiteGameSlot>(url))
+                foreach (Client client in BaseFuncs.GetWebsocketClients<SiteGameSlot>("/group/" + GroupID))
                 {
-                    Logger.ConsoleLog("123");
-                    //0: action, 1: name, 2: usercount
-                    cl.SendWebsocket("UpdateGroupData" + BaseFuncs.WSplit + group.Name + BaseFuncs.WSplit + group.UserCount);
+                    XUser user;
+                    int UsersGroupID = -1;
+                    if(Helper.UserHelper.GetCurrentUser(client, out user))
+                    {
+                        UsersGroupID = user.GroupOwnerID;
+                    }
+
+                    // 0: action, 1:name, 2: usercouent, 3: group_id, 4: my_group_id
+                    client.SendWebsocket("UpdateGroupData" + BaseFuncs.WSplit + group.Name + BaseFuncs.WSplit + group.UserCount + BaseFuncs.WSplit + group.ID + BaseFuncs.WSplit + UsersGroupID);
                 }
             }
         }
