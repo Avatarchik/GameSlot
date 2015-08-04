@@ -45,7 +45,10 @@ namespace GameSlot.Pages
                             if (Helper.GroupHelper.EnterToGroup(Group.ID, client))
                             {
                                 Helper.GroupHelper.WS_UpdateGroupData(Group.ID);
-                                Helper.GroupHelper.WS_UpdateGroupData(Convert.ToUInt32(OldGroup));
+                                if (OldGroup > -1)
+                                {
+                                    Helper.GroupHelper.WS_UpdateGroupData(Convert.ToUInt32(OldGroup));
+                                }
                             }
                         }
                     }
