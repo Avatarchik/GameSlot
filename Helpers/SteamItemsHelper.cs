@@ -114,18 +114,18 @@ namespace GameSlot.Helpers
                 XSteamItem XSteamItem;
                 if (this.Table.SelectByID(ItemID, out XSteamItem))
                 {
-                    if (!File.Exists("FileStorage\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + ItemID + Configs.STEAM_ITEMS_TYPE))
+                    if (!File.Exists("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + ItemID + Configs.STEAM_ITEMS_TYPE))
                     {
                         using (WebClient WebClient = new WebClient())
                         {
                             byte[] ImageBytes = WebClient.DownloadData(XSteamItem.Image);
                             Image Image = Image.FromStream(new MemoryStream(ImageBytes));
-                            if (!Directory.Exists("FileStorage\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID))
+                            if (!Directory.Exists("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID))
                             {
-                                Directory.CreateDirectory("FileStorage\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID);
+                                Directory.CreateDirectory("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID);
                             }
 
-                            File.WriteAllBytes("FileStorage\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + XSteamItem.ID + Configs.STEAM_ITEMS_TYPE, ImageBytes);
+                            File.WriteAllBytes("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + XSteamItem.ID + Configs.STEAM_ITEMS_TYPE, ImageBytes);
                         }
                     }
                 }

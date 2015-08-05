@@ -20,6 +20,7 @@ namespace GameSlot.Pages
 
         public override bool Init(Client client)
         {
+            //Logger.ConsoleLog(BaseFuncs.GetAdditionalURL(client.URL, this.URL));
             FileSender.SendUserFile(client, BaseFuncs.GetAdditionalURL(client.URL, this.URL));
             return true;
         }
