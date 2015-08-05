@@ -172,10 +172,11 @@ namespace GameSlot.Helpers
                 {
                     for (int i = 0; i < BaseFuncs.GetOnlineClients<SiteGameSlot>().Count; i++ )
                     {
-                        if (!BaseFuncs.GetOnlineClients<SiteGameSlot>()[i].Closed)
+                        Client client = BaseFuncs.GetOnlineClients<SiteGameSlot>()[i];
+                        if (client != null && !client.Closed)
                         {
                             XUser User;
-                            if (this.GetCurrentUser(BaseFuncs.GetOnlineClients<SiteGameSlot>()[i], out User))
+                            if (this.GetCurrentUser(client, out User))
                             {
                                 UsersInventory Inventory;
                                 this.GetSteamInventory(User, SteamGameID, out Inventory, true);
@@ -287,10 +288,12 @@ namespace GameSlot.Helpers
                                             SteamItem.Type = XSteamItem.Type = Regex.Split(Regex.Split(ItemContent, "\"background_color\":\"")[1], ",\"type\":\"")[1].Split(',')[1].Split('"')[0];
                                         }
 
-                                        XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url_large\":\"")[1].Split('"')[0];
+                                        XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url_large\":\"")[1].Split('"')[0] + "/330x192";
                                         XSteamItem.SteamGameID = SteamGameID;
 
-                                        Helper.SteamItemsHelper.DownloadItemsImage(Helper.SteamItemsHelper.Table.Insert(XSteamItem), SteamGameID);
+                                        uint NewSteamItemID = Helper.SteamItemsHelper.Table.Insert(XSteamItem);
+                                        Helper.SteamItemsHelper.DownloadItemsImage(NewSteamItemID, SteamGameID);
+                                        Helper.SteamItemsHelper.AddSteamImageToMemory(NewSteamItemID, SteamGameID);
                                     }
 
                                     if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)

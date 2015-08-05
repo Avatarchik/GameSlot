@@ -41,7 +41,7 @@
                     var item = items[i].split('↓');
                     var name = item[0];
                     var price = item[1];
-                    var image = "<img height='100px' width='100px' src='/images/{{=Configs.STEAM_ITEMS_STORAGE_JS}}" + item[2] + "/" + item[3] + "{{=Configs.STEAM_ITEMS_TYPE}}'>";
+                    var image = "<img height='330px' width='192px' src='/steam-image/" + item[2] + "/" + item[3] + "'>";
                     items_content += image + name + "[" + price + "$]<br />";
                 }
 
