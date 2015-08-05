@@ -2,10 +2,13 @@
 using GameSlot.Types;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using UpServer;
 using XData;
@@ -74,13 +77,63 @@ namespace GameSlot.Helpers
 
                         return Convert.ToDouble(price);
                     }
-
                 }
 
                 catch { }
             }
 
             return 0;
+        }
+
+        public void UpdatePrices(uint SteamGameID)
+        {
+            new Thread(delegate()
+            {
+                while (true)
+                {
+                    List<XSteamItem> Items;
+                    if (this.Table.Select(data => data.SteamGameID == SteamGameID, out Items))
+                    {
+                        for (int i = 0; i < Items.Count; i++)
+                        {
+                            XSteamItem XSteamItem = Items[i];
+                            XSteamItem.Price = this.GetMarketPrice(XSteamItem.Name, SteamGameID);
+                            this.Table.UpdateByID(XSteamItem, XSteamItem.ID);
+                            this.DownloadItemsImage(XSteamItem.ID, XSteamItem.SteamGameID);
+                        }
+                    }
+                    Thread.Sleep(5000);
+                }
+            }).Start();
+        }
+
+        public void DownloadItemsImage(uint ItemID, uint SteamGameID)
+        {
+            try
+            {
+                XSteamItem XSteamItem;
+                if (this.Table.SelectByID(ItemID, out XSteamItem))
+                {
+                    if (!File.Exists("FileStorage\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + ItemID + Configs.STEAM_ITEMS_TYPE))
+                    {
+                        using (WebClient WebClient = new WebClient())
+                        {
+                            byte[] ImageBytes = WebClient.DownloadData(XSteamItem.Image);
+                            Image Image = Image.FromStream(new MemoryStream(ImageBytes));
+                            if (!Directory.Exists("FileStorage\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID))
+                            {
+                                Directory.CreateDirectory("FileStorage\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID);
+                            }
+
+                            File.WriteAllBytes("FileStorage\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + XSteamItem.ID + Configs.STEAM_ITEMS_TYPE, ImageBytes);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.ConsoleLog("DownloadItemsImage: \n" + ex, ConsoleColor.Red);
+            }
         }
     }
 }

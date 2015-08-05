@@ -172,14 +172,16 @@ namespace GameSlot.Helpers
                 {
                     for (int i = 0; i < BaseFuncs.GetOnlineClients<SiteGameSlot>().Count; i++ )
                     {
-                        XUser User;
-                        if(this.GetCurrentUser(BaseFuncs.GetOnlineClients<SiteGameSlot>()[i], out User))
+                        if (!BaseFuncs.GetOnlineClients<SiteGameSlot>()[i].Closed)
                         {
-                            UsersInventory Inventory;
-                            this.GetSteamInventory(User, SteamGameID, out Inventory, true);
+                            XUser User;
+                            if (this.GetCurrentUser(BaseFuncs.GetOnlineClients<SiteGameSlot>()[i], out User))
+                            {
+                                UsersInventory Inventory;
+                                this.GetSteamInventory(User, SteamGameID, out Inventory, true);
+                            }
                         }
                     }
-
                     Thread.Sleep(5000);
                 }
             
@@ -285,10 +287,10 @@ namespace GameSlot.Helpers
                                             SteamItem.Type = XSteamItem.Type = Regex.Split(Regex.Split(ItemContent, "\"background_color\":\"")[1], ",\"type\":\"")[1].Split(',')[1].Split('"')[0];
                                         }
 
-                                        SteamItem.Image = XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url_large\":\"")[1].Split('"')[0];
-
+                                        XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url_large\":\"")[1].Split('"')[0];
                                         XSteamItem.SteamGameID = SteamGameID;
-                                        Helper.SteamItemsHelper.Table.Insert(XSteamItem);
+
+                                        Helper.SteamItemsHelper.DownloadItemsImage(Helper.SteamItemsHelper.Table.Insert(XSteamItem), SteamGameID);
                                     }
 
                                     if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)

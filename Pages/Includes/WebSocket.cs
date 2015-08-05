@@ -161,7 +161,8 @@ namespace GameSlot.Pages.Includes
 
         public static string InventoryItemToString(SteamItem SteamItem)
         {
-            return SteamItem.Name + "↓" + SteamItem.Price + "↓" + SteamItem.Image + ";";
+            // 3- lst
+            return SteamItem.Name + "↓" + SteamItem.Price + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + ";";
         }
     }
 }

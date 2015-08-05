@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UpServer;
 using GameSlot.Database;
+using System.IO;
 
 namespace GameSlot
 {
@@ -68,6 +69,9 @@ namespace GameSlot
 
             Helper.UserHelper.UpdateOnlineUsersInventory(Configs.DOTA2_STEAM_GAME_ID);
             Helper.UserHelper.UpdateOnlineUsersInventory(Configs.CSGO_STEAM_GAME_ID);
+
+            Helper.SteamItemsHelper.UpdatePrices(Configs.DOTA2_STEAM_GAME_ID);
+            Helper.SteamItemsHelper.UpdatePrices(Configs.CSGO_STEAM_GAME_ID);
 
             Logger.ConsoleLog("GAMESLOT LOTTERY site loaded!", ConsoleColor.Yellow);
         }

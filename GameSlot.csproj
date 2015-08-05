@@ -60,6 +60,7 @@
     <Compile Include="Helpers\LotteryHelper.cs" />
     <Compile Include="Helpers\SteamItemsHelper.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
+    <Compile Include="Pages\ImagesPage.cs" />
     <Compile Include="Pages\Includes\WebSocket.cs" />
     <Compile Include="Pages\TestPage.cs" />
     <Compile Include="Pages\Dota2Lottery.cs" />

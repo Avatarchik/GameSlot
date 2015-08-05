@@ -19,5 +19,9 @@ namespace GameSlot
         // secs:
         public static int GameTime = 180;
         public static int InventoryUpdateTime = 30;
+
+        public static string STEAM_ITEMS_STORAGE = "SteamItems\\";
+        public static string STEAM_ITEMS_TYPE = ".png";
+        public static string STEAM_ITEMS_STORAGE_JS = "SteamItems/";
     }
 }
