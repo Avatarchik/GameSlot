@@ -1,4 +1,5 @@
 ﻿using GameSlot.Database;
+using GameSlot.Pages.Includes;
 using GameSlot.Pages.UserPages;
 using GameSlot.Types;
 using System;
@@ -296,7 +297,7 @@ namespace GameSlot.Helpers
                                         SteamItems.Add(SteamItem);
 
                                         TotalPrice += SteamItem.Price;
-                                        StrItems += InventoryPage.ItemToString(SteamItem);
+                                        StrItems += WebSocketPage.InventoryItemToString(SteamItem);
                                     }
                                 }
                             }
@@ -323,7 +324,10 @@ namespace GameSlot.Helpers
                     //Logger.ConsoleLog("size: " + InventoryClients[User.ID].Count);
                     for (int i = 0; i < InventoryClients[SteamGameID][User.ID].Count; i++)
                     {
-                        InventoryPage.WS_UpdateInventory(StrItems, TotalPrice, InventoryClients[SteamGameID][User.ID][i], (UsersInventory == null) ? false : true);
+                        if (!InventoryClients[SteamGameID][User.ID][i].Closed)
+                        {
+                            WebSocketPage.UpdateInventory(StrItems, TotalPrice, InventoryClients[SteamGameID][User.ID][i], (UsersInventory == null) ? false : true);
+                        }
                     }
 
                     InventoryClients[SteamGameID].Remove(User.ID);

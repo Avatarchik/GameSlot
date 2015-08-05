@@ -40,19 +40,11 @@
     </div>
 
     <script>
-        var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
-
-        ws.onmessage = function (evt) {
-            var data = evt.data.split("{{=BaseFuncs.WSplit}}");
-
-            if (data[0] == "UpdateGroupData") {
-                $("span#group_name").text(data[1]);
-                $("span#users_num").text(data[2]);
-            }
-        };
+        GroupPageConnect = true;
+        GroupPage_GroupID = "{{=Group.ID}}";
 
         function entry() {
-            ws.send("entry");
+            ws.send("GroupPage{{=BaseFuncs.WSplit}}EntryToGroup{{=BaseFuncs.WSplit}}{{=Group.ID}}");
             $("div#main_action").attr("style", "display:none");
             $("div#exit_from_group").attr("style", "");
         }

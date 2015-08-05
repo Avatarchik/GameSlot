@@ -48,63 +48,14 @@ namespace GameSlot.Pages.UserPages
                     return false;
                 }
 
-                if (client.ConnType == ConnectionType.WebSocket && client.WSData != null)
-                {
-                    string[] wsdata = Regex.Split(client.WSData, BaseFuncs.WSplit);
-                    if (wsdata[0].Equals("GetInventory"))
-                    {
-                        UsersInventory Inventory = null;
-                        bool InList = Helper.UserHelper.GetSteamInventory(User, SteamGameID, out Inventory);
-                        if (InList)
-                        {
-                            if (!Inventory.Opened)
-                            {
-                                WS_UpdateInventory("", 0d, client, false);
-                            }
-                            else
-                            {
-                                string StrItems = "";
-                                foreach (SteamItem Item in Inventory.SteamItems)
-                                {
-                                    StrItems += ItemToString(Item);
-                                }
-
-                                WS_UpdateInventory(StrItems, Inventory.TotalPrice, client, true);
-                            }
-                        }
-                        else
-                        {
-                            Helper.UserHelper.WaitingList_InventoryClient(User.ID, client, SteamGameID);
-                        }
-                    }
-
-                    return false;
-                }
-
                 Hashtable data = new Hashtable();
+                data.Add("SteamGameID", SteamGameID);
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }
 
             BaseFuncs.Show403(client);
             return false;
-        }
-
-        public static void WS_UpdateInventory(string StrItems, double TotalPrice, Client client, bool InventoryOpened)
-        {
-            if (InventoryOpened)
-            {
-                client.SendWebsocket("Inventory" + BaseFuncs.WSplit + TotalPrice + BaseFuncs.WSplit + StrItems);
-                //Logger.ConsoleLog("[" + StrItems + "]", ConsoleColor.Red);
-                return;
-            }
-            //Logger.ConsoleLog("CLOSE!");
-            client.SendWebsocket("InventoryClosed" + BaseFuncs.WSplit);
-        }
-
-        public static string ItemToString(SteamItem SteamItem)
-        {
-            return SteamItem.Name + "↓" + SteamItem.Price + "↓" + SteamItem.Image + ";";
         }
     }
 }

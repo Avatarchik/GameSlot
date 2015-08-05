@@ -1,4 +1,5 @@
 ﻿using GameSlot.Database;
+using GameSlot.Pages.Includes;
 using GameSlot.Types;
 using System;
 using System.Collections;
@@ -31,43 +32,18 @@ namespace GameSlot.Pages
             UGroup Group;
             if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out id) && Helper.GroupHelper.SelectByID(id, out Group))
             {
-                if (client.ConnType == ConnectionType.WebSocket && client.WSData != null)
-                {
-                    string[] wsdata = Regex.Split(client.WSData, BaseFuncs.WSplit);
+                XUser User;
+                bool InGroup = Helper.UserHelper.GetCurrentUser(client, out User) && User.GroupOwnerID == Group.ID ? true : false;
+                bool InOtherGroup = !InGroup && User.GroupOwnerID >= 0 ? true : false;
 
-                    if (wsdata[0].Equals("entry"))
-                    {
-                        XUser user;
-                        if (Helper.UserHelper.GetCurrentUser(client, out user))
-                        {
-                            int OldGroup = user.GroupOwnerID;
+                Hashtable data = new Hashtable();
+                data.Add("Group", Group);
+                data.Add("InGroup", InGroup);
+                data.Add("InOtherGroup", InOtherGroup);
 
-                            if (Helper.GroupHelper.EnterToGroup(Group.ID, client))
-                            {
-                                Helper.GroupHelper.WS_UpdateGroupData(Group.ID);
-                                if (OldGroup > -1)
-                                {
-                                    Helper.GroupHelper.WS_UpdateGroupData(Convert.ToUInt32(OldGroup));
-                                }
-                            }
-                        }
-                    }
-                    return false;
-                }
-                else
-                {
-                    XUser User;
-                    bool InGroup = Helper.UserHelper.GetCurrentUser(client, out User) && User.GroupOwnerID == Group.ID ? true : false;
-                    bool InOtherGroup = !InGroup && User.GroupOwnerID >= 0 ? true : false;
+                client.HttpSend(TemplateActivator.Activate(this, client, data));
+                return true;
 
-                    Hashtable data = new Hashtable();
-                    data.Add("Group", Group);
-                    data.Add("InGroup", InGroup);
-                    data.Add("InOtherGroup", InOtherGroup);
-
-                    client.HttpSend(TemplateActivator.Activate(this, client, data));
-                    return true;
-                }
             }
 
             BaseFuncs.Show404(client);

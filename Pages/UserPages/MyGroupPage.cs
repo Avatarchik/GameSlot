@@ -1,4 +1,5 @@
 ﻿using GameSlot.Database;
+using GameSlot.Pages.Includes;
 using GameSlot.Types;
 using System;
 using System.Collections;
@@ -26,30 +27,14 @@ namespace GameSlot.Pages.UserPages
             XUser User;
             if (Helper.UserHelper.GetCurrentUser(client, out User))
             {
-                if (client.ConnType == ConnectionType.WebSocket && client.WSData != null)
-                {
-                    string[] wsdata = Regex.Split(client.WSData, BaseFuncs.WSplit);
-                    if (wsdata[0].Equals("UpdName"))
-                    {
-                        if (Helper.GroupHelper.UpdateNameByID(User.ID, wsdata[1]))
-                        {
-                            Helper.GroupHelper.WS_UpdateGroupData(User.ID);
-                        }
-                    }
+                UGroup group;
+                Helper.GroupHelper.SelectByID(User.ID, out group);
 
-                    return false;
-                }
-                else
-                {
-                    UGroup group;
-                    Helper.GroupHelper.SelectByID(User.ID, out group);
+                Hashtable data = new Hashtable();
+                data.Add("Group", group);
 
-                    Hashtable data = new Hashtable();
-                    data.Add("Group", group);
-
-                    client.HttpSend(TemplateActivator.Activate(this, client, data));
-                    return true;
-                }
+                client.HttpSend(TemplateActivator.Activate(this, client, data));
+                return true;
             }
             BaseFuncs.Show403(client);
             return false;

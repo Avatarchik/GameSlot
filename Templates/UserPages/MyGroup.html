@@ -16,18 +16,8 @@
     Group users count: <span id="users_count">{{=Group.UserCount}}</span>
 
     <script>
-        var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
-        var my_group_page = new WebSocket("ws://{{=client.Host}}/group/{{=Group.ID}}");
-
-        my_group_page.onmessage = function (evt) {
-            var data = evt.data.split("{{=BaseFuncs.WSplit}}");
-
-            if (data[0] == "UpdateGroupData") {
-                GroupName = data[1];
-                $("input#group_name").val(data[1]);
-                $("span#users_count").text(data[2]);
-            }
-        };
+        MyGroupPageConnect = true;
+        MyGroupPage_GroupID = "{{=Group.ID}}";
 
         var GroupName = "{{=Group.Name}}";
         function validCheck(current_group_name)
@@ -57,7 +47,8 @@
             if(validCheck(name))
             {
                 $("input#upd_sb").attr("style", "display:none;");
-                ws.send("UpdName{{=BaseFuncs.WSplit}}" + name);
+                ws.send("MyGroupPage{{=BaseFuncs.WSplit}}ChangeName{{=BaseFuncs.WSplit}}" + name);
+
                 GroupName = name;
                 alert("name updated!")
             }

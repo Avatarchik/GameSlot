@@ -4,7 +4,7 @@
 <body>
     {{include GameSlot Header}}
     {{using GameSlot.Types}}
-
+    {{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
     Инвентарь:
     <a href="/inventory/dota">DOTA 2</a> 
     <a href="/inventory/csgo">CSGO</a><br />
@@ -16,39 +16,8 @@
 
 
     <script>
-        var ws = new WebSocket("ws://{{=client.Host}}{{=client.URL}}");
-        ws.onopen = function (evt) {
-            ws.send("GetInventory");
-        };
-
-        ws.onmessage = function (evt) {
-            var data = evt.data.split("{{=BaseFuncs.WSplit}}");
-
-            if (data[0] == "InventoryClosed")
-            {
-                $("div#inventory" + data[1]).html("Инвентарь закрыт!");
-            }
-
-            else if(data[0] == "Inventory")
-            {
-                var items = data[2].split(';');
-
-                $("div#inventory_items").text("");
-
-                var items_content = "";
-                for(var i = 0; i < (items.length-1); i++)
-                {
-                    var item = items[i].split('↓');
-                    var name = item[0];
-                    var price = item[1];
-                    var image = "<img height='100px' width='100px' src='" + item[2] + "'>";
-                    items_content += image + name + "[" + price + "$]<br />";
-                }
-
-                $("div#inventory_items").html(items_content);
-                $("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");
-            }
-        };
+        GetMyInventoryPage = true;
+        MyInventoryPage_SteamGameID = "{{=SteamGameID}}";
     </script>
 </body>
 </html>

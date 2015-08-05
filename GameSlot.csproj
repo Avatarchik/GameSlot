@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,6 +60,7 @@
     <Compile Include="Helpers\LotteryHelper.cs" />
     <Compile Include="Helpers\SteamItemsHelper.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
+    <Compile Include="Pages\Includes\WebSocket.cs" />
     <Compile Include="Pages\TestPage.cs" />
     <Compile Include="Pages\Dota2Lottery.cs" />
     <Compile Include="Pages\Errors\Error403.cs" />
@@ -96,6 +98,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Templates\UserPages\Inventory.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\WebSocketEvents.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
