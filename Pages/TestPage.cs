@@ -3,6 +3,8 @@ using GameSlot.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -27,17 +29,15 @@ namespace GameSlot.Pages
         }
         public override bool Init(Client client)
         {
-            XSteamItem XSteamItemDOTA;
-            string Test = "";
-            for (int i = 0; i < 1; i++)
+            //Image ing = Image.FromStream(new MemoryStream());
+
+            List<XSteamItem> Items = Helper.SteamItemsHelper.Table.SelectAll();
+            for (int i = 0; i < Items.Count; i++)
             {
-                foreach (XSteamItem Item in Helper.SteamItemsHelper.Table.SelectAll())
-                {
-                    Test += Item.Name + " [" + Item.Price + "]<br />";
-                }
+                Helper.SteamItemsHelper.DownloadItemsImage(Items[i].ID, Items[i].SteamGameID);
             }
 
-            client.HttpSend(Helper.SteamItemsHelper.Table.SelectAll().Count * 2 + "<hr />" + Test);
+            client.HttpSend("done!!!");
             return true;
         }
     }
