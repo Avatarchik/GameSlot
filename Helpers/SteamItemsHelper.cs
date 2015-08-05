@@ -130,10 +130,7 @@ namespace GameSlot.Helpers
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.ConsoleLog("DownloadItemsImage: \n" + ex, ConsoleColor.Red);
-            }
+            catch { }
         }
     }
 }
