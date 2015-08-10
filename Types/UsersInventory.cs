@@ -9,7 +9,7 @@ namespace GameSlot.Types
 {
     public class UsersInventory
     {
-        public List<SteamItem> SteamItems;
+        public List<USteamItem> SteamItems;
         public double TotalPrice;
         public int LastUpdate;
         public bool Opened;

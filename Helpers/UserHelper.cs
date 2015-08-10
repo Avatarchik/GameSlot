@@ -18,6 +18,7 @@ namespace GameSlot.Helpers
     public class UserHelper
     {
         public XTable<XUser> Table = new XTable<XUser>();
+        public XTable<XChipUsersInventory> Table_ChipUsersInventory = new XTable<XChipUsersInventory>();
 
         private static Dictionary<uint, Dictionary<uint, UsersInventory>> UsersInventories = new Dictionary<uint, Dictionary<uint, UsersInventory>>();
         // user.id, List
@@ -212,7 +213,7 @@ namespace GameSlot.Helpers
             {
                 UsersInventory = UsersInventories[SteamGameID][User.ID];
 
-                if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID) && UsersInventory.LastUpdate + Configs.InventoryUpdateTime < Helper.GetCurrentTime())
+                if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID) && UsersInventory.LastUpdate + Configs.INVENTORY_UPDATE_TIME < Helper.GetCurrentTime())
                 {
                     //Logger.ConsoleLog("again update!");
                     if (wait)
@@ -243,6 +244,29 @@ namespace GameSlot.Helpers
             UsersInventory = null;
             return false;
         }
+        public bool GetUsersSteamInventory(uint UserID, uint SteamGameID, out string inventory)
+        {
+            XUser User;
+            if (this.Table.SelectByID(UserID, out User))
+            {
+                try
+                {
+                    using (WebClient WebClient = new WebClient())
+                    {
+                        string data = WebClient.DownloadString(User.ProfileURL + "inventory/json/" + SteamGameID + "/2");
+                        if (data.Contains("{\"success\":true"))
+                        {
+                            inventory = data;
+                            return true;
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            inventory = null;
+            return false;
+        }
 
         private UsersInventory UpdateSteamInventory(XUser User, uint SteamGameID)
         {
@@ -260,7 +284,7 @@ namespace GameSlot.Helpers
                         string data = WebClient.DownloadString(User.ProfileURL + "inventory/json/" + SteamGameID + "/2");
                         if (data.Contains("{\"success\":true"))
                         {
-                            List<SteamItem> SteamItems = new List<SteamItem>();
+                            List<USteamItem> SteamItems = new List<USteamItem>();
                             string[] Item = Regex.Split(data, "{\"id\":\"");
 
                             for (int i = 1; i < Item.Length; i++)
@@ -274,11 +298,11 @@ namespace GameSlot.Helpers
                                     string name = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
                                     name = Encoding.GetEncoding(65001).GetString(Encoding.GetEncoding(65001).GetBytes(name));
 
-                                    SteamItem SteamItem;
+                                    USteamItem SteamItem;
                                     if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem))
                                     {
                                         XSteamItem XSteamItem = new XSteamItem();
-                                        SteamItem = new SteamItem();
+                                        SteamItem = new USteamItem();
                                         SteamItem.Name = XSteamItem.Name = name;
                                         SteamItem.Price = XSteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(SteamItem.Name, SteamGameID);
                                         SteamItem.NameColor = XSteamItem.NameColor = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0];
@@ -339,6 +363,48 @@ namespace GameSlot.Helpers
                 }
             }
             return UsersInventory;
+        }
+
+        public List<Chip> GetChipInventory(uint UserID)
+        {
+            List<Chip> chips = new List<Chip>();
+            if (this.UserExist(UserID))
+            {
+                List<XChipUsersInventory> UChips;
+                if (this.Table_ChipUsersInventory.Select(data => data.UserID == UserID && !data.Delete, out UChips))
+                {
+                    foreach (XChipUsersInventory xchip in UChips)
+                    {
+                        //Logger.ConsoleLog(xchip.AssertID + "-" + xchip.ChipID);
+                        Chip ch;
+                        if (Helper.ChipHelper.SelectByID(xchip.ChipID, out ch))
+                        {
+                            Chip chip = ch.Clone();
+                            chip.AssertID = xchip.AssertID;
+                            //Logger.ConsoleLog(chip.AssertID);
+                            chips.Add(chip);
+                        }
+                    }
+                }
+            }
+
+            return chips;
+        }
+
+        public bool SelectChipByAssertID(ulong AssertID, uint UserID, out Chip Chip)
+        {
+            if(this.UserExist(UserID))
+            {
+                XChipUsersInventory XChipInventory;
+                if (this.Table_ChipUsersInventory.SelectOne(data => data.AssertID == AssertID && data.UserID == UserID, out XChipInventory) && Helper.ChipHelper.SelectByID(XChipInventory.ChipID, out Chip))
+                {
+                    Chip.AssertID = XChipInventory.AssertID;
+                    return true;
+                }
+            }
+
+            Chip = null;
+            return false;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using GameSlot.Database;
 using GameSlot.Helpers;
+using GameSlot.Types;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,13 +32,19 @@ namespace GameSlot.Pages
         {
             //Image ing = Image.FromStream(new MemoryStream());
 
-            List<XSteamItem> Items = Helper.SteamItemsHelper.Table.SelectAll();
-            for (int i = 0; i < Items.Count; i++)
-            {
-                Helper.SteamItemsHelper.DownloadItemsImage(Items[i].ID, Items[i].SteamGameID);
-            }
+            uint[] uu = new uint[24];
+            uu[0] = 123;
+            Helper.ChipHelper.AddChipToUser(4, 1);
 
-            client.HttpSend("done!!!");
+            List<Chip> Chips = new List<Chip>();
+            Chip chip = new Chip();
+            chip.AssertID = 6311613731;
+            Chips.Add(chip);
+
+            List<USteamItem> usi = new List<USteamItem>();
+            Logger.ConsoleLog(Helper.LotteryHelper.SetBet(0, 1, usi, Chips));
+
+            client.HttpSend(Helper.LotteryHelper.GetBank(0, out usi, out Chips).ToString());
             return true;
         }
     }

@@ -50,6 +50,7 @@ namespace GameSlot.Pages.UserPages
 
                 Hashtable data = new Hashtable();
                 data.Add("SteamGameID", SteamGameID);
+                data.Add("Chips", Helper.UserHelper.GetChipInventory(User.ID));
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }

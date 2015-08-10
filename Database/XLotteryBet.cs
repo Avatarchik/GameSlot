@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 216, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 612, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XLotteryBet
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -27,16 +27,37 @@ namespace GameSlot.Database
         [FieldOffset(16)]
         public uint[] SteamItemIDs;
 
-        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.R8, SizeConst = 24)]
+        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U8, SizeConst = 24)]
         [FieldOffset(112)]
-        public double[] Prices;
+        public ulong[] ItemAssertIDs;
 
         [MarshalAs(UnmanagedType.U4)]
-        [FieldOffset(208)]
+        [FieldOffset(304)]
         public uint FisrtToken;
 
         [MarshalAs(UnmanagedType.U4)]
-        [FieldOffset(212)]
+        [FieldOffset(308)]
         public uint LastToken;
+
+        [MarshalAs(UnmanagedType.Bool)]
+        [FieldOffset(312)]
+        public bool Transmitted;
+
+        // 4 bts
+        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U4, SizeConst = 24)]
+        [FieldOffset(320)]
+        public uint[] ChipIDs;
+
+        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U8, SizeConst = 24)]
+        [FieldOffset(416)]
+        public ulong[] ChipAssertIDs;
+
+        [MarshalAs(UnmanagedType.U2)]
+        [FieldOffset(608)]
+        public ushort SteamItemsNum;
+
+        [MarshalAs(UnmanagedType.U2)]
+        [FieldOffset(610)]
+        public ushort ChipsNum;
     }
 }

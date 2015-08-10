@@ -5,6 +5,8 @@
     {{include GameSlot Header}}
     {{using GameSlot.Types}}
     {{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
+    {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
+
     Инвентарь:
     <a href="/inventory/dota">DOTA 2</a> 
     <a href="/inventory/csgo">CSGO</a><br />
@@ -14,6 +16,15 @@
         <div id="inventory_items">Loading...</div>
     </div>
 
+    <hr />
+    <h4>Chips</h4>
+    <div id="inventory_chips">
+        <div id="inventory_items_chips">
+            {{foreach(Chip chip in Chips)}}
+                {{=chip.Cost}} $<br />
+            {{end}}
+        </div>
+    </div>
 
     <script>
         GetMyInventoryPage = true;

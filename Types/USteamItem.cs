@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Types
 {
-    public class SteamItem
+    public class USteamItem
     {
         public uint ID;
 

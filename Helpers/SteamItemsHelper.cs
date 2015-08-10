@@ -32,12 +32,12 @@ namespace GameSlot.Helpers
             this.AddSteamImagesToMemory();
         }
 
-        public bool SelectByName(string name, uint SteamGameID, out SteamItem SteamItem)
+        public bool SelectByName(string name, uint SteamGameID, out USteamItem SteamItem)
         {
             XSteamItem XSteamItem;
             if (this.SelectByName(name, SteamGameID, out XSteamItem))
             {
-                SteamItem = new SteamItem();
+                SteamItem = new USteamItem();
                 SteamItem.ID = XSteamItem.ID;
                 SteamItem.Name = XSteamItem.Name;
                 SteamItem.Image = XSteamItem.Image;
@@ -61,6 +61,27 @@ namespace GameSlot.Helpers
         public bool SelectByID(uint id, uint SteamGameID, out XSteamItem XSteamItem)
         {
             return this.Table.SelectOne(data => data.ID == id && data.SteamGameID == SteamGameID, out XSteamItem) ? true : false;
+        }
+
+        public bool SelectByID(uint id, uint SteamGameID, out USteamItem SteamItem)
+        {
+            XSteamItem XSteamItem;
+            if(this.SelectByID(id, SteamGameID, out XSteamItem))
+            {
+                SteamItem = new USteamItem();
+                SteamItem.ID = XSteamItem.ID;
+                SteamItem.Name = XSteamItem.Name;
+                SteamItem.Image = XSteamItem.Image;
+                SteamItem.Price = XSteamItem.Price;
+                SteamItem.NameColor = XSteamItem.NameColor;
+                SteamItem.Type = XSteamItem.Type;
+                SteamItem.SteamGameID = SteamGameID;
+
+                return true;
+            }
+
+            SteamItem = null;
+            return false;
         }
 
         public double GetMarketPrice(string ItemName, uint SteamGameID)
@@ -179,6 +200,20 @@ namespace GameSlot.Helpers
             }
 
             image = null;
+            return false;
+        }
+
+        public bool IsUserHaveItem(ulong AssertID, uint UserID, uint SteamGameID)
+        {
+            string inventory;
+            if (Helper.UserHelper.GetUsersSteamInventory(UserID, SteamGameID, out inventory))
+            {
+                if (inventory.Contains("{\"id\":\"" + AssertID + "\""))
+                {
+                    //string classID = Regex.Split(Regex.Split(inventory, "{\"id\":\"" + AssertID + "\"")[1], "\"classid\":\"")[1].Split('"')[0];
+                    return true;
+                }
+            }
             return false;
         }
     }

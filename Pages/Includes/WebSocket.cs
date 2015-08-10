@@ -105,7 +105,7 @@ namespace GameSlot.Pages.Includes
                             else
                             {
                                 string StrItems = "";
-                                foreach (SteamItem Item in Inventory.SteamItems)
+                                foreach (USteamItem Item in Inventory.SteamItems)
                                 {
                                     StrItems += WebSocketPage.InventoryItemToString(Item);
                                 }
@@ -159,7 +159,7 @@ namespace GameSlot.Pages.Includes
             client.SendWebsocket("InventoryClosed" + BaseFuncs.WSplit);
         }
 
-        public static string InventoryItemToString(SteamItem SteamItem)
+        public static string InventoryItemToString(USteamItem SteamItem)
         {
             // 3- lst
             return SteamItem.Name + "↓" + SteamItem.Price + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + ";";

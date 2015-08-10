@@ -7,12 +7,40 @@
 </head>
 <body>
     {{include GameSlot Header}}
+    {{using GameSlot.Types}}
     {{using GameSlot.Database}}
-    {{set XLottery Lottery = (XLottery) PageData["Lottery"]}}
+    {{set Lottery Lottery = (Lottery) PageData["Lottery"]}}
 
     Lottery here! <br />
-    ID: {{=Lottery.ID}}<br />
+    ID: {{=Lottery.IDStr}}<br />
     Raund number: {{=Lottery.RaundNumber}}<br />
-    Time Left: {{=PageData["LeftTime"]}}
+    Time Left: {{=Lottery.LeftTime}}
+    <hr />
+
+    {{if(Lottery.LeftTime < 0)}}
+        Начать игру!
+    {{end}}
+    {{else if(Lottery.LeftTime > 0)}}
+        Сделать ставку!
+    {{end}}
+    {{else}}
+        Игра окончилась!
+    {{end}}
+    <hr />
+
+    {{if(Helper.UserHelper.Authorized(client))}}  
+        {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
+
+        <h4>Chips</h4>
+        <div id="inventory_chips">
+            <div id="inventory_items_chips">
+                {{foreach(Chip chip in Chips)}}
+                    {{=chip.Cost}} $ ({{=chip.AssertID}})<br />
+                {{end}}
+            </div>
+        </div>
+
+        
+    {{end}}
 </body>
 </html>
