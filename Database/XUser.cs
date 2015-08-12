@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 824, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 854, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XUser
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -46,5 +46,13 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 36)]
         [FieldOffset(752)]
         public string GroupName;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 11)]
+        [FieldOffset(824)]
+        public string TradeToken;
+
+        [MarshalAs(UnmanagedType.U8)]
+        [FieldOffset(846)]
+        public ulong TradePartner;
     }
 }

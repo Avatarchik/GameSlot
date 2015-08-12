@@ -15,6 +15,8 @@ namespace GameSlot
         public static UserHelper UserHelper;
         public static GroupHelper GroupHelper;
         public static ChipHelper ChipHelper;
+        public static SteamBotHelper SteamBotHelper;
+
         public static int GetCurrentTime()
         {
             return (int)(DateTime.Now - new DateTime(2015, 7, 18)).TotalSeconds;

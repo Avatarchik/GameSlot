@@ -19,6 +19,7 @@ namespace GameSlot.Helpers
     {
         public XTable<XUser> Table = new XTable<XUser>();
         public XTable<XChipUsersInventory> Table_ChipUsersInventory = new XTable<XChipUsersInventory>();
+        public XTable<XSItemUsersInventory> Table_SteamItemUsersInventory = new XTable<XSItemUsersInventory>();
 
         private static Dictionary<uint, Dictionary<uint, UsersInventory>> UsersInventories = new Dictionary<uint, Dictionary<uint, UsersInventory>>();
         // user.id, List
@@ -371,7 +372,7 @@ namespace GameSlot.Helpers
             if (this.UserExist(UserID))
             {
                 List<XChipUsersInventory> UChips;
-                if (this.Table_ChipUsersInventory.Select(data => data.UserID == UserID && !data.Delete, out UChips))
+                if (this.Table_ChipUsersInventory.Select(data => data.UserID == UserID && !data.Deleted, out UChips))
                 {
                     foreach (XChipUsersInventory xchip in UChips)
                     {
@@ -391,6 +392,30 @@ namespace GameSlot.Helpers
             return chips;
         }
 
+        public List<USteamItem> GetSteamLocalInventory(uint UserID, uint SteamGameID)
+        {
+            List<USteamItem> Items = new List<USteamItem>();
+            if (this.UserExist(UserID))
+            {
+                List<XSItemUsersInventory> x_inventory;
+                if(this.Table_SteamItemUsersInventory.Select(data => data.UserID == UserID && !data.Deleted && data.SteamGameID == SteamGameID, out x_inventory))
+                {
+                    foreach (XSItemUsersInventory inventory in x_inventory)
+                    {
+                        USteamItem USteamItem;
+                        if (Helper.SteamItemsHelper.SelectByID(inventory.SteamItemID, inventory.SteamGameID, out USteamItem))
+                        {
+                            USteamItem.AssertID = inventory.AssertID;
+                            Items.Add(USteamItem);
+                        }
+
+                    }
+                }
+            }
+
+            return Items;
+        }
+
         public bool SelectChipByAssertID(ulong AssertID, uint UserID, out Chip Chip)
         {
             if(this.UserExist(UserID))
@@ -406,5 +431,53 @@ namespace GameSlot.Helpers
             Chip = null;
             return false;
         }
+
+        public bool IsUserHaveChip(ulong AssertID, uint UserID)
+        {
+            XChipUsersInventory xchip;
+            return this.Table_ChipUsersInventory.SelectOne(data => data.AssertID == AssertID && !data.Deleted && data.UserID == UserID, out xchip);
+        }
+
+        public bool IsUserHaveSteamItem(ulong AssertID, uint UserID)
+        {
+            XSItemUsersInventory xitem;
+            return this.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == AssertID && !data.Deleted && data.UserID == UserID, out xitem);
+        }
+
+        public bool IsUserHaveSteamItem_SteamInventory(ulong AssertID, uint UserID, uint SteamGameID)
+        {
+            string inventory;
+            if (this.GetUsersSteamInventory(UserID, SteamGameID, out inventory))
+            {
+                //Logger.ConsoleLog("{\"id\":\"" + AssertID + "\"");
+                if (inventory.Contains("{\"id\":\"" + AssertID + "\""))
+                {
+                    //string classID = Regex.Split(Regex.Split(inventory, "{\"id\":\"" + AssertID + "\"")[1], "\"classid\":\"")[1].Split('"')[0];
+                    return true;
+                }
+            }
+            return false;
+        }
+
+       /* public bool CheckSteamTradeURL(ulong partner, string token)
+        {
+            try
+            {
+                using (WebClient WebClient = new WebClient())
+                {
+                    //https://steamcommunity.com/tradeoffer/new/?partner=174498889&token=%22dsfewsdwsadws
+                    string data = WebClient.DownloadString("https://steamcommunity.com/tradeoffer/new/?partner=" + partner + "&token=" + token);
+                    if (!data.Contains("<div class=\"error_page_content\">"))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch { }
+
+            return false;
+        }*/
     }
+
+
 }

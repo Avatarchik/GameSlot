@@ -59,11 +59,5 @@ namespace GameSlot.Helpers
                 Helper.UserHelper.Table_ChipUsersInventory.Insert(xchip);
             }
         }
-
-        public bool IsUserHaveItem(ulong AssertID, uint UserID)
-        {
-            XChipUsersInventory xchip;
-            return Helper.UserHelper.Table_ChipUsersInventory.SelectOne(data => data.AssertID == AssertID && !data.Delete && data.UserID == UserID, out xchip);
-        }
     }
 }

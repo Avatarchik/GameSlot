@@ -32,6 +32,10 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SteamBotUTRequest">
+      <HintPath>..\UpServer-master\bin\x64adv\Modules\SteamBotUTRequest.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -44,6 +48,10 @@
       <HintPath>..\UpServer-master\bin\x64adv\UpServer.exe</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UpTunnel">
+      <HintPath>..\UpServer-master\bin\x64adv\Modules\UpTunnel.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="XData">
       <HintPath>..\UpServer-master\bin\x64adv\Modules\XData.dll</HintPath>
       <Private>False</Private>
@@ -52,14 +60,18 @@
   <ItemGroup>
     <Compile Include="Configs.cs" />
     <Compile Include="Database\XChipUsersInventory.cs" />
+    <Compile Include="Database\XSteamBot.cs" />
+    <Compile Include="Database\XSteamBotProcessItems.cs" />
     <Compile Include="Database\XSteamItem.cs" />
     <Compile Include="Database\XLottery.cs" />
     <Compile Include="Database\XLotteryBet.cs" />
+    <Compile Include="Database\XSItemUsersInventory.cs" />
     <Compile Include="Database\XUser.cs" />
     <Compile Include="Helpers\ChipHelper.cs" />
     <Compile Include="Helpers\GroupHelper.cs" />
     <Compile Include="Helpers\Helper.cs" />
     <Compile Include="Helpers\LotteryHelper.cs" />
+    <Compile Include="Helpers\SteamBotHelper.cs" />
     <Compile Include="Helpers\SteamItemsHelper.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
     <Compile Include="Pages\Images\ReturnSteamImage.cs" />
@@ -80,7 +92,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\Chip.cs" />
     <Compile Include="Types\Lottery.cs" />
+    <Compile Include="Types\ProcessingBet.cs" />
     <Compile Include="Types\UsersInventory.cs" />
+    <Compile Include="UTSteam.cs" />
     <EmbeddedResource Include="Templates\Lottery.html" />
     <Compile Include="Types\Bet.cs" />
     <Compile Include="Types\USteamItem.cs" />

@@ -202,19 +202,5 @@ namespace GameSlot.Helpers
             image = null;
             return false;
         }
-
-        public bool IsUserHaveItem(ulong AssertID, uint UserID, uint SteamGameID)
-        {
-            string inventory;
-            if (Helper.UserHelper.GetUsersSteamInventory(UserID, SteamGameID, out inventory))
-            {
-                if (inventory.Contains("{\"id\":\"" + AssertID + "\""))
-                {
-                    //string classID = Regex.Split(Regex.Split(inventory, "{\"id\":\"" + AssertID + "\"")[1], "\"classid\":\"")[1].Split('"')[0];
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 }

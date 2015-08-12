@@ -161,8 +161,13 @@ namespace GameSlot.Pages.Includes
 
         public static string InventoryItemToString(USteamItem SteamItem)
         {
-            // 3- lst
-            return SteamItem.Name + "↓" + SteamItem.Price + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + ";";
+            // 4- last
+            return SteamItem.Name + "↓" + SteamItem.Price + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + ";";
+        }
+
+        public static void ChangeBetProcessStatus(ulong UserSteamID, ushort status)
+        {
+            Logger.ConsoleLog("Send WS TO USER!! status: " + status, ConsoleColor.Yellow);
         }
     }
 }

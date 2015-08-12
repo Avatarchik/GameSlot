@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 24, CharSet = CharSet.Unicode, Pack = 1)]
-    public struct XChipUsersInventory
+    [StructLayout(LayoutKind.Explicit, Size = 32, CharSet = CharSet.Unicode, Pack = 1)]
+    public struct XSItemUsersInventory
     {
         [MarshalAs(UnmanagedType.U4)]
         [FieldOffset(0)]
@@ -20,7 +20,7 @@ namespace GameSlot.Database
 
         [MarshalAs(UnmanagedType.U4)]
         [FieldOffset(8)]
-        public uint ChipID;
+        public uint SteamItemID;
 
         [MarshalAs(UnmanagedType.U8)]
         [FieldOffset(12)]
@@ -29,5 +29,13 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.Bool)]
         [FieldOffset(20)]
         public bool Deleted;
+
+        [MarshalAs(UnmanagedType.U4)]
+        [FieldOffset(24)]
+        public uint SteamGameID;
+
+        [MarshalAs(UnmanagedType.U4)]
+        [FieldOffset(28)]
+        public uint SteamBotID;
     }
 }
