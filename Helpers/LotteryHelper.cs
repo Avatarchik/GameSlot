@@ -23,26 +23,33 @@ namespace GameSlot.Helpers
         {
             new Thread(delegate()
             {
-                for (int i = 0; i < LotteryHelper.ProcessingBets.Count; i++)
+                while (true)
                 {
-                    if (LotteryHelper.ProcessingBets[i].ProcessCreatedTime + 360 < Helper.GetCurrentTime())
+                    for (int i = 0; i < LotteryHelper.ProcessingBets.Count; i++)
                     {
-                        LotteryHelper.ProcessingBets.Remove(LotteryHelper.ProcessingBets[i]);
+                        if (LotteryHelper.ProcessingBets[i].ProcessCreatedTime + 360 < Helper.GetCurrentTime())
+                        {
+                            LotteryHelper.ProcessingBets.Remove(LotteryHelper.ProcessingBets[i]);
+                            Thread.Sleep(1);
+                        }
                     }
                 }
             }).Start();
         }
 
-        public void CreateNew(uint SteamGameID, out XLottery lottery)
+        public XLottery CreateNew(uint SteamGameID)
         {
-            if (this.Table.SelectOne(data => data.Winner == 0 && data.SteamGameID == SteamGameID, out lottery) == false)
+            XLottery lottery;
+            if (!this.Table.SelectOne(data => data.WinnersToken == 0 && data.SteamGameID == SteamGameID, out lottery))
             {
                 XLottery new_lot = new XLottery();
                 new_lot.SteamGameID = SteamGameID;
-                new_lot.Winner = 0;
+                new_lot.WinnersToken = 0;
                 new_lot.RaundNumber = new Random().NextDouble();
                 //new_lot.EndTime = Helper.GetCurrentTime() + Configs.LOTTERY_GAME_TIME;
                 new_lot.EndTime = -1;
+                XLottery last_lot;
+                new_lot.StartTime = (this.Table.SelectOne(data => data.SteamGameID == SteamGameID, out last_lot)) ? Helper.GetCurrentTime() + Configs.LOTTERY_BREAK_TIME : 0;
 
                 lottery = this.Table.SelectByID(this.Table.Insert(new_lot));
 
@@ -50,23 +57,84 @@ namespace GameSlot.Helpers
                 Logger.ConsoleLog("Lottery ID: [" + lottery.ID + "]");
                 Logger.ConsoleLog("Steam game ID: [" + lottery.SteamGameID + "]");
                 Logger.ConsoleLog("Raund number: [" + lottery.RaundNumber + "]");
+                Logger.ConsoleLog("StartTime: [" + lottery.StartTime + "]");
                 Logger.ConsoleLog("--------------------------------------------------\n");
+
+                return lottery;
             }
 
-            lottery = new XLottery();
-        }
-
-        public void CreateNew(uint SteamGameID)
-        {
-            XLottery lottery;
-            this.CreateNew(SteamGameID, out lottery);
-        }
-
-        public XLottery GetCurrent(uint SteamGameID)
-        {
-            XLottery lottery;
-            this.Table.SelectOne(data => data.SteamGameID == SteamGameID && data.Winner <= 0, out lottery);
+            this.Table.SelectOne(data => data.SteamGameID == SteamGameID && data.WinnersToken == 0, out lottery);
             return lottery;
+        }
+
+        public void StartLottery(uint SteamGameID)
+        {
+            new Thread(delegate()
+            {
+                XLottery lottery = this.CreateNew(SteamGameID);
+
+                while (true)
+                {
+                    lottery = this.Table.SelectByID(lottery.ID);
+                    if(lottery.EndTime > 0 && lottery.EndTime <= Helper.GetCurrentTime())
+                    {
+                        List<USteamItem> SteamItems;
+                        List<Chip> Chips;
+                        lottery.WinnersToken = (uint) (this.GetBank(lottery.ID, out SteamItems, out Chips) * 100 * lottery.RaundNumber);
+                        if (lottery.WinnersToken <= 0)
+                        {
+                            lottery.WinnersToken = 1;
+                        }
+                        uint WinnerUserID = lottery.Winner = this.GetUserByToken(lottery.WinnersToken, lottery.ID).ID;
+
+                        this.Table.UpdateByID(lottery, lottery.ID);
+                        lottery = this.CreateNew(SteamGameID);
+                        Thread.Sleep(15000);
+
+                        foreach (USteamItem SteamItem in SteamItems)
+                        {
+                            XSItemUsersInventory XSItemUsersInventory = new XSItemUsersInventory();
+                            XSItemUsersInventory.UserID = WinnerUserID;
+                            XSItemUsersInventory.SteamItemID = SteamItem.ID;
+                            XSItemUsersInventory.AssertID = SteamItem.AssertID;
+                            XSItemUsersInventory.SteamGameID = SteamItem.SteamGameID;
+                            XSItemUsersInventory.SteamBotID = SteamItem.SteamBotID;
+                            Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
+                        }
+
+                        foreach (Chip chip in Chips)
+                        {
+                            XChipUsersInventory XChipUsersInventory = new XChipUsersInventory();
+                            XChipUsersInventory.UserID = WinnerUserID;
+                            XChipUsersInventory.ChipID = chip.ID;
+                            XChipUsersInventory.AssertID = chip.AssertID;
+                            Helper.UserHelper.Table_ChipUsersInventory.Insert(XChipUsersInventory);
+                        }
+                    }
+
+                    Thread.Sleep(1000);
+                }
+            }).Start();
+        }
+
+        public XUser GetUserByToken(uint Token, uint LotteryID)
+        {
+            Logger.ConsoleLog("------------------", ConsoleColor.Green);
+            XLotteryBet LotteryBet;
+            this.TableBet.SelectOne(data => data.LotteryID == LotteryID && data.FisrtToken >= Token && data.LastToken <= Token, out LotteryBet);
+            XUser user;
+            Helper.UserHelper.Table.SelectByID(LotteryBet.UserID, out user);
+            return user;
+        }
+
+        public Lottery GetCurrent(uint SteamGameID)
+        {
+            List<XLottery> xlots;
+            this.Table.Select(data => data.SteamGameID == SteamGameID && (data.StartTime <= Helper.GetCurrentTime() || data.StartTime == 0), out xlots);
+
+            Lottery lot;
+            this.GetLottery(xlots.Last().ID, out lot);
+            return lot;
         }
 
         public bool GetLottery(uint ID, out Lottery Lottery)
@@ -97,7 +165,7 @@ namespace GameSlot.Helpers
         {
             XLottery XLottery;
             XUser User;
-            if(Helper.UserHelper.Table.SelectByID(UserID, out User) && this.Table.SelectByID(LotteryID, out XLottery) && SteamItems.Count + Chips.Count <= 24)
+            if (Helper.UserHelper.Table.SelectByID(UserID, out User) && this.Table.SelectByID(LotteryID, out XLottery) && XLottery.WinnersToken == 0 && SteamItems.Count + Chips.Count <= 24)
             {
                 XLotteryBet XLotteryBet = new XLotteryBet();
                 double price = 0d;
@@ -113,6 +181,7 @@ namespace GameSlot.Helpers
                 {
                     XLotteryBet.ItemAssertIDs = new ulong[24];
                     XLotteryBet.SteamItemIDs = new uint[24];
+                    XLotteryBet.SteamBotIDs = new uint[24];
 
                     ushort array_index = 0;
 
@@ -123,12 +192,15 @@ namespace GameSlot.Helpers
                         {
                             // проверить, есть ли данный предмет у юзера
                             // сначала в локальном инвентаре
-                            if (Helper.UserHelper.IsUserHaveSteamItem(SteamItem.AssertID, UserID))
+                            XSItemUsersInventory XSItemUsersInventory;
+                            if (Helper.UserHelper.GetSteamLocalItem(SteamItem.AssertID, User.ID, out XSItemUsersInventory))
                             {
                                 if(SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
                                 {
                                     XLotteryBet.ItemAssertIDs[array_index] = SteamItem.AssertID;
                                     XLotteryBet.SteamItemIDs[array_index] = SteamItem.ID;
+                                    XLotteryBet.SteamBotIDs[array_index] = XSItemUsersInventory.SteamBotID;
+
                                     array_index++;
                                     XLotteryBet.SteamItemsNum = array_index;
 
@@ -207,11 +279,22 @@ namespace GameSlot.Helpers
                         List<XLotteryBet> ltrbts;
                         bool ff_bets = this.TableBet.Select(data => data.LotteryID == LotteryID, out ltrbts);
                         //Logger.ConsoleLog(ff_bets, ConsoleColor.Yellow);
-                        List<USteamItem> usi;
-                        List<Chip> chs;
 
-                        //TODO: ИСПРАВИТЬ ДОБАВЛЕНИЕ ВРЕМЕНИ
-                        //XLottery.EndTime = (!ff_bets) ? Helper.GetCurrentTime() + Configs.LOTTERY_GAME_TIME : Convert.ToInt32(Convert.ToDouble(XLottery.EndTime) + Math.Round(Configs.LOTTERY_EXTRA_TIME / 100 * (100 * price / this.GetBank(XLottery.ID, out usi, out chs))));
+                        //ДОБАВЛЕНИЕ ВРЕМЕНИ
+                        if (!ff_bets)
+                        {
+                            XLottery.EndTime = Helper.GetCurrentTime() + Configs.LOTTERY_GAME_TIME;
+                        }
+                        else
+                        {
+                            List<USteamItem> usi;
+                            List<Chip> chs;
+                            double oneproc = this.GetBank(LotteryID, out usi, out chs) / 100;
+                            double proctime = price / oneproc;
+                            double fl = Configs.LOTTERY_EXTRA_TIME / 100;
+                            double main = proctime * fl;
+                            XLottery.EndTime += (int) Math.Round(main);
+                        }
 
                         XLotteryBet.FisrtToken = (ff_bets) ? ltrbts.Last().LastToken + 1 : 1;
                         XLotteryBet.LastToken = Convert.ToUInt32(Math.Round(XLotteryBet.FisrtToken + price / Configs.TOKEN_PRICE));
@@ -222,15 +305,16 @@ namespace GameSlot.Helpers
                             foreach (USteamItem itm in ProcessingBet.SteamItems)
                             {
                                 XSItemUsersInventory x_itm;
-                                Helper.UserHelper.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == itm.AssertID, out x_itm);
+                                Helper.UserHelper.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == itm.AssertID && data.UserID == UserID && !data.Deleted, out x_itm);
                                 x_itm.Deleted = true;
                                 Helper.UserHelper.Table_SteamItemUsersInventory.UpdateByID(x_itm, x_itm.ID);
                             }
                         }
 
+                        XLotteryBet.LotteryID = XLottery.ID;
+                        XLotteryBet.UserID = User.ID;
                         this.TableBet.Insert(XLotteryBet);
                         this.Table.UpdateByID(XLottery, XLottery.ID);
-
                         return 1;
                     }
                     else
@@ -239,13 +323,21 @@ namespace GameSlot.Helpers
                         ProcessingBet.UserID = User.ID;
                         ProcessingBet.SteamGameID = XLottery.SteamGameID;
                         ProcessingBet.ProcessCreatedTime = Helper.GetCurrentTime();
+                        ProcessingBet.LotteryID = XLottery.ID;
                         LotteryHelper.ProcessingBets.Add(ProcessingBet);
 
                         // send steam trade
                         XSteamBot xbot;
                         if (Helper.SteamBotHelper.GetFreeBot(out xbot))
                         {
-                            UTRequestSteamMain.message = "MEGA PUPER TEST :D";
+                            string ProtectionCode = "";
+                            for (ushort i = 0; i < 4; i++)
+                            {
+                                ProtectionCode += (char)new Random().Next(0x30, 0x7A);
+                                Thread.Sleep(1);
+                            }
+
+                            UTRequestSteamMain.message = "Protection code: " + ProtectionCode;
                             UTRequestSteamMain.BotID = (int)xbot.ID;
                             UTRequestSteamMain.steamid = User.SteamID.ToString();
                             UTRequestSteamMain.trade_acc_id = User.TradeToken;
@@ -262,7 +354,7 @@ namespace GameSlot.Helpers
                             XSteamBotProcessItem.SteamItemsNum = ItemsFromSteamInventory;
                             XSteamBotProcessItem.Status = 0;
                             XSteamBotProcessItem.UserID = User.ID;
-
+                            XSteamBotProcessItem.ProtectionCode = ProtectionCode;
 
                             Helper.SteamBotHelper.Table_Items.Insert(XSteamBotProcessItem);
                             UpTunnel.Sender.Send(UTSteam.sk, UTRequestSteamMain);
@@ -270,7 +362,6 @@ namespace GameSlot.Helpers
 
                             return 2;
                         }
-
                     }
                 }
             }
@@ -289,7 +380,7 @@ namespace GameSlot.Helpers
             if (this.Table.SelectByID(LotteryID, out lottery))
             {
                 List<XLotteryBet> bets;
-                if (this.TableBet.Select(data => data.LotteryID == LotteryID, out bets))
+                if (this.TableBet.Select(data => data.LotteryID == lottery.ID, out bets))
                 {
                     foreach (XLotteryBet bet in bets)
                     {
@@ -297,10 +388,11 @@ namespace GameSlot.Helpers
                         for (uint i = 0; i < bet.SteamItemsNum; i++)
                         {
                             USteamItem Item;
-                            if (Helper.SteamItemsHelper.SelectByID(bet.SteamItemIDs[i], lottery.ID, out Item))
+                            if (Helper.SteamItemsHelper.SelectByID(bet.SteamItemIDs[i], lottery.SteamGameID, out Item))
                             {
                                 price += Item.Price;
                                 Item.AssertID = bet.ItemAssertIDs[i];
+                                Item.SteamBotID = bet.SteamBotIDs[i];
                                 SteamItems.Add(Item);
                             }
                         }

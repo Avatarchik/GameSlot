@@ -15,5 +15,6 @@ namespace GameSlot.Types
         public uint SteamGameID;
 
         public int ProcessCreatedTime;
+        public uint LotteryID; 
     }
 }

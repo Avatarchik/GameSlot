@@ -35,7 +35,7 @@
     <div id="inventory_local_steam">
         <div id="inventory_items_steam">
             {{foreach(USteamItem Item in LocalSteamInventory)}}
-                {{=Item.Name}} {{=Item.Price}}$ {{=Item.AssertID}}<br />
+                ({{=Item.ID}}) {{=Item.Name}} {{=Item.Price}}$ {{=Item.AssertID}}<br />
             {{end}}
         </div>
     </div>

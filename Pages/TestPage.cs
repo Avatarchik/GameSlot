@@ -77,10 +77,13 @@ namespace GameSlot.Pages
                         neww.AssertID = Convert.ToUInt64(client.GetParam("asert_id"));
                         usi.Add(neww);
                         Logger.ConsoleLog(neww.ID + ":" + neww.AssertID);
-                        Logger.ConsoleLog("\n---" + Helper.LotteryHelper.SetBet(0, user.ID, usi, Chips), ConsoleColor.Red);
+                        Logger.ConsoleLog("\n---СТАВКА_СТАТУС::" + Helper.LotteryHelper.SetBet(Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID).ID, user.ID, usi, Chips), ConsoleColor.Red);
                     }
                 }
             }
+
+            XLottery last_lot;
+            Logger.ConsoleLog((Helper.LotteryHelper.Table.SelectOne(data => data.SteamGameID == 570, out last_lot)));
 
             client.HttpSend(Helper.LotteryHelper.GetBank(0, out usi, out Chips).ToString());
             return true;

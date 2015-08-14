@@ -20,5 +20,7 @@ namespace GameSlot.Types
 
         public ulong AssertID;
         public uint SteamGameID;
+
+        public uint SteamBotID;
     }
 }

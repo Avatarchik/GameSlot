@@ -58,7 +58,7 @@ namespace GameSlot.Helpers
                     if (data.Contains("\"steamid\":"))
                     {
                         SteamUser SteamUser = new SteamUser();
-                        SteamUser.Name = Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(Regex.Split(data, "\"personaname\": \"")[1].Split('"')[0]));
+                        SteamUser.Name = BaseFuncs.XSSReplacer(Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(Regex.Split(data, "\"personaname\": \"")[1].Split('"')[0])));
                         SteamUser.Avatar = Regex.Split(data, "\"avatarfull\": \"")[1].Split('"')[0];
                         SteamUser.ProfileURL = Regex.Split(data, "\"profileurl\": \"")[1].Split('"')[0];
                         SteamUser.SteamID = SteamID;
@@ -166,7 +166,7 @@ namespace GameSlot.Helpers
             return false;
         }
 
-        public void UpdateOnlineUsersInventory(uint SteamGameID)
+        /*public void UpdateOnlineUsersInventory(uint SteamGameID)
         {
             new Thread(delegate() 
             {
@@ -189,7 +189,7 @@ namespace GameSlot.Helpers
                 }
             
             }).Start();
-        }
+        }*/
 
         public void WaitingList_InventoryClient(uint UserID, Client client, uint SteamGameID)
         {
@@ -416,6 +416,17 @@ namespace GameSlot.Helpers
             return Items;
         }
 
+        public bool GetSteamLocalItem(ulong AssertID, uint UserID, out XSItemUsersInventory XSItemUsersInventory)
+        {
+            if (this.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == AssertID && !data.Deleted && data.UserID == UserID, out XSItemUsersInventory))
+            {
+                return true;
+            }
+
+            XSItemUsersInventory = new XSItemUsersInventory();
+            return false;
+        }
+
         public bool SelectChipByAssertID(ulong AssertID, uint UserID, out Chip Chip)
         {
             if(this.UserExist(UserID))
@@ -434,14 +445,14 @@ namespace GameSlot.Helpers
 
         public bool IsUserHaveChip(ulong AssertID, uint UserID)
         {
-            XChipUsersInventory xchip;
-            return this.Table_ChipUsersInventory.SelectOne(data => data.AssertID == AssertID && !data.Deleted && data.UserID == UserID, out xchip);
+            Chip chip;
+            return this.SelectChipByAssertID(AssertID, UserID, out chip);
         }
 
         public bool IsUserHaveSteamItem(ulong AssertID, uint UserID)
         {
             XSItemUsersInventory xitem;
-            return this.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == AssertID && !data.Deleted && data.UserID == UserID, out xitem);
+            return this.GetSteamLocalItem(AssertID, UserID, out xitem);
         }
 
         public bool IsUserHaveSteamItem_SteamInventory(ulong AssertID, uint UserID, uint SteamGameID)

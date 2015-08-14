@@ -27,12 +27,8 @@ namespace GameSlot.Pages.Lotteries
         }
         public override bool Init(Client client)
         {
+            Lottery Lottery = Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID);
             Hashtable data = new Hashtable();
-            XLottery xlot = Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID);
-
-            Lottery Lottery;
-            Helper.LotteryHelper.GetLottery(xlot.ID, out Lottery);
-
             data.Add("Lottery", Lottery);
             XUser User;
             if (Helper.UserHelper.GetCurrentUser(client, out User))

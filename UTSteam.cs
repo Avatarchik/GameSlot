@@ -56,9 +56,12 @@ namespace GameSlot
                                 ProcessingBet ProcessingBet;
                                 if (Helper.LotteryHelper.SelectProcessingBet(XSteamBotProcessItem.UserID, XSteamBotProcessItem.SteamGameID, out ProcessingBet))
                                 {
-                                    Logger.ConsoleLog("process can be used!!", ConsoleColor.Green);
                                     Helper.LotteryHelper.RemoveProcessingBet(ProcessingBet);
-                                    Logger.ConsoleLog(Helper.LotteryHelper.SetBet(Helper.LotteryHelper.GetCurrent(XSteamBotProcessItem.SteamGameID).ID, XSteamBotProcessItem.UserID, ProcessingBet.SteamItems, ProcessingBet.Chips), ConsoleColor.Yellow);
+                                    XLottery xlottery;
+                                    if (Helper.LotteryHelper.Table.SelectByID(ProcessingBet.LotteryID, out xlottery) && xlottery.WinnersToken == 0)
+                                    {
+                                        Helper.LotteryHelper.SetBet(xlottery.ID, XSteamBotProcessItem.UserID, ProcessingBet.SteamItems, ProcessingBet.Chips);
+                                    }
                                 }
                             }
 

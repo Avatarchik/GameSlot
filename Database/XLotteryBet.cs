@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 508, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 704, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XLotteryBet
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -48,11 +48,16 @@ namespace GameSlot.Database
         public ulong[] ChipAssertIDs;
 
         [MarshalAs(UnmanagedType.U2)]
-        [FieldOffset(504)]
+        [FieldOffset(600)]
         public ushort SteamItemsNum;
 
         [MarshalAs(UnmanagedType.U2)]
-        [FieldOffset(506)]
+        [FieldOffset(602)]
         public ushort ChipsNum;
+
+        // 4 bts
+        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U4, SizeConst = 24)]
+        [FieldOffset(608)]
+        public uint[] SteamBotIDs;
     }
 }
