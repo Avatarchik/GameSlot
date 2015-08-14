@@ -26,10 +26,10 @@ namespace GameSlot
                     {
                         string[] args = val.Split(':');
 
-                        for (uint i = 0; i < args.Length; i++)
+                        /*for (uint i = 0; i < args.Length; i++)
                         {
                             Logger.ConsoleLog(args[i], ConsoleColor.Green);
-                        }
+                        }*/
 
                         if (args[0] == "accepted")//чел принял
                         {
@@ -72,14 +72,14 @@ namespace GameSlot
                         {
                             Helper.LotteryHelper.CancelBet(Convert.ToUInt64(args[2]), Convert.ToUInt64(args[1]), 4);
 
-                            Logger.ConsoleLog("User with steamid: '" + args[1] + "' declined tradeoffer with ID: " + args[2]);
+                            //Logger.ConsoleLog("User with steamid: '" + args[1] + "' declined tradeoffer with ID: " + args[2]);
                             Offers.Remove(args[2]);
                         }
                         else if (args[0] == "state_unknown")//предложение потерялось (статус неизвестен)
                         {
                             Helper.LotteryHelper.CancelBet(Convert.ToUInt64(args[2]), Convert.ToUInt64(args[1]), 6);
 
-                            Logger.ConsoleLog("User with steamid: '" + args[1] + "' tradeoffer with ID: " + args[2] + " lost!");
+                            //Logger.ConsoleLog("User with steamid: '" + args[1] + "' tradeoffer with ID: " + args[2] + " lost!");
                             Offers.Remove(args[2]);
                         }
                         else if (args[0] == "no_offer")//предложения нет(ответ на попытку отменить)

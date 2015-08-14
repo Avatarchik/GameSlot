@@ -23,17 +23,21 @@ namespace GameSlot.Helpers
         {
             new Thread(delegate()
             {
-                while (true)
+                try
                 {
-                    for (int i = 0; i < LotteryHelper.ProcessingBets.Count; i++)
+                    while (true)
                     {
-                        if (LotteryHelper.ProcessingBets[i].ProcessCreatedTime + 360 < Helper.GetCurrentTime())
+                        for (int i = 0; i < LotteryHelper.ProcessingBets.Count; i++)
                         {
-                            LotteryHelper.ProcessingBets.Remove(LotteryHelper.ProcessingBets[i]);
-                            Thread.Sleep(1);
+                            if (LotteryHelper.ProcessingBets[i].ProcessCreatedTime + 360 < Helper.GetCurrentTime())
+                            {
+                                LotteryHelper.ProcessingBets.Remove(LotteryHelper.ProcessingBets[i]);
+                                Thread.Sleep(1);
+                            }
                         }
                     }
                 }
+                catch { }
             }).Start();
         }
 
@@ -119,7 +123,6 @@ namespace GameSlot.Helpers
 
         public XUser GetUserByToken(uint Token, uint LotteryID)
         {
-            Logger.ConsoleLog("------------------", ConsoleColor.Green);
             XLotteryBet LotteryBet;
             this.TableBet.SelectOne(data => data.LotteryID == LotteryID && data.FisrtToken >= Token && data.LastToken <= Token, out LotteryBet);
             XUser user;
@@ -293,7 +296,11 @@ namespace GameSlot.Helpers
                             double proctime = price / oneproc;
                             double fl = Configs.LOTTERY_EXTRA_TIME / 100;
                             double main = proctime * fl;
-                            XLottery.EndTime += (int) Math.Round(main);
+                            XLottery.EndTime += (int) main;
+                            if(XLottery.EndTime > Helper.GetCurrentTime() + Configs.LOTTERY_GAME_TIME)
+                            {
+                                XLottery.EndTime = Helper.GetCurrentTime() + Configs.LOTTERY_GAME_TIME;
+                            }
                         }
 
                         XLotteryBet.FisrtToken = (ff_bets) ? ltrbts.Last().LastToken + 1 : 1;
@@ -333,7 +340,7 @@ namespace GameSlot.Helpers
                             string ProtectionCode = "";
                             for (ushort i = 0; i < 4; i++)
                             {
-                                ProtectionCode += (char)new Random().Next(0x30, 0x7A);
+                                ProtectionCode += (char)new Random().Next(0x30, 0x5B);
                                 Thread.Sleep(1);
                             }
 
