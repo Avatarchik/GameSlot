@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+{{include GameSlot Head}}
+
+<body class="vn3">
+    <div id="page">
+        <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
+
+        {{include GameSlot Header}}
+
+        <div class="pl-big-st1 pl-big-st14">
+            <div class="bg-dsk1">
+                <i></i>
+                <div></div>
+            </div>
+            <div class="fk7 fk71"></div>
+            <div class="fk8 fk81"></div>
+            <div class="fk11"></div>
+            <div class="fk12"></div>
+            <div class="fk13"></div>
+            <div class="cont-pl1 cont-pl11">
+                <div class="tit-pp1">Честная игра</div>
+                <div class="t-bl2">
+                    <div class="item1">
+                        <div class="nmb1">1</div>
+                        <img src="/cached_files/img/ft12.png" alt="">
+                        <p>У всех вещей есть своя стоимость.<br>Допустим, что вы поставили несколько предметов, на общую сумму: 1000$<br>За каждый 0,01$ ( 1 цент ) вам выдаётся один<br>жетон.<br>Рубли переводятся в доллары по курсу ЦБ<br>текущего дня<br>1$ = {{=Helper.Rub_ExchangeRate}} рублей = 100 жетонов ( 100 центов )</p>
+                    </div>
+                    <div class="item1">
+                        <div class="nmb1">2</div>
+                        <img src="/cached_files/img/ft13.png" alt="">
+                        <p>В начале каждого раунда, система берет<br>СЛУЧАЙНОЕ число от 0 до 1<br>( например: 0,499987195478746 ) и зашифровывает его в MD5 ( подробнее можно прочитать по ссылке:<br><a target="_blank" href="https://ru.wikipedia.org/wiki/MD5">https://ru.wikipedia.org/wiki/MD5</a> )</p>
+                        <p>И так наше число, после шифрования называется ХЭШ РАУНДА и выглядит следующим образом:</p>
+                        <p>0,499987195478746 = 48054715f7cba7c370a7a31eef5b3d5e</p>
+                        <p>Хэш раунда отображается игрокам в самом начале игры.</p>
+                    </div>
+                    <div class="item1">
+                        <div class="nmb1">3</div>
+                        <img src="/cached_files/img/ft14.png" alt="">
+                        <p><span>Как вычисляется победный жетон?</span></p>
+                        <p><b>Bank</b> = сумма джекпота в центах ( к примеру 1500$ )</p>
+                        <p><b>Number</b> = Не зашифрованное число раунда <br>( 0,499987195478746 )</p>
+                        <p>Формула победного жетона предельно проста:<br>( <b>number</b> ) х ( <b>bank</b> )<br>0,499987195478746 х 150000 = 7499.80793218<br>( берется целое число, без округления ) — 7499</p>
+                        <p>Следовательно победный жетон с номером = 7499</p>
+                    </div>
+                    <div class="ef-t1">Чем большим размером вы делаете ставку, тем больше жетонов<br>получаете, соответственно шанс выиграть увеличивается.</div>
+                    <div class="ef-t2"><span>1$={{=Helper.Rub_ExchangeRate}}</span>Курс ЦБ на сегодняшинй день</div>
+                    <div class="ef-t3"><span>ВНИМАНИЕ!</span>Так как до последнего момента никому не известен окончательный банк раунда, то и подделать победителя также невозможно!</div>
+                </div>
+                <div class="form-game1">
+                    <div class="title-form-game1">Проверка честной игры</div>
+                    <div class="ip j1"><input type="text" value="Хэш раунда"></div>
+                    <div class="ip j2"><input type="text" value="Число судьбы"></div>
+                    <div class="ip j3"><input type="text" value="Банк"></div>
+                    <div class="ep-send">
+                        <div class="sub-st1">Проверить<input type="submit" value=""></div>
+                        <div class="win-g1"><i>Победный жетон</i><span>123456789</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {{include GameSlot Footer}}
+    </div>
+    <div class="up1"></div>
+</body>
+</html>

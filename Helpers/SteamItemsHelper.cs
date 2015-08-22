@@ -73,6 +73,7 @@ namespace GameSlot.Helpers
                 SteamItem.Name = XSteamItem.Name;
                 SteamItem.Image = XSteamItem.Image;
                 SteamItem.Price = XSteamItem.Price;
+                SteamItem.Price_Str = XSteamItem.Price.ToString("###,##0.00");
                 SteamItem.NameColor = XSteamItem.NameColor;
                 SteamItem.Type = XSteamItem.Type;
                 SteamItem.SteamGameID = SteamGameID;
@@ -111,7 +112,7 @@ namespace GameSlot.Helpers
                 catch { }
             }
 
-            return 0;
+            return 0d;
         }
 
         public void UpdatePrices(uint SteamGameID)

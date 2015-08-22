@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+{{using GameSlot.Types}}
+{{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
+{{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
+{{set List<USteamItem> LocalSteamInventory = (List<USteamItem>) PageData["LocalSteamInventory"]}}
+<script>
+    GetMyInventoryPage = true;
+    MyInventoryPage_SteamGameID = "{{=SteamGameID}}";
+</script>
+
+{{include GameSlot Head}}
+<body>
+    {{include GameSlot Header}}
+    Инвентарь:
+    <a href="/inventory/dota">DOTA 2</a> 
+    <a href="/inventory/csgo">CSGO</a><br />
+
+    <div id="inventory">
+        <span id="totalPrice"></span>
+        <div id="inventory_items">Loading...</div>
+    </div>
+
+    <hr />
+    <h4>Chips</h4>
+    <div id="inventory_chips">
+        <div id="inventory_items_chips">
+            {{foreach(Chip chip in Chips)}}
+                {{=chip.Cost}} ({{=chip.AssertID}})$<br />
+            {{end}}
+        </div>
+    </div>
+
+    <hr />
+    <h4>Steam local</h4>
+    <div id="inventory_local_steam">
+        <div id="inventory_items_steam">
+            {{foreach(USteamItem Item in LocalSteamInventory)}}
+                ({{=Item.ID}}) {{=Item.Name}} {{=Item.Price}}$ {{=Item.AssertID}}<br />
+            {{end}}
+        </div>
+    </div>
+</body>
+</html>

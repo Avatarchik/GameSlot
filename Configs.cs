@@ -14,7 +14,7 @@ namespace GameSlot
         public static string STEAM_API = "D2D57807EDF7C09134C7F1BA077A9658";
 
         // USD
-        public static double MIN_ITEMS_PRICE = 0;
+        public static double MIN_ITEMS_PRICE = 0d;
 
         // secs:
         public static int LOTTERY_GAME_TIME = 300;

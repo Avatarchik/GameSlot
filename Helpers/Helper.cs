@@ -17,6 +17,8 @@ namespace GameSlot
         public static ChipHelper ChipHelper;
         public static SteamBotHelper SteamBotHelper;
 
+        public static double Rub_ExchangeRate = 64;
+
         public static int GetCurrentTime()
         {
             return (int)(DateTime.Now - new DateTime(2015, 7, 18)).TotalSeconds;

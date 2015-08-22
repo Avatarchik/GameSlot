@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameSlot.Database;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,14 +13,18 @@ namespace GameSlot.Types
         public string IDStr;
 
         public double JackpotPrice;
+        public string JackpotPrice_Str;
         public int JackpotItems;
 
         public double RaundNumber;
+        public string RaundNumber_MD5;
+
         // secs
         public int LeftTime;
 
-        public List<Bet> Bets;
-        public List<USteamItem> SteamItems;
-        public List<Chip> Chips;
+        public uint SteamGameID;
+
+        public uint WinnersToken;
+        public XUser Winner;
     }
 }

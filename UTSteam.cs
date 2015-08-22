@@ -60,7 +60,7 @@ namespace GameSlot
                                     XLottery xlottery;
                                     if (Helper.LotteryHelper.Table.SelectByID(ProcessingBet.LotteryID, out xlottery) && xlottery.WinnersToken == 0)
                                     {
-                                        Helper.LotteryHelper.SetBet(xlottery.ID, XSteamBotProcessItem.UserID, ProcessingBet.SteamItems, ProcessingBet.Chips);
+                                        Helper.LotteryHelper.SetBet(xlottery.ID, XSteamBotProcessItem.UserID, ProcessingBet.SteamItems, ProcessingBet.Chips, ProcessingBet.client);
                                     }
                                 }
                             }

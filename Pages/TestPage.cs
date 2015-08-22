@@ -4,6 +4,7 @@ using GameSlot.Types;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -68,6 +69,12 @@ namespace GameSlot.Pages
                         Logger.ConsoleLog(x.ID + ":UserID:" + x.UserID + ":AssertID:" + x.AssertID + ":SteamGameID:" + x.SteamGameID + ":Deleted:" + x.Deleted + ":SteamItemID:" + x.SteamItemID + ":SteamBotID:" + x.SteamBotID + "-------------");
                     }
                 }
+                else if (client.GetParam("chipID") != null)
+                {
+                    Helper.ChipHelper.AddChipToUser(Convert.ToUInt32(client.GetParam("chipID")), user.ID);
+                    Logger.ConsoleLog("Added chip!!!");
+                    //Thread.Sleep(10);
+                }
                 else
                 {
                     if (client.GetParam("item_id") != null && client.GetParam("asert_id") != null)
@@ -77,15 +84,28 @@ namespace GameSlot.Pages
                         neww.AssertID = Convert.ToUInt64(client.GetParam("asert_id"));
                         usi.Add(neww);
                         Logger.ConsoleLog(neww.ID + ":" + neww.AssertID);
-                        Logger.ConsoleLog("\n---СТАВКА_СТАТУС::" + Helper.LotteryHelper.SetBet(Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID).ID, user.ID, usi, Chips), ConsoleColor.Red);
+                       /* Chip Chip = new Chip();
+                        Chip.ID = Convert.ToUInt32(client.GetParam("item_id"));
+                        Chip.AssertID = Convert.ToUInt64(client.GetParam("asert_id"));
+                        Chips.Add(Chip);*/
+                        //Stopwatch sw = Stopwatch.StartNew();
+                        for (int x = 0; x < 1; x++)
+                        {
+                            //Stopwatch sw = Stopwatch.StartNew();
+                            Helper.LotteryHelper.SetBet(Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID).ID, user.ID, usi, Chips, client);
+ 
+
+                        }
+                        
+                        //Logger.ConsoleLog(sw.ElapsedMilliseconds);
                     }
                 }
             }
 
             XLottery last_lot;
             Logger.ConsoleLog((Helper.LotteryHelper.Table.SelectOne(data => data.SteamGameID == 570, out last_lot)));
-
-            client.HttpSend(Helper.LotteryHelper.GetBank(0, out usi, out Chips).ToString());
+            uint i = 10000;
+            client.HttpSend(i.ToString("D8"));
             return true;
         }
     }

@@ -159,7 +159,8 @@ namespace GameSlot.Helpers
         {
             if(Convert.ToInt32(client.Session["GroupOwnerID"]) >= 0)
             {
-                return Helper.GroupHelper.SelectByID(Convert.ToUInt32(client.Session["GroupOwnerID"]), out group);
+                XUser user;
+                return Helper.GroupHelper.SelectByID(Convert.ToUInt32(client.Session["GroupOwnerID"]), out group, out user);
             }
 
             group = null;
@@ -210,10 +211,10 @@ namespace GameSlot.Helpers
 
         public bool GetSteamInventory(XUser User, uint SteamGameID, out UsersInventory UsersInventory, bool wait = false)
         {
-            if (UsersInventories[SteamGameID].ContainsKey(User.ID))
+            if (UsersInventories.ContainsKey(SteamGameID) && UsersInventories[SteamGameID].ContainsKey(User.ID))
             {
                 UsersInventory = UsersInventories[SteamGameID][User.ID];
-
+                //Logger.ConsoleLog(UsersInventory.Opened + "CERCE");
                 if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID) && UsersInventory.LastUpdate + Configs.INVENTORY_UPDATE_TIME < Helper.GetCurrentTime())
                 {
                     //Logger.ConsoleLog("again update!");
@@ -224,8 +225,10 @@ namespace GameSlot.Helpers
                     else
                     {
                         new Thread(delegate() { this.UpdateSteamInventory(User, SteamGameID); }).Start();
+                        //return false;
                     }
                 }
+
                 return true;
             }
 
@@ -277,12 +280,15 @@ namespace GameSlot.Helpers
             {
                 double TotalPrice = 0d;
                 string StrItems = "";
-                UpdatingInventories[SteamGameID].Add(User.ID, Helper.GetCurrentTime());
+                int ItemsNum = 0;
+
+                UpdatingInventories[SteamGameID][User.ID] = Helper.GetCurrentTime();
                 try
                 {
                     using (WebClient WebClient = new WebClient())
                     {
                         string data = WebClient.DownloadString(User.ProfileURL + "inventory/json/" + SteamGameID + "/2");
+                       // Logger.ConsoleLog(data);
                         if (data.Contains("{\"success\":true"))
                         {
                             List<USteamItem> SteamItems = new List<USteamItem>();
@@ -306,6 +312,7 @@ namespace GameSlot.Helpers
                                         SteamItem = new USteamItem();
                                         SteamItem.Name = XSteamItem.Name = name;
                                         SteamItem.Price = XSteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(SteamItem.Name, SteamGameID);
+                                        SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
                                         SteamItem.NameColor = XSteamItem.NameColor = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0];
 
                                         if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
@@ -313,7 +320,7 @@ namespace GameSlot.Helpers
                                             SteamItem.Type = XSteamItem.Type = Regex.Split(Regex.Split(ItemContent, "\"background_color\":\"")[1], ",\"type\":\"")[1].Split(',')[1].Split('"')[0];
                                         }
 
-                                        XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url_large\":\"")[1].Split('"')[0] + "/330x192";
+                                        XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url\":\"")[1].Split('"')[0];
                                         XSteamItem.SteamGameID = SteamGameID;
 
                                         uint NewSteamItemID = Helper.SteamItemsHelper.Table.Insert(XSteamItem);
@@ -324,29 +331,38 @@ namespace GameSlot.Helpers
                                     if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
                                     {
                                         SteamItem.AssertID = Convert.ToUInt64(Item[i].Split('"')[0]);
+                                        SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
                                         SteamItems.Add(SteamItem);
 
                                         TotalPrice += SteamItem.Price;
-                                        StrItems += WebSocketPage.InventoryItemToString(SteamItem);
+                                        if (ItemsNum < 30)
+                                        {
+                                            StrItems += WebSocketPage.InventoryItemToString(SteamItem);
+                                        }
+
+                                        ItemsNum++;
                                     }
                                 }
                             }
-
-                            UsersInventory.SteamItems = SteamItems;
+                            //Logger.ConsoleLog(SteamItems.Count, ConsoleColor.Green);
+                            UsersInventory.SteamItems = (from it in SteamItems orderby it.Price descending select it).ToList();
                             UsersInventory.TotalPrice = TotalPrice;
+                            UsersInventory.TotalPrice_Str = TotalPrice.ToString("###,##0.00");
                             UsersInventory.Opened = true;
                         }
                     }
                 }
                 catch { }
 
-                if (UsersInventories[SteamGameID].ContainsKey(User.ID))
+               /* if (UsersInventories[SteamGameID].ContainsKey(User.ID))
                 {
                     UsersInventories[SteamGameID].Remove(User.ID);
-                }
+                }*/
 
                 UsersInventory.LastUpdate = Helper.GetCurrentTime();
-                UsersInventories[SteamGameID].Add(User.ID, UsersInventory);
+                UsersInventories[SteamGameID][User.ID] = UsersInventory;
+
+                //Logger.ConsoleLog("Users inventory status: " + UsersInventories[SteamGameID][User.ID].SteamItems.Count, ConsoleColor.Green);
                 UpdatingInventories[SteamGameID].Remove(User.ID);
 
                 if (InventoryClients[SteamGameID].ContainsKey(User.ID))
@@ -356,7 +372,7 @@ namespace GameSlot.Helpers
                     {
                         if (!InventoryClients[SteamGameID][User.ID][i].Closed)
                         {
-                            WebSocketPage.UpdateInventory(StrItems, TotalPrice, InventoryClients[SteamGameID][User.ID][i], (UsersInventory == null) ? false : true);
+                            WebSocketPage.UpdateInventory(StrItems, TotalPrice, ItemsNum, InventoryClients[SteamGameID][User.ID][i], (UsersInventory == null) ? false : true);
                         }
                     }
 
@@ -366,8 +382,9 @@ namespace GameSlot.Helpers
             return UsersInventory;
         }
 
-        public List<Chip> GetChipInventory(uint UserID)
+        public List<Chip> GetChipInventory(uint UserID, out double TotalPrice)
         {
+            double price = 0;
             List<Chip> chips = new List<Chip>();
             if (this.UserExist(UserID))
             {
@@ -383,13 +400,22 @@ namespace GameSlot.Helpers
                             Chip chip = ch.Clone();
                             chip.AssertID = xchip.AssertID;
                             //Logger.ConsoleLog(chip.AssertID);
+
+                            price += ch.Cost;
                             chips.Add(chip);
                         }
                     }
                 }
             }
 
-            return chips;
+            TotalPrice = price;
+            return (from it in chips orderby it.Cost descending select it).ToList();
+        }
+
+        public List<Chip> GetChipInventory(uint UserID)
+        {
+            double TotalPrice;
+            return this.GetChipInventory(UserID, out TotalPrice);
         }
 
         public List<USteamItem> GetSteamLocalInventory(uint UserID, uint SteamGameID)
@@ -413,12 +439,13 @@ namespace GameSlot.Helpers
                 }
             }
 
+            Items = (from it in Items orderby it.Price descending select it).ToList();
             return Items;
         }
 
-        public bool GetSteamLocalItem(ulong AssertID, uint UserID, out XSItemUsersInventory XSItemUsersInventory)
+        public bool GetSteamLocalItem(ulong AssertID, uint ItemID, uint UserID, out XSItemUsersInventory XSItemUsersInventory)
         {
-            if (this.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == AssertID && !data.Deleted && data.UserID == UserID, out XSItemUsersInventory))
+            if (this.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == AssertID && !data.Deleted && data.UserID == UserID && data.SteamItemID == ItemID, out XSItemUsersInventory))
             {
                 return true;
             }
@@ -432,7 +459,7 @@ namespace GameSlot.Helpers
             if(this.UserExist(UserID))
             {
                 XChipUsersInventory XChipInventory;
-                if (this.Table_ChipUsersInventory.SelectOne(data => data.AssertID == AssertID && data.UserID == UserID, out XChipInventory) && Helper.ChipHelper.SelectByID(XChipInventory.ChipID, out Chip))
+                if (this.Table_ChipUsersInventory.SelectOne(data => data.AssertID == AssertID && data.UserID == UserID && !data.Deleted, out XChipInventory) && Helper.ChipHelper.SelectByID(XChipInventory.ChipID, out Chip))
                 {
                     Chip.AssertID = XChipInventory.AssertID;
                     return true;
@@ -449,10 +476,10 @@ namespace GameSlot.Helpers
             return this.SelectChipByAssertID(AssertID, UserID, out chip);
         }
 
-        public bool IsUserHaveSteamItem(ulong AssertID, uint UserID)
+        public bool IsUserHaveSteamItem(ulong AssertID, uint ItemID, uint UserID)
         {
             XSItemUsersInventory xitem;
-            return this.GetSteamLocalItem(AssertID, UserID, out xitem);
+            return this.GetSteamLocalItem(AssertID, ItemID, UserID, out xitem);
         }
 
         public bool IsUserHaveSteamItem_SteamInventory(ulong AssertID, uint UserID, uint SteamGameID)
@@ -463,7 +490,20 @@ namespace GameSlot.Helpers
                 //Logger.ConsoleLog("{\"id\":\"" + AssertID + "\"");
                 if (inventory.Contains("{\"id\":\"" + AssertID + "\""))
                 {
-                    //string classID = Regex.Split(Regex.Split(inventory, "{\"id\":\"" + AssertID + "\"")[1], "\"classid\":\"")[1].Split('"')[0];
+                    string classID = Regex.Split(Regex.Split(inventory, "{\"id\":\"" + AssertID + "\"")[1], "\"classid\":\"")[1].Split('"')[0];
+                    string ItemContent = Regex.Split(inventory, "{\"appid\":\"" + SteamGameID + "\",\"classid\":\"" + classID + "\"")[1];
+
+                    if (Regex.Split(ItemContent, "\"tradable\":")[1].Split(',')[0].Equals("1") && Regex.Split(ItemContent, "\"marketable\":")[1].Split(',')[0].Equals("1"))
+                    {
+                        string name = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
+                        name = Encoding.GetEncoding(65001).GetString(Encoding.GetEncoding(65001).GetBytes(name));
+                        
+                        USteamItem it;
+                        if(Helper.SteamItemsHelper.SelectByName(name,SteamGameID, out it))
+                        {
+                            return true;
+                        }
+                    }
                     return true;
                 }
             }
@@ -488,6 +528,18 @@ namespace GameSlot.Helpers
 
             return false;
         }*/
+
+        public double GetLocalSteamInventoryTotalPrice(uint UserID, uint SteamGameID, out string TotalPrice_Str)
+        {
+            double price = 0D;
+            foreach(USteamItem Item in Helper.UserHelper.GetSteamLocalInventory(UserID, SteamGameID))
+            {
+                price += Item.Price;
+            }
+
+            TotalPrice_Str = price.ToString("###,##0.00");
+            return price;
+        }
     }
 
 

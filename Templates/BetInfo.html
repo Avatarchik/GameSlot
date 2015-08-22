@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+{{include GameSlot Head}}
+
+<body class="vn3">
+    <div id="page">
+        <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
+
+        {{include GameSlot Header}}
+
+        <div class="pl-big-st1 pl-big-st12">
+            <div class="bg-dsk1">
+                <i></i>
+                <div></div>
+            </div>
+            <div class="fk7"></div>
+            <div class="fk8"></div>
+            <div class="fk9"></div>
+            <div class="cont-pl1 cont-pl11">
+                <div class="tit-dc1">Как поставить вещи</div>
+                <div class="tit-dc2">Для того, чтобы ставить вещи вы должны быть авторизованы на нашем сайте</div>
+                <img src="/cached_files/img/ft1.png" alt="" class="em1">
+                <div class="blf1">
+                    <div class="item1">
+                        <div class="ef-r2"><span>Ваш инвентарь в Steam<br>обязательно должен<br>быть открыт!</span>Чтобы сделать это нужно:</div>
+                    </div>
+                    <div class="item1">
+                        <div class="ef-r1"><span>1</span></div>
+                        <p><span>Войти в Steam. </span>Затем выбрать: Профиль ><br>Редактировать профиль ><br>Мои настройки приватности<br>
+                            {{if(Helper.UserHelper.Authorized(client))}}
+                                <a href='{{=client.Session["ProfileURL"]}}edit/settings' target="_blank">{{=client.Session["ProfileURL"]}}edit/settings</a>
+                            {{end}}
+                            {{else}}                        
+                                <a href="/login">http://steamcommunity.com/[your_profile]/edit/settings</a>
+                            {{end}}
+                        </p>
+                    </div>
+                    <div class="item1">
+                        <div class="ef-r1"><span>2</span></div>
+                        <p><span>Далее в настройках инвентаря выбрать: «Открытый»</span></p>
+                        <img src="/cached_files/img/ft2.png" alt="">
+                    </div>
+                    <div class="df-t1">Обмен предметами нельзя произвести, если не включен Steam Guard или с момента его включения не прошло<br>15 дней, также если пользователь зашел с нового устройства и не прошло еще 7 дней.</div>
+                </div>
+                <div class="tit-dc3">В игру ставить вещи можно тремя способами:</div>
+                <div class="blf2">
+                    <div class="tit-dc4">1</div>
+                    <div class="tit-dc5"> Из основного инвентаря Steam</div>
+                    <div class="rr-img1"><img src="/cached_files/img/ft3.png" alt=""><span>Страница «инвентарь»</span></div>
+                    <div class="ll-text1">
+                        <p>После того, как вы авторизовались и<br>открыли инвентарь в Steam, все ваши<br>вещи появятся на странице<br>«инвентарь» В разделе «Инвентарь<br>Steam»</p>
+                        <div class="df1-space"></div>
+                        <p>Чтобы совершать ставку из стим<br>инвентаря, вы ОБЯЗАТЕЛЬНО должны<br>правильно указать свой<br>Steam Trade URL</p>
+                        <p class="sp-fz1">Посмотреть его можно по этой ссылке:<br>
+                            {{if(Helper.UserHelper.Authorized(client))}}
+                                <a href='{{=client.Session["ProfileURL"]}}tradeoffers/privacy' target="_blank">{{=client.Session["ProfileURL"]}}<br>tradeoffers/privacy</a>
+                            {{end}}
+                            {{else}}
+                                <a href="/login">http://steamcommunity.com/[your_profile]/trade<br>offers/privacy</a>
+                            {{end}}
+                        </p>
+                    </div>
+                    <div class="clear"></div>
+                    <div class="tit-dc4">2</div>
+                    <div class="tit-dc5 tit-dc55">Из временного инвентаря</div>
+                    <div class="rr-img1"><img src="/cached_files/img/ft4.png" alt=""></div>
+                    <div class="ll-text2">
+                        <p>Во временный инвентарь попадают вещи, которые вы выиграли в лотерею и пока вы их не передали обратно в свой Stem-инвентарь вы можете их ставить в игру. В отличие от ставки вещей из стима, этот процесс происходит мгновенно.</p>
+                    </div>
+                    <div class="clear"></div>
+                    <div class="tit-dc4">3</div>
+                    <div class="tit-dc5">Ставка фишками</div>
+                    <div class="rr-img1">
+                        <img src="/cached_files/img/ft5.png" alt="">
+                        <div class="ep-alert1">Важно отметить! Если в вашей ставке присутствует хотя бы одна вещь из инвентаря Steam,<br>то процесс также займет некоторое время, в связи с согласованием обмена с ботом.</div>
+                    </div>
+                    <div class="ll-text2 ll-text22">
+                        <p>Также вместо вещей вы можете совершать ставку фишками, которые можно приобрести со страницы инвентаря</p>
+                        <p>Аналогично со ставкой из временного инвентаря, ставка фишек в игру производится моментально.</p>
+                    </div>
+                </div>
+                <div class="blf2">
+                    <div class="tit-dc6">Чтобы участвовать в игре нажмите на кнопку:</div>
+                    <div class="tit-dc7">«начать игру» или «Присоединиться к игре», если игра уже началась</div>
+                    <div class="tit-dc8">Перед вами откроется окно оформления ставки.</div>
+                    <img src="/cached_files/img/ft6.png" alt="" class="em1">
+                </div>
+                <div class="blf2">
+                    <div class="tit-dc7">В левой части отображаются предметы, которые вы собираетесь поставить в игру,<br>а в правой части - все ваши предметы, они разделены на 3 закладки: </div>
+                    <div class="tit-dc8">Инвентарь Steam, Временный инвентарь и Фишки:</div>
+                    <img src="/cached_files/img/ft7.png" alt="" class="em1">
+                    <div class="tit-dc7 tit-dc77">Чтобы поставить предмет просто нажмите по нему мышкой  и он перенесётся в левый блок</div>
+                    <img src="/cached_files/img/ft8.png" alt="" class="em1">
+                    <div class="tit-dc7 tit-dc771">Для того, чтобы убрать предмет из ставки и вернуть его обратно, также просто кликните по нему в левом блоке.</div>
+                </div>
+                <div class="blf2">
+                    <div class="tit-dc6">Когда вы перенесли все необходимые предметы</div>
+                    <div class="over-ff-pos1 over-ff-pos11">
+                        <img src="/cached_files/img/ft9.png" alt="">
+                        <div><span>нажмите на кнопку «Поставить»</span><span>После этого запрос начнёт обрабатываться нашими ботами.<br>(Этот процесс может занять до 5 минут)</span></div>
+                    </div>
+                    <div class="over-ff-pos1">
+                        <img src="/cached_files/img/ft10.png" alt="">
+                        <div><span>Когда бот будет готов, то появится сообщение<br>с именем бота и кодом защиты</span><span>Для того, чтобы перейти в стим и совершить передачу предметов,<br>вам нужно будет нажать на кнопку: «Перейти в Steam»</span></div>
+                    </div>
+                </div>
+                <div class="blf2">
+                    <div class="tit-dc6">На странице обмена в Steam</div>
+                    <div class="tit-dc7 tit-dc71">На странице обмена в Steam вы увидите те предметы ,которые вы выбрали для ставки и снизу увидите нашего Бота<br>с соответствующим именем.</div>
+                    <div class="over-ff-pos2">
+                        <img src="/cached_files/img/ft11.png" alt="">
+                        <span class="j1">для того, чтобы<br>передать Боту<br>предметы –<br>поставьте галочку<br>в блоке<br>«подтвердить<br>обмен»</span>
+                        <span class="j2">и нажмите на<br>кнопку «Принять<br>обмен»</span>
+                        <span class="j3">Затем сверьте код<br>безопасности</span>
+                    </div>
+                    <div class="tit-dc9">После этого выводится успешное сообщение от Steam и в течении 5 секунд ваша ставка попадает в игру.<br>дальше всё зависит только от вашей удачи</div>
+                    <div class="tit-dc10">Успехов!</div>
+                </div>
+            </div>
+        </div>
+        {{include GameSlot Footer}}
+    </div>
+    <div class="up1"></div>
+</body>
+</html>

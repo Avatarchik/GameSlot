@@ -34,7 +34,7 @@ namespace GameSlot.Pages.UserPages
                 uint SteamGameID = 0;
                 string Action = BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0];
 
-                if (Action.Equals("dota"))
+                if (Action.Equals("dota2"))
                 {
                     SteamGameID = Configs.DOTA2_STEAM_GAME_ID;
                 }
@@ -48,10 +48,28 @@ namespace GameSlot.Pages.UserPages
                     return false;
                 }
 
+                string total_local_price;
+                //List<USteamItem> LocalItems = Helper.UserHelper.GetSteamLocalInventory(User.ID, SteamGameID);
+                Helper.UserHelper.GetLocalSteamInventoryTotalPrice(User.ID, SteamGameID, out total_local_price);
+                UsersInventory UsersInventory;
+
                 Hashtable data = new Hashtable();
+                if(Helper.UserHelper.GetSteamInventory(User, SteamGameID, out UsersInventory))
+                {
+                    data.Add("SteamInventoryLoaded", true);
+                    data.Add("UsersInventory", UsersInventory);
+                }
+                else
+                {
+                    data.Add("SteamInventoryLoaded", false);
+                    data.Add("UsersInventory", null);
+                }
+
                 data.Add("SteamGameID", SteamGameID);
                 data.Add("Chips", Helper.UserHelper.GetChipInventory(User.ID));
                 data.Add("LocalSteamInventory", Helper.UserHelper.GetSteamLocalInventory(User.ID, SteamGameID));
+                data.Add("LocalTotalPrice", total_local_price);
+                data.Add("Title", "Мой инвентарь");
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }

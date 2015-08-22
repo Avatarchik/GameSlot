@@ -13,13 +13,17 @@ namespace GameSlot.Pages.Lotteries
 {
     public class D2Lottery : SiteGameSlot
     {
+        public override PageType PageType
+        {
+            get { return PageType.Multi; }
+        }
         public override string URL
         {
-            get { return "/dota2"; }
+            get { return "/game/"; }
         }
         public override string TemplateAddr
         {
-            get { return "Lottery.html"; }
+            get { return "Lotteries.Lottery.html"; }
         }
         public override bool FilterBefore
         {
@@ -27,14 +31,68 @@ namespace GameSlot.Pages.Lotteries
         }
         public override bool Init(Client client)
         {
-            Lottery Lottery = Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID);
-            Hashtable data = new Hashtable();
-            data.Add("Lottery", Lottery);
-            XUser User;
-            if (Helper.UserHelper.GetCurrentUser(client, out User))
+            uint SteamGameID = 0;
+            string Game = BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0];
+
+            string title;
+            if (Game.Equals("dota2"))
             {
-                data.Add("Chips", Helper.UserHelper.GetChipInventory(User.ID));
+                SteamGameID = Configs.DOTA2_STEAM_GAME_ID;
+                title = "DOTA2";
             }
+            else if (Game.Equals("csgo"))
+            {
+                SteamGameID = Configs.CSGO_STEAM_GAME_ID;
+                title = "CSGO";
+            }
+            else
+            {
+                BaseFuncs.Show404(client);
+                return false;
+            }
+            Hashtable data = new Hashtable();
+
+            XUser user;
+            if (Helper.UserHelper.GetCurrentUser(client, out user))
+            {
+                string total_local_price;
+                Helper.UserHelper.GetLocalSteamInventoryTotalPrice(user.ID, SteamGameID, out total_local_price);
+                UsersInventory UsersInventory;
+
+                if (Helper.UserHelper.GetSteamInventory(user, SteamGameID, out UsersInventory))
+                {
+                    data.Add("SteamInventoryLoaded", true);
+                    data.Add("UsersInventory", UsersInventory);
+                }
+                else
+                {
+                    data.Add("SteamInventoryLoaded", false);
+                    data.Add("UsersInventory", null);
+                }
+
+                data.Add("LocalSteamInventory", Helper.UserHelper.GetSteamLocalInventory(user.ID, SteamGameID));
+                data.Add("LocalTotalPrice", total_local_price);
+
+                double ChipsTotalPrice;
+                data.Add("Chips", Helper.UserHelper.GetChipInventory(user.ID, out ChipsTotalPrice));
+                data.Add("ChipsTotalPrice", ChipsTotalPrice.ToString("###,##0.00"));
+            }
+
+            Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID);
+            data.Add("Lottery", Lottery);
+            data.Add("Bets", Helper.LotteryHelper.GetUsersBets(Lottery.ID, 0, 10));
+
+            int items;
+            data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items).ToString("###,##0.00"));
+            data.Add("MaxJackpotItems", items);
+
+            double TodaysJackpotPrice;
+            int TodaysJackpotItems;
+            data.Add("TodaysGames", Helper.LotteryHelper.TodaysGames(SteamGameID, out TodaysJackpotPrice, out TodaysJackpotItems).Length);
+            data.Add("TodaysJackpotItems", TodaysJackpotItems);
+            data.Add("TodaysJackpotPrice", TodaysJackpotPrice.ToString("###,##0.00"));
+
+            data.Add("Title", "Лотерея " + title + " - Выигрывай на ставках!");
             client.HttpSend(TemplateActivator.Activate(this, client, data));
             return true;
         }

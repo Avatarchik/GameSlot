@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UpServer;
 using GameSlot.Database;
 using System.IO;
+using System.Threading;
 
 namespace GameSlot
 {
@@ -47,6 +48,7 @@ namespace GameSlot
         }
         public override string Host
         {
+            //get { return "localhost;uptrade.local;gameslot.uptrade.pro;thegameslot.ru;www.thegameslot.ru;thegameslot.com;www.thegameslot.com"; }
             get { return "localhost;uptrade.local;gameslot.uptrade.pro"; }
         }
         public override uint CacheTime
@@ -68,6 +70,7 @@ namespace GameSlot
 
 
             Helper.LotteryHelper.StartLottery(Configs.DOTA2_STEAM_GAME_ID);
+            Thread.Sleep(100);
             Helper.LotteryHelper.StartLottery(Configs.CSGO_STEAM_GAME_ID);
 
             //Helper.UserHelper.UpdateOnlineUsersInventory(Configs.DOTA2_STEAM_GAME_ID);
@@ -91,6 +94,7 @@ namespace GameSlot
         public override bool AfterInit(Client client)
         {
             client.Session["Referer"] = client.URL;
+            Logger.ConsoleLog(client.Session["Referer"]);
             return true;
         }
     }

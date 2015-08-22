@@ -12,6 +12,7 @@ namespace GameSlot.Types
 
         public string Name;
         public double Price;
+        public string Price_Str;
 
         public string NameColor;
         public string Type;

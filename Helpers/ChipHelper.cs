@@ -2,15 +2,19 @@
 using GameSlot.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UpServer;
+using XData;
 
 namespace GameSlot.Helpers
 {
     public class ChipHelper
     {
+        public XTable<XChipCustomer> Table = new XTable<XChipCustomer>();
         private static List<Chip> Chips = new List<Chip>();
         public ChipHelper()
         {
@@ -19,6 +23,7 @@ namespace GameSlot.Helpers
             this.CreateChip(25);
             this.CreateChip(50);
             this.CreateChip(100);
+            this.CreateChip(0.5);
         }
 
         private void CreateChip(double cost)
@@ -26,24 +31,27 @@ namespace GameSlot.Helpers
             Chip chip = new Chip();
             chip.ID = (Chips.Count > 0) ? ChipHelper.Chips.Last().ID + 1 : 0;
             chip.Cost = cost;
-            chip.Image = "";
+            chip.Cost_Str = cost.ToString("###,##0.00");
+            chip.Image = "/cached_files/dogs/" + chip.Cost + ".jpg";
 
             ChipHelper.Chips.Add(chip);
         }
 
         public bool SelectByID(uint ID, out Chip chip)
         {
-            foreach(Chip ch in ChipHelper.Chips)
+
+            for (int i = 0; i < ChipHelper.Chips.Count; i++)
             {
-                if (ch.ID == ID)
+                if (ChipHelper.Chips[i].ID == ID)
                 {
-                    chip = ch;
+                    chip = ChipHelper.Chips[i];
                     return true;
                 }
             }
+            
 
             chip = null;
-            return false;
+            return true;
         }
 
         public void AddChipToUser(uint ChipID, uint UserID)
@@ -52,9 +60,11 @@ namespace GameSlot.Helpers
             if(Helper.UserHelper.UserExist(UserID) && this.SelectByID(ChipID, out chip))
             {
                 XChipUsersInventory xchip = new XChipUsersInventory();
-                xchip.ChipID = ChipID;
-                xchip.UserID = UserID;
-                xchip.AssertID = Convert.ToUInt64(new Random().Next() + UserID + new Random().Next());
+                XChipCustomer XChipCustomer = new XChipCustomer();
+
+                XChipCustomer.ChipID = xchip.ChipID = ChipID;
+                XChipCustomer.UserID = xchip.UserID = UserID;
+                xchip.AssertID = this.Table.Insert(XChipCustomer);
 
                 Helper.UserHelper.Table_ChipUsersInventory.Insert(xchip);
             }

@@ -5,6 +5,9 @@
     var MyGroupPageConnect, MyGroupPage_GroupID = false;
     var GroupPageConnect, GroupPage_GroupID = false;
 
+    var LotteryPageConnect, LotteryPage_LotteryID = false;
+    var LotteryPage_GetInventory, LotteryPage_GetInventory_SteamGameID = false;
+
     ws.onopen = function ()
     {
         if(GetMyInventoryPage)
@@ -19,6 +22,16 @@
         {
             ws.send("GroupPage{{=BaseFuncs.WSplit}}Connect{{=BaseFuncs.WSplit}}" + GroupPage_GroupID);
         }
+        else if(LotteryPageConnect)
+        {
+            console.log("LotteryPage{{=BaseFuncs.WSplit}}Connect{{=BaseFuncs.WSplit}}" + LotteryPage_LotteryID);
+            ws.send("LotteryPage{{=BaseFuncs.WSplit}}Connect{{=BaseFuncs.WSplit}}" + LotteryPage_LotteryID);
+
+            if (LotteryPage_GetInventory) {
+                console.log("GetInventory{{=BaseFuncs.WSplit}}" + LotteryPage_GetInventory_SteamGameID);
+                ws.send("GetInventory{{=BaseFuncs.WSplit}}" + LotteryPage_GetInventory_SteamGameID);
+            }
+        }
     };
 
     ws.onmessage = function (evt)
@@ -28,7 +41,8 @@
         if(GetMyInventoryPage)
         {
             if (data[0] == "InventoryClosed") {
-                $("div#inventory" + data[1]).html("Инвентарь закрыт!");
+                /*$("div#inventory" + data[1]).html("Инвентарь закрыт!");*/
+                alert("CLOSED!!!");
             }
 
             else if (data[0] == "Inventory") {
@@ -39,15 +53,16 @@
                 var items_content = "";
                 for (var i = 0; i < (items.length - 1) ; i++) {
                     var item = items[i].split('↓');
-                    var name = item[0];
-                    var price = item[1];
-                    var image = "<img height='330px' width='192px' src='/steam-image/" + item[2] + "/" + item[3] + "'>";
-                    var assertID = item[4];
-                    items_content += image + name + "[" + price + "$] assertID:" + assertID + "<br />";
+                    var name = "<div class='tiltp'>" + item[0] + "</div>";
+                    var price = "<span style='baks'>" + item[1] + "</span>";
+                    var image = "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>";
+                    var assertID = "<assert_id style='display:none;'>" + item[4] + "</assert_id>";
+
+                    items_content += "<div class='item1'>" + image + price + "<a href=''></a>" + name + assertID + "</div>";
                 }
 
                 $("div#inventory_items").html(items_content);
-                $("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");
+                /*$("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");*/
             }
         }
 
@@ -62,8 +77,176 @@
         else if(GroupPageConnect)
         {
             if (data[0] == "UpdateGroupData") {
-                $("span#group_name").text(data[1]);
-                $("span#users_num").text(data[2]);
+                $("kek#group_name").text(data[1]);
+                $("kek#users_num").text(data[2]);
+            }
+        }
+
+        else if (GroupPageConnect) {
+            if (data[0] == "UpdateGroupData") {
+                $("kek#group_name").text(data[1]);
+                $("kek#users_num").text(data[2]);
+            }
+        }
+
+        else if(LotteryPageConnect)
+        {
+            if (data[0] == "AddedNewLotteryBet")
+            {
+                var html_block = $("div#new_bet").html();
+                html_block = html_block.replace("[BET_ITEMS_NUM]", data[5]);
+                html_block = html_block.replace("[BET_PRICE]", data[6]);
+                html_block = html_block.replace("[FIRST_TOKEN]", data[7]);
+                html_block = html_block.replace("[LAST_TOKEN]", data[8]);
+                html_block = html_block.replace("[BETS_NUM]", data[9]);
+                html_block = html_block.replace("[TOTAL_ITEMS_NUM]", data[11]);
+                html_block = html_block.replace("[WINRATE]", data[12]);
+                html_block = html_block.replace("[TOTAL_PRICE]", data[10]);
+                html_block = html_block.replace("[user_avatar]", "src='" + data[16] + "'");
+                html_block = html_block.replace("[USER_NAME]", data[15]);
+                html_block = html_block.replace("[USER_NAME_2]", data[15]);
+
+                var random_hash = "j_" + data[17] + "_" + data[14];
+                html_block = html_block.replace("[RANDOM_HASH]", random_hash);
+
+                var otherbets = data[13].split('↓');
+                var addition_bets = "";
+                for (var i = 0; i < otherbets.length -1; i++)
+                {
+                    var spl = otherbets[i].split('::');
+
+                    var extra = $("div#new_bet_mini").html();
+                    extra = extra.replace("[ITEMS_NUM]", spl[2]);
+                    extra = extra.replace("[TOTAL_PRICE]", spl[3]);
+                    extra = extra.replace("[FIRST_TOKEN]", spl[0]);
+                    extra = extra.replace("[LAST_TOKEN]", spl[1]);
+                    addition_bets += extra;
+                }
+
+                var bet_items = data[19].split("↓");
+                var addition_items = "";
+                for (var i = 0; i < bet_items.length - 1; i++)
+                {
+                    var spl = bet_items[i].split('::');
+
+                    var items_html = $("div#new_bets_items").html();
+                    items_html = items_html.replace("/[items_image]", "/steam-image/" + spl[0] + "/" + spl[1]);
+                    items_html = items_html.replace("[items_name]", spl[2]);
+                    items_html = items_html.replace("[items_price]", spl[3]);
+                    addition_items += items_html;
+                }
+
+                var bet_items = data[20].split("↓");
+                for (var i = 0; i < bet_items.length - 1; i++) {
+                    var spl = bet_items[i].split('::');
+
+                    var items_html = $("div#new_bets_items").html();
+                    items_html = items_html.replace("/[items_image]", "/chip-image/" + spl[0]);
+                    items_html = items_html.replace("[items_name]", spl[1]);
+                    items_html = items_html.replace("[items_price]", spl[1]);
+                    addition_items += items_html;
+                }
+
+                html_block = html_block.replace("[OTHER_BETS]", addition_bets);
+                html_block = html_block.replace("[BETS_ITEMS]", addition_items);
+                $("span#first_position").after(html_block);
+
+                $(".content3." + random_hash).mCustomScrollbar({
+                    horizontalScroll: false,
+                    mouseWheelPixels: 300
+                });
+
+                left_secs = data[18];
+                if (data[4] < 0)
+                {
+                    $("#standart_lottery_form").remove();
+                    $("#lottery_started_format").attr("style", "display:block");
+                }
+                else if (data[4] > 0)
+                {
+                    min = Math.floor(data[4] / 60);
+                    sec = data[4] - 60 * min;
+
+                    if (sec < 10) {
+                        sec = "0" + sec;
+                    }
+                    if (min < 10) {
+                        min = "0" + min;
+                    }
+
+                    var lottery_time_alert = $("<b class='eft-pl1 '" + random_hash + ">+" + min + ":" + sec + "</b>").insertAfter(".lottery_time_alert");
+                    lottery_time_alert.addClass('active').delay(400).animate({ opacity: '0', marginTop: '-20px' }, 1000);
+                }
+
+                var items_jackpot_alert = $("<b class='eft-pl1 '" + random_hash + ">+" + data[5] + "</b>").insertAfter(".items_jackpot_alert");
+                items_jackpot_alert.addClass('active').delay(400).animate({ opacity: '0', marginTop: '-20px' }, 1000);
+
+                var price_jackpot_alert = $("<b class='eft-pl1 '" + random_hash + ">+" + data[6] + "</b>").insertAfter(".price_jackpot_alert");
+                price_jackpot_alert.addClass('active').delay(400).animate({ opacity: '0', marginTop: '-20px' }, 1000);
+
+                $("#jackpot_price").text(data[1]);
+                $("#jackpot_items_num").text(data[3]);
+            }
+
+            else if (data[0] == "BetDone")
+            {
+                $("div#bet_sys").attr('style', 'display:none;');
+                $("div#bet_ready").attr("style", "display:none;");
+            }
+            else if (data[0] == "TradeSent")
+            {
+                $("div#bet_ready").attr("style", "display:none;");
+                var block = $("div#bet_done");
+                block.html(block.html().replace("[bet_done_protection_code]", "protec"));
+                block.html(block.html().replace("[bet_done_bot_name]", "bot_name"));
+                alert("итема!");
+            }
+            else if(data[0] == "BetError")
+            {
+                alert("нету итема!");
+            }
+
+            else if (data[0] == "SteamInventoryClosed")
+            {
+                $("div#steam_inventory_loading").attr("style", "display:none;");
+                $("div#steam_iventory").html($("div#steam_inventory_closed").html());
+                console.log('steam inventory closed');
+            }
+
+            else if (data[0] == "SteamInventory")
+            {
+                console.log("SteamInventory");
+                var items = data[2].split(';');
+                items_content = "";
+                for (var i = 0; i < (items.length - 1) ; i++)
+                {
+                    var items_html = $("div#steam_items_html").html();
+                    var item = items[i].split('↓');
+
+                    items_html = items_html.replace("[item_name]", item[0]);
+                    items_html = items_html.replace("[item_name]", item[0]);
+
+                    items_html = items_html.replace("[item_id]", item[3]);
+                    items_html = items_html.replace("[item_id]", item[3]);
+
+                    items_html = items_html.replace("[item_price]", item[1]);
+                    items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");
+
+                    items_html = items_html.replace("[item_assert_id]", item[4]);
+                    items_html = items_html.replace("[item_assert_id]", item[4]);
+                    items_html = items_html.replace("[item_assert_id]", item[4]);
+
+                    items_html = items_html.replace("[iventory_id]", "1");
+                    items_html = items_html.replace("[current_iventory_id]", "1");
+
+                    $("div#steam_iventory").append(items_html);
+                }
+
+                $("div#steam_inventory_loading").attr("style", "display:none;");
+                $("div#steam_inventory_items_num").text(data[3]);
+                $("div#steam_inventory_total_price").text(data[1]);
+                /*$("div#steam_iventory").html(items_content);*/
+                /*$("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");*/
             }
         }
     };

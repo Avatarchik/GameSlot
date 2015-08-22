@@ -10,6 +10,8 @@ namespace GameSlot.Types
     {
         public uint ID;
         public double Cost;
+        public string Cost_Str;
+
         public string Image;
 
         public ulong AssertID;

@@ -11,6 +11,7 @@ namespace GameSlot.Types
     {
         public List<USteamItem> SteamItems;
         public double TotalPrice;
+        public string TotalPrice_Str;
         public int LastUpdate;
         public bool Opened;
     }

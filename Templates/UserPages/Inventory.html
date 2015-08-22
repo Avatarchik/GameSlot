@@ -1,43 +1,227 @@
 ﻿<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml">
 {{include GameSlot Head}}
-<body>
-    {{include GameSlot Header}}
-    {{using GameSlot.Types}}
-    {{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
-    {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
-    {{set List<USteamItem> LocalSteamInventory = (List<USteamItem>) PageData["LocalSteamInventory"]}}
-    Инвентарь:
-    <a href="/inventory/dota">DOTA 2</a> 
-    <a href="/inventory/csgo">CSGO</a><br />
 
-    <div id="inventory">
-        <span id="totalPrice"></span>
-        <div id="inventory_items">Loading...</div>
-    </div>
-    <script>
-        GetMyInventoryPage = true;
-        MyInventoryPage_SteamGameID = "{{=SteamGameID}}";
-    </script>
+{{using GameSlot.Types}}
+{{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
+{{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
+{{set List<USteamItem> LocalSteamInventory = (List<USteamItem>) PageData["LocalSteamInventory"]}}
+{{set bool SteamInventoryLoaded = (bool) PageData["SteamInventoryLoaded"]}}
+{{set UsersInventory UsersInventory = (UsersInventory) PageData["UsersInventory"]}}
 
-    <hr />
-    <h4>Chips</h4>
-    <div id="inventory_chips">
-        <div id="inventory_items_chips">
-            {{foreach(Chip chip in Chips)}}
-                {{=chip.Cost}} $<br />
+<body class="vn1">
+	<div id="page">
+        <div class="ft-img1"><span>
+            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                <img src="/cached_files/img/b2.png" alt="">
             {{end}}
-        </div>
-    </div>
-
-    <hr />
-    <h4>Steam local</h4>
-    <div id="inventory_local_steam">
-        <div id="inventory_items_steam">
-            {{foreach(USteamItem Item in LocalSteamInventory)}}
-                ({{=Item.ID}}) {{=Item.Name}} {{=Item.Price}}$ {{=Item.AssertID}}<br />
+            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                <img src="/cached_files/img/b3.png" alt="">
             {{end}}
-        </div>
+        </span></div>
+        {{include GameSlot Header}}
+        <section id="content">
+            <div class="ct">
+                <div class="et-title1">
+                    <div class="ll1">
+                        <div class="tit1 j2">
+                            <span>Инвентарь</span>
+                            <i>Мои игры:</i>
+                            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                                <a href="/inventory/dota2" class="active">Dota2</a>
+                                <a href="/inventory/csgo">CS GO</a>
+                            {{end}}
+                            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                                <a href="/inventory/dota2">Dota2</a>
+                                <a href="/inventory/csgo" class="active">CS GO</a>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+                <div class="search-steam">
+                    <span>Мой Steam Trade URL</span>
+                    <input type="text" value="https://steamcommunity.com/tradeoffer/new/?partner=139041672&token=IHERy8ya">
+                    <div class="sub-st-e1">Сохранить<input type="submit" value=""></div>
+                </div>
+
+                <div class="tit-pr-stl1">Игровые фишки</div>
+                <div class="stl-vl1">
+                    <div class="text-left-ll1">
+                        <p>Вы можете ставить игровые фишки вместо предметов.</p>
+                        <p>Это происходит моментально и без задержек, также как и в случае с  вещами из временного инвентаря.</p>
+                        <p>Вы можете в любой момент продать их, а средства будут зачислены на ваш аккаунт, чтобы затем купить предметы в нашем магазине или купить фишки большего номинала.</p>
+                    </div>
+                    <div class="fsh1">
+                        <div class="item1">
+                            <div class="ft-img"><span><img src="/cached_files/img/ff-t1.png" alt=""></span></div>
+                            <div class="sp-tt1">х0</div>
+                            <a href="" class="bt-now1">Купить за 280</a>                            
+                        </div>
+                        <div class="item1">
+                            <div class="ft-img"><span><img src="/cached_files/img/ff-t2.png" alt=""></span></div>
+                            <div class="sp-tt1">х4</div>
+                            <a href="" class="bt-now1">Купить за 560</a>
+                            <a href="" class="link2">Продать все за 2240</a>
+                        </div>
+                        <div class="item1">
+                            <div class="ft-img"><span><img src="/cached_files/img/ff-t3.png" alt=""></span></div>
+                            <div class="sp-tt1">x2</div>
+                            <a href="" class="bt-now1">Купить за 1400</a>
+                            <a href="" class="link2">Продать все за 2840</a>
+                        </div>
+                        <div class="item1">
+                            <div class="ft-img"><span><img src="/cached_files/img/ff-t4.png" alt=""></span></div>
+                            <div class="sp-tt1">x0</div>
+                            <a href="" class="bt-now1">Купить за 2800</a>                            
+                        </div>
+                        <div class="item1">
+                            <div class="ft-img"><span><img src="/cached_files/img/ff-t5.png" alt=""></span></div>
+                            <div class="sp-tt1">x0</div>
+                            <a href="" class="bt-now1">Купить за 5600</a>                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sz1-modal1">
+                    <div class="rr1 rr2">
+                        <div class="sp-top-st1">
+                            <div class="ev-tit-ll1">Временный инвентарь</div>
+                            <div class="srh1"><input type="text" value="Поиск по инвентарю"><input type="submit" value=""></div>
+                        </div>
+                        <div class="ov-bl1">
+                            <div class="bg-ov-bl1"><div></div></div>
+                            <div class="tit-bl1">
+                                <div class="ef1">{{=LocalSteamInventory.Count}}</div>
+                                <div class="ef2">Суммарная<br>стоимость:</div>
+                                <div class="ef3 baks">{{=PageData["LocalTotalPrice"]}}</div>
+                                <a href="" class="link-steam-tt1">Передать в инвентарь Steam</a>
+                            </div>
+                            <div class="search1">
+                                <div class="sort-chk1">
+                                    <label><input type="checkbox" value=""><span class="sep-text-lb1">Выбрать всё</span></label>
+                                    <label><input type="checkbox" value=""><span class="sep-text-lb1">Отменить всё</span></label>
+                                </div>
+                                <div class="rr-sort1">
+                                    <ul>
+                                        <li>Сортировка:</li>
+                                        <li><a href="">Сперва дорогие</a></li>
+                                        <li class="active"><a href="">Сперва дешевые</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="cont-ov-items-more1 jcheck more36" dt="0">
+                                {{foreach(USteamItem Item in LocalSteamInventory.GetRange(0, Math.Min(60, LocalSteamInventory.Count)))}}
+                                    <div class="item1">
+                                        <img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">
+                                        <span class="baks">{{=Item.Price_Str}}</span>
+                                        <a href="" onclick="return false;"></a>
+                                        <div class="tiltp" style="margin-left: -50px;">{{=Item.Name}}</div>  
+                                    </div>
+                                {{end}}
+                            </div>
+                            {{if(LocalSteamInventory.Count / 60 > 0)}}
+                                <div class="modal-page-s1">
+                                    <ul>
+                                        <li><a href="">В начало</a></li>
+                                        <li><a href="">Предыдущая</a></li>
+                                        <li><a href="">Следующая</a></li>
+                                        <li><a href="">В конец</a></li>
+                                    </ul>
+                                </div>
+                            {{end}}
+                        </div>
+                    </div>
+                    <div class="rr1 rr3">
+                        <div class="sp-top-st1">
+                            <div class="ev-tit-ll1">Инвентарь Steam</div>
+                            <div class="srh1"><input type="text" value="Поиск по инвентарю"><input type="submit" value=""></div>
+                        </div>
+                        <div class="ov-bl1">
+                            <div class="bg-ov-bl1"><div></div></div>
+
+                            <div class="tit-bl1">
+                                {{if(SteamInventoryLoaded && UsersInventory.Opened)}}  
+                                    <div class="ef1">{{=UsersInventory.SteamItems.Count}}</div>
+                                    <div class="ef2">Суммарная<br>стоимость:</div>
+                                    <div class="ef3 baks">{{=UsersInventory.TotalPrice_Str}}</div>
+                                {{end}}
+                                {{else}}
+                                    <div class="ef1">0</div>
+                                    <div class="ef2">Суммарная<br>стоимость:</div>
+                                    <div class="ef3">0</div>
+                                {{end}}
+                                <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
+                            </div>
+                            <div class="search1">
+                                <div class="rr-sort1">
+                                    <ul>
+                                        <li>Сортировка:</li>
+                                        <li><a href="">Сперва дорогие</a></li>
+                                        <li class="active"><a href="">Сперва дешевые</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="cont-ov-items-more1 jcheck more36" dt="0">
+                                {{if(SteamInventoryLoaded)}}                             
+                                    {{if(!UsersInventory.Opened)}}
+                                    <div class="dc-hide-error1">
+                                        <div class="dc-f1">
+                                            <div class="ev-error1">
+                                                <div>
+                                                    <p>Для того, чтобы подгрузить ваши<br>предметы из Steam, вы должны<br><a href="">открыть инвентарь</a> в настройках.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{end}}
+                                    {{else}}
+                                        {{foreach(USteamItem Item in UsersInventory.SteamItems.GetRange(0, Math.Min(60, UsersInventory.SteamItems.Count)))}}
+                                            <div class="item1">
+                                                <img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">
+                                                <span class="baks">{{=Item.Price_Str}}</span>
+                                                <a href="" onclick="return false;"></a>
+                                                <div class="tiltp" style="margin-left: -50px;">{{=Item.Name}}</div>  
+                                            </div>                                           
+                                        {{end}}
+                                    {{end}}
+                                {{end}}
+                                {{else}}
+                                    <div class="dc-hide-error1">
+                                        <div class="dc-f1">
+                                            <div class="ev-error1">
+                                                <div>
+                                                    <p>Ваш Steam инвентарь еще не успел<br>подгрузиться, пожалуйста, ожидайте.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                  
+                                {{end}}
+                            </div>
+
+                            {{if(SteamInventoryLoaded && UsersInventory.Opened && UsersInventory.SteamItems.Count / 60 > 0)}}
+                                <div class="modal-page-s1">
+                                    <ul>
+                                        <li><a href="">В начало</a></li>
+                                        <li><a href="">Предыдущая</a></li>
+                                        <li><a href="">Следующая</a></li>
+                                        <li><a href="">В конец</a></li>
+                                    </ul>
+                                </div>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                /*GetMyInventoryPage = true;
+                MyInventoryPage_SteamGameID = "{{=SteamGameID}}";*/
+            </script>
+
+            {{include GameSlot Footer}}
+        </section>
     </div>
+    <div class="up1"></div>
 </body>
 </html>

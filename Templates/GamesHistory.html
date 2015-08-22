@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+{{include GameSlot Head}}
+{{set XLottery[] Lotteries = (XLottery[]) PageData["Lotteries"]}}
+{{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
+<body class="vn1">
+	<div id="page">
+       <div class="ft-img1"><span>
+            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                <img src="/cached_files/img/b2.png" alt="">
+            {{end}}
+            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                <img src="/cached_files/img/b3.png" alt="">
+            {{end}}
+        </span></div>
+
+        {{include GameSlot Header}}
+        <section id="content">
+            <div class="ct">
+                <div class="et-title1">
+                    <div class="ll1">
+                        <div class="tit1 j3">
+                            <span>История игр</span>
+                            <i>Мои игры:</i>
+                            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                                <a href="/games-history/dota2" class="active">Dota2</a>
+                                <a href="/games-history/csgo">Cs go</a>
+                            {{end}}
+                            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                            <a href="/games-history/dota2">Dota2</a>
+                            <a href="/games-history/csgo" class="active">Cs go</a>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+                <div class="double-st-tb-head1">
+                    <div class="ll-head1">
+                        <div class="j1"><a href=""><span>Игра №</span></a></div>
+                        <div class="j2"><a href=""><span>Победил</span></a></div>
+                        <div class="j3"><a href=""><span>Выиграл<br>с шансом</span></a></div>
+                        <div class="j4"><a href=""><span>Колл-во<br>предметов</span></a></div>
+                        <div class="j5"><a href=""><span>Сумма джекпота</span></a></div>
+                    </div>
+                    <div class="rr1">
+                        <a class="active">Все игры</a>
+                        <span></span>
+                        {{if(Helper.UserHelper.Authorized(client))}}
+                            <a href="{{=client.URL}}/my">Мои игры</a>
+                        {{end}}
+                        {{else}}
+                            <a href="/login">Мои игры</a>
+                        {{end}}
+                    </div>
+
+                </div>
+                <div class="ov-sp1 ov-sp11">
+                    {{for(int i = 0; i < Lotteries.Length; i++)}}
+                        {{set XUser User = Helper.UserHelper.Table.SelectByID(Lotteries[i].Winner)}}
+                        <div class="item1">
+                            <div class="over-st1">
+                                <div class="et j1"><span class="dc1"><span class="ep-sml-y2">#{{=Lotteries[i].ID.ToString("000-000-000")}}</span></span></div>
+                                <div class="et j2"><span class="dc1"><span class="ev-avt1"><img src="{{=User.Avatar}}" alt=""></span><span class="ov-text-avt1"><span>{{=User.Name}}</span></span></span></div>
+                                <div class="et j3"><span class="dc1">{{=Lotteries[i].Wonrate}}%</span></div>
+                                <div class="et j4"><span class="dc1">{{=Lotteries[i].JackpotItemsNum.ToString("##,###")}}</span></div>
+                                <div class="et j5"><span class="dc1 dc11"><span class="price-st-y1 baks">{{=Lotteries[i].JackpotPrice.ToString("###,##0.00")}}</span></span></div>
+                                <div class="et j6"><span class="dc1"><a href="/game-history/" class="bt-link1">Посмотреть полную историю игры</a></span></div>
+                            </div>
+                        </div>
+                    {{end}}
+                </div>
+                <div class="nav-sp1">
+                    <div><a class="diss">В начало</a></div>
+                    <div><a class="diss">Предыдущая</a></div>
+                    <div><a href="">Следующая</a></div>
+                    <div><a href="">В конец</a></div>
+                </div>
+            </div>
+            <footer id="footer">
+                <a href="" class="logo"><img src="/cached_files/img/logo-foot.png" alt=""></a>
+                <div class="ct-t2">
+                    <div class="main-menu">
+                        <a href="" class="main-1"></a>
+                        <ul>
+                            <li class="j1"><a href="">Топ победителей</a></li>
+                            <li class="j2"><a href="">История игр</a></li>
+                            <li class="j3"><a href="">Честная игра</a></li>
+                            <li class="j4"><a href="">Как поставить вещи</a></li>
+                            <li class="j5"><a href="">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <a href="" class="store1"><span>Магазин</span></a>
+                </div>
+                <div class="copyr1">Site design — <a href=""><img src="/cached_files/img/copyr1.png" alt=""></a></div>
+            </footer>
+        </section>
+    </div>
+    <div class="up1"></div>
+</body>
+</html>

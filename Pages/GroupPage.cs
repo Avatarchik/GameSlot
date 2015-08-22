@@ -20,7 +20,7 @@ namespace GameSlot.Pages
         }
         public override string URL
         {
-            get { return "/group/"; }
+            get { return "/hangout/"; }
         }
         public override string TemplateAddr
         {
@@ -30,24 +30,36 @@ namespace GameSlot.Pages
         {
             uint id;
             UGroup Group;
-            if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out id) && Helper.GroupHelper.SelectByID(id, out Group))
+            XUser User;
+            if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out id) && Helper.GroupHelper.SelectByID(id, out Group, out User))
             {
-                XUser User;
+                Hashtable data = new Hashtable();
+                data.Add("Owner", User);
+
                 bool InGroup = Helper.UserHelper.GetCurrentUser(client, out User) && User.GroupOwnerID == Group.ID ? true : false;
                 bool InOtherGroup = !InGroup && User.GroupOwnerID >= 0 ? true : false;
 
-                Hashtable data = new Hashtable();
                 data.Add("Group", Group);
                 data.Add("InGroup", InGroup);
                 data.Add("InOtherGroup", InOtherGroup);
 
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
-
             }
 
             BaseFuncs.Show404(client);
             return false;
+        }
+
+        public int GetGroupWinrate(uint GroupID)
+        {
+            int winrate = 0;
+            int count = 0;
+            //uint totalprice
+            XLottery[] Lotteries;
+            
+
+            return winrate;
         }
     }
 }

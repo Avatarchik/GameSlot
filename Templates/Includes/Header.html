@@ -1,14 +1,50 @@
-﻿{{if(!Helper.UserHelper.Authorized(client))}}
-    <a href="/login">LOGIN</a>
-{{end}}
-{{else}}
-    Name: {{=client.Session["Name"]}}<br/>
-    Avatar: <img src="{{=client.Session["Avatar"]}}"/><br/>
-    My SteamID: {{=client.Session["SteamID"]}} <br />
-    My PROFILE: {{=client.Session["ProfileURL"]}}<br />
-    <a href="/logout">LOGOUT</a><br />
-    <a href="/login">LOGIN TEST</a><br />
-    <a href="/mygroup">MY GROUP</a><br />
-    <a href="/inventory/csgo">MY INVENTORY</a>
-{{end}}
-<hr />
+﻿<header id="header">
+    <a href="" class="logo"><img src="/cached_files/img/logo2.png" alt=""></a>
+    <a href="" class="link-social1">Мы в<br>соц. сетях:</a>
+    <div class="r-head">
+        <div class="ct-t1">
+            <div class="ll1">
+                {{if(!Helper.UserHelper.Authorized(client))}}
+                    <a href="/login" class="steam1">Зайти через steam</a>
+                {{end}}
+                {{else}}
+                    <div class="av-s1"><a href=""> <img src="{{=client.Session["Avatar"]}}" alt=""> <span>{{=client.Session["Name"]}}</span></a></div>
+                    <ul class="tt-ul1">
+                        <li><a href="">Тусовка</a></li>
+                        <li><a href="/inventory/csgo">Инвентарь</a></li>
+                        <li><a href="">Достижения</a></li>
+                        <li class="pay1"><span>{{=Helper.UserHelper.Table.SelectByID((uint)client.Session["User"]).Wallet}}</span> <a href="">Пополнить</a></li>
+                        <li><a href="/logout">Выйти</a></li>
+                    </ul>
+                {{end}}
+                <div class="onl1">Online: <b>1200</b></div>
+            </div>
+            <div class="rr1">
+                <ul>
+                    <li>язык:</li>
+                    <li class="active"><a href="">Рус</a></li>
+                    <li><a href="/change-lang/eng">Eng</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="ct-t2">
+            <div class="main-menu">
+                <a href="/" class="main-1"></a>
+                <ul>
+                    <li class="j1"><a href="/top-players">Топ победителей</a></li>
+                    <li class="j2"><a href="/games-history/csgo">История игр</a></li>
+                    <li class="j3"><a href="/fair-play">Честная игра</a></li>
+                    <li class="j4"><a href="/bet-info">Как поставить вещи</a></li>
+                    <li class="j5"><a href="/faq">FAQ</a></li>
+                </ul>
+            </div>
+            <a href="/store" class="store1"><span>Магазин</span></a>
+        </div>
+        <div class="ct-t3">
+            <span>Лотереи:</span>
+            <a href="/game/csgo" class="j1">CS go</a>
+            <a href="/game/dota2" class="j2">dota2</a>
+            <a href="/game/teamfortess" class="j3">Team fortress</a>
+        </div>
+    </div>
+</header>

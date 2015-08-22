@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 854, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 862, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XUser
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -54,5 +54,9 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.U8)]
         [FieldOffset(846)]
         public ulong TradePartner;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(854)]
+        public double Wallet;
     }
 }

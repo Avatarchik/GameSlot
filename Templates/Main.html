@@ -1,9 +1,137 @@
 ﻿<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml">
 {{include GameSlot Head}}
+    {{set Lottery Lottery_CSGO = (Lottery) PageData["Lottery_CSGO"]}}
+    {{set Lottery Lottery_DOTA = (Lottery) PageData["Lottery_DOTA"]}}
 <body>
-    {{include GameSlot Header}}
-    <a href="/csgo">CS GO</a>
-    <a href="/dota2">DOTA 2</a>
+	<div id="page">
+        {{include GameSlot Header}}
+        <div class="b1">
+            <div>
+                <span>Привет, искатель удачи!<br>Ну что, погремим костями?</span>
+                <p>Интеренет ресурс «The GameSlot»  - это не только реальная возможность выиграть  огромное количество уникальных вещей из ваших любимых игр Dota 2, CS:GO и др, но и просто веселое времяпрепровождение с друзьями! Уникальность нашего сервиса в том, что механизм игры предельно прост и понятен, а расчёты победителя ведуться по честной и кристально-прозрачной схеме!<br>Вы сами можете проверить правильность всех расчётов!</p>
+            </div>
+        </div>
+        <div class="sld-big-fake1">
+            <div class="n1"></div>
+            <div class="p1"></div>
+            <div class="item1">
+                <div class="vt-img1"><img src="/cached_files/img/vt1.png" alt=""></div>
+                <div class="tit-s1">Dota 2</div>
+                <div class="ov-inf1">
+                    <div class="sp1">
+                        <span>Банк</span>
+                        <div class="j1 baks"><b>{{=Lottery_DOTA.JackpotPrice_Str}}</b></div>
+                        <div class="j2"><b>{{=Lottery_DOTA.JackpotItems}}</b> Предметов</div>
+                    </div>
+                    <div class="sp2">
+                        <span>До старта<br>лотереи:</span>
+                        {{if(Lottery_DOTA.LeftTime < 0)}}
+                            <div><i>05</i>:<i>00</i></div>
+                        {{end}}
+                        {{else if(Lottery_DOTA.LeftTime > 0)}}
+                            {{set int MinutesDOTA = (Lottery_DOTA.LeftTime / 60)}}
+                            {{set int SecDOTA = Lottery_DOTA.LeftTime-60 * MinutesDOTA}}
+                            <div><i>0{{=MinutesDOTA}}</i>:
+                            <i>
+                                {{if(SecDOTA < 10)}}
+                                    0{{=SecDOTA}}
+                                {{end}}
+                                {{else}}
+                                    {{=SecDOTA}}
+                                {{end}}
+                            </i></div>
+                        {{end}}
+                        {{else}}
+                            <div><i>00</i>:<i>00</i></div>
+                        {{end}}
+                    </div>
+                    <div class="sp3"><span>Игроков</span><b>{{=PageData["Gamers_DOTA"]}}</b></div>
+                    <div class="sp4">
+                        <div class="ll1">
+                            <span>Сегодня сыграно</span>
+                            <div><i>{{=PageData["GameToday_DOTA"]}}</i> игр</div>
+                        </div>
+                        <div class="rr1">
+                            <span>Максимальный джекпот</span>
+                            <div class="baks">{{=PageData["MaxJackpot_DOTA"]}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="item1">
+                <div class="vt-img1"><img src="/cached_files/img/vt2.png" alt=""></div>
+                <div class="tit-s1">CS GO</div>
+                <div class="ov-inf1">
+                    <div class="sp1">
+                        <span>Банк</span>
+                        <div class="j1 baks"><b>{{=Lottery_CSGO.JackpotPrice_Str}}</b></div>
+                        <div class="j2"><b>{{=Lottery_CSGO.JackpotItems}}</b> Предметов</div>
+                    </div>
+                    <div class="sp2">
+                        <span>До старта<br>лотереи:</span>
+                        {{if(Lottery_CSGO.LeftTime < 0)}}
+                            <div><i>05</i>:<i>00</i></div>
+                        {{end}}
+                        {{else if(Lottery_CSGO.LeftTime > 0)}}
+                            {{set int MinutesCSGO = (Lottery_CSGO.LeftTime / 60)}}
+                            {{set int SecCSGO = Lottery_CSGO.LeftTime-60 * MinutesCSGO}}
+                            <div><i>0{{=MinutesCSGO}}</i>:
+                            <i>
+                                {{if(SecCSGO < 10)}}
+                                    0{{=SecCSGO}}
+                                {{end}}
+                                {{else}}
+                                    {{=SecCSGO}}
+                                {{end}}
+                            </i></div>
+                        {{end}}
+                        {{else}}
+                            <div><i>00</i>:<i>00</i></div>
+                        {{end}}
+                    </div>
+                    <div class="sp3"><span>Игроков</span><b>{{=PageData["Gamers_CSGO"]}}</b></div>
+                    <div class="sp4">
+                        <div class="ll1">
+                            <span>Сегодня сыграно</span>
+                            <div><i>{{=PageData["GameToday_CSGO"]}}</i> игр</div>
+                        </div>
+                        <div class="rr1">
+                            <span>Максимальный джекпот</span>
+                            <div class="baks">{{=PageData["MaxJackpot_CSGO"]}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="item1-fake"><img src="/cached_files/img/vt3.png" alt=""></div>
+        </div>
+        <div class="title1">КАК РАБОТАЕТ GAMESLOT ?</div>
+        <div class="ov-ic1">
+            <div class="numb">1</div>
+            <div class="item1">
+                <div><img src="/cached_files/img/d1.png" alt=""></div>
+                <p>Вы ставите предметы в общий банк</p>
+            </div>
+            <div class="numb">2</div>
+            <div class="item1">
+                <div><img src="/cached_files/img/d2.png" alt=""></div>
+                <p>Чем на большую сумму предметов вы<br>поставили, тем выше шанс победы</p>
+            </div>
+            <div class="numb">3</div>
+            <div class="item1">
+                <div><img src="/cached_files/img/d3.png" alt=""></div>
+                <p>Запускается игровой механизм и<br>случайным образом определяется<br>победитель</p>
+            </div>
+            <div class="numb">4</div>
+            <div class="item1">
+                <div><img src="/cached_files/img/d4.png" alt=""></div>
+                <p>Победитель забирает весь банк<br>предметов</p>
+            </div>
+        </div>
+        <a href="" class="btn1">Подробно о том как начать играть</a>
+
+        {{include GameSlot Footer}} 
+    </div>
+    <div class="up1"></div>
 </body>
 </html>

@@ -16,7 +16,7 @@ namespace GameSlot.Helpers
         { 
         }
 
-        public bool SelectByID(uint id, out UGroup group)
+        public bool SelectByID(uint id, out UGroup group, out XUser Owner)
         {
             XUser user;
             if(Helper.UserHelper.Table.SelectByID(id, out user))
@@ -27,17 +27,20 @@ namespace GameSlot.Helpers
                 group.Users = this.GetUsers(user.ID);
                 group.UserCount = group.Users.Count();
 
+                Owner = user;
                 return true;
             }
 
             group = null;
+            Owner = new XUser();
             return false;
         }
 
         public bool GroupExist(uint id)
         {
             UGroup group;
-            return this.SelectByID(id, out group);
+            XUser user;
+            return this.SelectByID(id, out group, out user);
         }
 
         public List<XUser> GetUsers(uint GroupID)

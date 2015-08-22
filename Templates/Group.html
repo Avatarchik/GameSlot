@@ -1,44 +1,157 @@
 ﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml">
 {{include GameSlot Head}}
-<body>
-    {{include GameSlot Header}}
-    {{using GameSlot.Types}}
 
-    {{set UGroup Group = (UGroup) PageData["Group"]}}
-    {{set bool InGroup = (bool) PageData["InGroup"]}}
-    {{set bool InOtherGroup = (bool) PageData["InOtherGroup"]}}
+<body class="vn1">
+	<div id="page">
+        <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
+        
+        {{include GameSlot Header}}
+        {{using GameSlot.Types}}
 
-    Group name: <span id="group_name">{{=Group.Name}}</span><br />
-    Group URL: <a href="/group/{{=Group.ID}}">/group/{{=Group.ID}}</a><br />
-    In Group <b><span id="users_num">{{=Group.UserCount}}</span></b> users<hr />
+        {{set UGroup Group = (UGroup) PageData["Group"]}}
+        {{set bool InGroup = (bool) PageData["InGroup"]}}
+        {{set bool InOtherGroup = (bool) PageData["InOtherGroup"]}}
+        {{set XUser Owner = (XUser) PageData["Owner"]}}
 
-    <div id="main_action">
-        {{if(!Helper.UserHelper.Authorized(client))}}
-            Авторизуйтесь, что бы войти в группу!
-        {{end}}
-        {{else if(!InGroup)}}
-            <button id="insert" onclick="entry();">Войти в группу!</button><br />
+        <section id="content">
+            <div class="ct">
+                <div class="tit-mt1">ТУСОВКА: <kek id="group_name">{{=Group.Name}}</kek></div>
+                <div class="ef-ref1">
+                    <span>Ссылка на текущую тусовку</span>
+                    <div>http://{{=client.Host}}/hangout/{{=Group.ID}}</div>
+                    <a href="">Скопировать ссылку</a>
+                </div>
+                <div class="tf-sz2">
+                    <div class="item1 j1">
+                        <p><span>Количество членов лобби:</span><i><kek id="users_num">{{=Group.UserCount}}</kek></i><!--онлайн: <i>150</i>--></p>
+                        <p><span>Средний показатель побед:</span>23%</p>
+                        <p><span>Общая сумма ставок:</span><b class="j1"><i>1800</i> предметов</b><b class="j2">123,000</b></p>
+                    </div>
+                    <div id="main_action">
+                        {{if(!Helper.UserHelper.Authorized(client))}}
+                            <div class="item1 j3">
+                                <div class="dc-vm1">
+                                    <div class="ln1">
+                                        <span>Хозяин<br>тусовки:</span>
+                                        <img src="{{=Owner.Avatar}}" alt="">
+                                        <div>{{=Owner.Name}}</div>
+                                        <a href="" class="stm1">Авторизоваться через steam</a>
+                                    </div>
+                                    <div class="ln2">Чтобы вступить в эту тусовку вам необходимо авторизоваться</div>
+                                </div>
+                            </div>
+                        {{end}}
+                        {{else if(!InGroup)}}
+                            <div class="item1 j3">
+                                <div class="dc-vm1">
+                                    <div class="ln1">
+                                        <span>Хозяин<br>тусовки:</span>
+                                        <img src="/cached_files/img/av1.png" alt="">
+                                        <div>Bob square<br>D.Franklin</div>
+                                        <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
+                                    </div>
+                                    {{if(InOtherGroup)}}
+                                        <div class="ln2">Вступив в текущую тусовку, вы автоматически выйдите из предыдущей</div>
+                                    {{end}}
+                                </div>
+                            </div>
+                        {{end}}
+                        {{else}}
+                            <div class="item1 j3">
+                                <div class="dc-vm1">
+                                    <div class="ln1">
+                                        <span>Хозяин<br>тусовки:</span>
+                                        <img src="/cached_files/img/av1.png" alt="">
+                                        <div>Bob square<br>D.Franklin</div>
+                                        <a href="" class="link-autr">Покинуть тусовку</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
 
-            {{if(InOtherGroup)}}
-            <i>Вступив в новую группы, вы автоматически выходите из старой.</i>
-            {{end}}
-        {{end}}
-        {{else}}
-            Покинуть группу
-        {{end}}
+                    <div id="entry_to_group" style="display:none">
+                        <div class="ln1">
+                            <span>Хозяин<br>тусовки:</span>
+                            <img src="/cached_files/img/av1.png" alt="">
+                            <div>Bob square<br>D.Franklin</div>
+                            <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
+                        </div>
+                    </div>
+
+                    <div id="exit_from_group" style="display:none">
+                        <div class="item1 j3">
+                            <div class="dc-vm1">
+                                <div class="ln1">
+                                    <span>Хозяин<br>тусовки:</span>
+                                    <img src="/cached_files/img/av1.png" alt="">
+                                    <div>Bob square<br>D.Franklin</div>
+                                    <a href="" class="link-autr">Покинуть тусовку</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="link-tt-bot1"><span>Лучшие игроки</span><a href="">все члены моей тусовки (234)</a></div>
+                <div class="tb-s1-table tb-s1-table1">
+                    <div class="j1"><a href=""><span>Профиль</span></a></div>
+                    <div class="j2"><a href=""><span>Место</span></a></div>
+                    <div class="j3"><a href=""><span>Сыграно</span></a></div>
+                    <div class="j4"><a href=""><span>Побед</span></a></div>
+                    <div class="j5"><a href=""><span>Процент побед</span></a></div>
+                    <div class="j6"><a href=""><span>Поставил<br>предметов</span></a></div>
+                    <div class="j7"><a href=""><span>Выиграл<br>предметов</span></a></div>
+                    <div class="j8"><a href=""><span>Сумма ставок</span></a></div>
+                    <div class="j9"><a href=""><span>Сумма выигрышей</span></a></div>
+                </div>
+                <div class="ov-sp1">
+                    <div class="item1 j1">
+                        <div class="over-st1">
+                            <div class="et j1"><span class="dc1"><img src="/cached_files/img/av1.png" alt=""><span>Bobby dodo</span></span></div>
+                            <div class="et j2"><span class="dc1"><span class="md">1</span></span></div>
+                            <div class="et j3"><span class="dc1">67</span></div>
+                            <div class="et j4"><span class="dc1">456</span></div>
+                            <div class="et j5"><span class="dc1">35%</span></div>
+                            <div class="et j6"><span class="dc1">2,367</span></div>
+                            <div class="et j7"><span class="dc1">1,300</span></div>
+                            <div class="et j8"><span class="dc1 dc11">5,000, 300</span></div>
+                            <div class="et j9"><span class="dc1 dc11">5,000, 300</span></div>
+                        </div>
+                    </div>
+                    <div class="item1 j2">
+                        <div class="over-st1">
+                            <div class="et j1"><span class="dc1"><img src="/cached_files/img/av1.png" alt=""><span>Bobby dodo</span></span></div>
+                            <div class="et j2"><span class="dc1"><span class="md">1</span></span></div>
+                            <div class="et j3"><span class="dc1">67</span></div>
+                            <div class="et j4"><span class="dc1">456</span></div>
+                            <div class="et j5"><span class="dc1">35%</span></div>
+                            <div class="et j6"><span class="dc1">2,367</span></div>
+                            <div class="et j7"><span class="dc1">1,300</span></div>
+                            <div class="et j8"><span class="dc1 dc11">5,000, 300</span></div>
+                            <div class="et j9"><span class="dc1 dc11">5,000, 300</span></div>
+                        </div>
+                    </div>
+                    <div class="item1 j3">
+                        <div class="over-st1">
+                            <div class="et j1"><span class="dc1"><img src="/cached_files/img/av1.png" alt=""><span>Bobby dodo</span></span></div>
+                            <div class="et j2"><span class="dc1"><span class="md">1</span></span></div>
+                            <div class="et j3"><span class="dc1">67</span></div>
+                            <div class="et j4"><span class="dc1">456</span></div>
+                            <div class="et j5"><span class="dc1">35%</span></div>
+                            <div class="et j6"><span class="dc1">2,367</span></div>
+                            <div class="et j7"><span class="dc1">1,300</span></div>
+                            <div class="et j8"><span class="dc1 dc11">5,000, 300</span></div>
+                            <div class="et j9"><span class="dc1 dc11">5,000, 300</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {{include GameSlot Footer}}
+        </section>
     </div>
-
-    
-    <div id="entry_to_group" style="display:none">
-        <button id="insert" onclick="entry();">Войти в группу!</button><br />
-    </div>
-
-    <div id="exit_from_group" style="display:none">
-        Покинуть группу
-    </div>
-
     <script>
         GroupPageConnect = true;
         GroupPage_GroupID = "{{=Group.ID}}";
@@ -47,7 +160,9 @@
             ws.send("GroupPage{{=BaseFuncs.WSplit}}EntryToGroup{{=BaseFuncs.WSplit}}{{=Group.ID}}");
             $("div#main_action").attr("style", "display:none");
             $("div#exit_from_group").attr("style", "");
+            return false;
         }
     </script>
+    <div class="up1"></div>
 </body>
 </html>

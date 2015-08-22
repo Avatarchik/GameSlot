@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 770, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 838, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XSteamBot
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -33,5 +33,10 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 101)]
         [FieldOffset(568)]
         public string EmailPassword;
+
+        // 6 bts
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 31)]
+        [FieldOffset(776)]
+        public string Name;
     }
 }

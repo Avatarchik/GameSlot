@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UpServer;
 
 namespace GameSlot.Types
 {
@@ -15,6 +16,8 @@ namespace GameSlot.Types
         public uint SteamGameID;
 
         public int ProcessCreatedTime;
-        public uint LotteryID; 
+        public uint LotteryID;
+
+        public Client client;
     }
 }
