@@ -19,10 +19,10 @@ namespace GameSlot.Helpers
     {
         public XTable<XSteamItem> Table = new XTable<XSteamItem>();
 
-        private static Dictionary<uint, Dictionary<uint, UFile>> SteamItemImages = new Dictionary<uint, Dictionary<uint, UFile>>();
+        private static Dictionary<uint, Dictionary<uint, CachedFile>> SteamItemImages = new Dictionary<uint, Dictionary<uint, CachedFile>>();
 
-        private static Dictionary<uint, UFile> SteamItemImages_DOTA = new Dictionary<uint, UFile>();
-        private static Dictionary<uint, UFile> SteamItemImages_CSGO = new Dictionary<uint, UFile>();
+        private static Dictionary<uint, CachedFile> SteamItemImages_DOTA = new Dictionary<uint, CachedFile>();
+        private static Dictionary<uint, CachedFile> SteamItemImages_CSGO = new Dictionary<uint, CachedFile>();
 
         public SteamItemsHelper()
         {
@@ -96,14 +96,14 @@ namespace GameSlot.Helpers
                     if (data.Contains("\"success\":true") && (data.Contains("\"median_price\":\"") || data.Contains("\"lowest_price\":\"")))
                     {
                         string price = null;
-                        if (data.Contains("\"median_price\":\""))
-                        {
-                            price = Regex.Split(data, "\"median_price\":\"")[1].Split('"')[0].Replace("$", "");
-                        }
-                        else
+                        if (data.Contains("\"lowest_price\":\""))
                         {
                             price = Regex.Split(data, "\"lowest_price\":\"")[1].Split('"')[0].Replace("$", "");
                         }
+                        /*else
+                        {
+                            price = Regex.Split(data, "\"median_price\":\"")[1].Split('"')[0].Replace("$", "");
+                        }*/
 
                         return Convert.ToDouble(price);
                     }
@@ -170,9 +170,10 @@ namespace GameSlot.Helpers
             if (File.Exists(path))
             {
                 //Console.WriteLine(ItemID);
-                UFile Image = new UFile();
-                Image.Name = Configs.STEAM_ITEMS_TYPE;
+                CachedFile Image = new CachedFile();
                 Image.Data = File.ReadAllBytes(path);
+                Image.CacheKey = BaseFuncs.MD5(BaseFuncs.MD5(Image.Data) + BaseFuncs.MD5(ItemID.ToString()));
+                Image.Header = "HTTP/1.1 200\nCache-Control: public, max-age=60000\nETag: " + Image.CacheKey + "\nServer: UpServer\nContent-Type: " + FileSender.GetContentType(Configs.STEAM_ITEMS_TYPE) + "; charset=UTF-8|!cookie!|\nConnection: keep-alive\nContent-Length: |!btsize!|\n\n";
 
                 if (!SteamItemImages[SteamGameID].ContainsKey(ItemID))
                 {
@@ -192,7 +193,7 @@ namespace GameSlot.Helpers
             Console.WriteLine("Images to memory done!");
         }
 
-        public bool GetImageFromMemory(uint ItemID, uint SteamGameID, out UFile image)
+        public bool GetImageFromMemory(uint ItemID, uint SteamGameID, out CachedFile image)
         {
             if (SteamItemImages.ContainsKey(SteamGameID) && SteamItemImages[SteamGameID].ContainsKey(ItemID))
             {
@@ -200,7 +201,7 @@ namespace GameSlot.Helpers
                 return true;
             }
 
-            image = null;
+            image = new CachedFile();
             return false;
         }
     }

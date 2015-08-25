@@ -34,36 +34,43 @@ namespace GameSlot.Pages
             }
             else
             {
-                using (WebClient WebClient = new WebClient())
+                try
                 {
-                    string url = "https://steamcommunity.com/openid/login/?openid.sig=" + client.GetParam("openid.sig")
-                        + "&openid.ns=" + client.GetParam("openid.ns")
-                        + "&openid.mode=check_authentication";
+                    using (WebClient WebClient = new WebClient())
+                    {
+                        string url = "https://steamcommunity.com/openid/login/?openid.sig=" + client.GetParam("openid.sig")
+                            + "&openid.ns=" + client.GetParam("openid.ns")
+                            + "&openid.mode=check_authentication";
 
-                    foreach (string get in client.GetParam("openid.signed").Split(','))
-                    {
-                        url += "&openid." + get + "=" + client.GetParam("openid." + get);
-                    }
-
-                    if (!WebClient.DownloadString(url.Replace("+", "%2B")).Contains("true"))
-                    {
-                        client.Head.GetParams.Clear();
-                        this.Init(client);
-                    }
-                    else
-                    {
-                        string[] pre = client.GetParam("openid.identity").Split('/');
-                        if (pre.Length > 5)
+                        foreach (string get in client.GetParam("openid.signed").Split(','))
                         {
-                            ulong SteamID = ulong.Parse(pre[5]);
-                            XUser user;
-                            if (!Helper.UserHelper.Auth(SteamID, out user, client))
+                            url += "&openid." + get + "=" + client.GetParam("openid." + get);
+                        }
+
+                        if (!WebClient.DownloadString(url.Replace("+", "%2B")).Contains("true"))
+                        {
+                            client.Head.GetParams.Clear();
+                            this.Init(client);
+                        }
+                        else
+                        {
+                            string[] pre = client.GetParam("openid.identity").Split('/');
+                            if (pre.Length > 5)
                             {
-                                client.Head.GetParams.Clear();
-                                this.Init(client);
+                                ulong SteamID = ulong.Parse(pre[5]);
+                                XUser user;
+                                if (!Helper.UserHelper.Auth(SteamID, out user, client))
+                                {
+                                    client.Head.GetParams.Clear();
+                                    this.Init(client);
+                                }
                             }
                         }
                     }
+                }
+                catch(Exception ex)
+                {
+                    Logger.ConsoleLog(ex, ConsoleColor.Red);
                 }
             }
 

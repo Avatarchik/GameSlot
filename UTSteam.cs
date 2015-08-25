@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UpServer;
 using UpTunnel;
@@ -33,20 +34,22 @@ namespace GameSlot
 
                         if (args[0] == "accepted")//чел принял
                         {
-                            XSteamBotProcessItem XSteamBotProcessItem;
-                            if (Helper.SteamBotHelper.SelectByOfferID(Convert.ToUInt64(args[2]), Convert.ToUInt64(args[1]), out XSteamBotProcessItem))
+                            XSteamBotProcessItems XSteamBotProcessItem;
+                            if (Helper.SteamBotHelper.SelectByOfferID(Convert.ToUInt64(args[2]), out XSteamBotProcessItem))
                             {
                                 XSteamBotProcessItem.Status = 2;
                                 XSteamBotProcessItem.StatusChangedTime = Helper.GetCurrentTime();                         
                                 Helper.SteamBotHelper.Table_Items.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
 
                                 //Logger.ConsoleLog(XSteamBotProcessItem.SteamItemsNum + "::", ConsoleColor.Green);
+
                                 for(ushort i = 0; i < XSteamBotProcessItem.SteamItemsNum; i++)
                                 {
                                     XSItemUsersInventory XSItemUsersInventory = new XSItemUsersInventory();
                                     XSItemUsersInventory.UserID = XSteamBotProcessItem.UserID;
                                     XSItemUsersInventory.SteamItemID = XSteamBotProcessItem.SteamItemIDs[i];
                                     XSItemUsersInventory.AssertID = XSteamBotProcessItem.ItemAssertIDs[i];
+                                    Logger.ConsoleLog(XSItemUsersInventory.SteamItemID, ConsoleColor.Red);
                                     XSItemUsersInventory.SteamGameID = XSteamBotProcessItem.SteamGameID;
                                     XSItemUsersInventory.SteamBotID = XSteamBotProcessItem.SteamBotID;
 
@@ -56,7 +59,7 @@ namespace GameSlot
                                 ProcessingBet ProcessingBet;
                                 if (Helper.LotteryHelper.SelectProcessingBet(XSteamBotProcessItem.UserID, XSteamBotProcessItem.SteamGameID, out ProcessingBet))
                                 {
-                                    Helper.LotteryHelper.RemoveProcessingBet(ProcessingBet);
+                                    Helper.LotteryHelper.RemoveProcessingBet(ProcessingBet.UserID, ProcessingBet.SteamGameID);
                                     XLottery xlottery;
                                     if (Helper.LotteryHelper.Table.SelectByID(ProcessingBet.LotteryID, out xlottery) && xlottery.WinnersToken == 0)
                                     {
@@ -84,17 +87,33 @@ namespace GameSlot
                         }
                         else if (args[0] == "no_offer")//предложения нет(ответ на попытку отменить)
                         {
+                            XSteamBotProcessItems Process;
+                            if (Helper.SteamBotHelper.SelectByOfferID(ulong.Parse(args[1]), out Process))
+                            {
+                                Process.Status = 7;
+                                Process.StatusChangedTime = Helper.GetCurrentTime();
+                                Helper.SteamBotHelper.Table_Items.UpdateByID(Process, Process.ID);
+                            }
+
                             Logger.ConsoleLog("'No offer with that id(may be already processed) ID::: " + args[1]);
                             Offers.Remove(args[1]);
                         }
                         else if (args[0] == "declined_by_system")//отмена успешна
                         {
+                            XSteamBotProcessItems Process;
+                            if (Helper.SteamBotHelper.SelectByOfferID(ulong.Parse(args[1]), out Process))
+                            {
+                                Process.Status = 6;
+                                Process.StatusChangedTime = Helper.GetCurrentTime();
+                                Helper.SteamBotHelper.Table_Items.UpdateByID(Process, Process.ID);
+                            }
+
                             Logger.ConsoleLog("'Offer declined successfully ID::: " + args[1]);
                             Offers.Remove(args[1]);
                         }
                         else if (args[0] == "sent_offer") // запрос шмоток
                         {
-                            XSteamBotProcessItem XSteamBotProcessItem;
+                            XSteamBotProcessItems XSteamBotProcessItem;
                             if (Helper.SteamBotHelper.Table_Items.SelectOne(bt => bt.UserSteamID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XSteamBotProcessItem))
                             {
                                 XSteamBotProcessItem.Status = 1;
@@ -126,6 +145,29 @@ namespace GameSlot
                 return true;
             });
             sk = uc.client.Client;
+
+
+            if(uc.Connected)
+            {
+                Logger.ConsoleLog("UTClient connected!", ConsoleColor.Yellow);
+
+                new Thread(delegate()
+                {
+                    while (true)
+                    {
+                        XSteamBotProcessItems[] XSteamBotProcessItems;
+                        if (Helper.SteamBotHelper.Table_Items.SelectArr(data => data.Status == 1 && (data.SentTime + 360 < Helper.GetCurrentTime()), out XSteamBotProcessItems))
+                        {
+                            for (int i = 0; i < XSteamBotProcessItems.Length; i++)
+                            {
+                                UpTunnel.Sender.Send(UTSteam.sk, "decline:" + XSteamBotProcessItems[i].OfferID);
+                            }
+                        }
+
+                        Thread.Sleep(1000);
+                    }
+                }).Start();  
+            }
         }
     }
 }

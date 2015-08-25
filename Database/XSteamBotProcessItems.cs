@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace GameSlot.Database
 {
     [StructLayout(LayoutKind.Explicit, Size = 346, CharSet = CharSet.Unicode, Pack = 1)]
-    public struct XSteamBotProcessItem
+    public struct XSteamBotProcessItems
     {
         [MarshalAs(UnmanagedType.U4)]
         [FieldOffset(0)]
@@ -34,7 +34,7 @@ namespace GameSlot.Database
         [FieldOffset(304)]
         public ushort SteamItemsNum;
 
-        // 0: standart, 1: sent offer, 2: accepted, 4: user declined, 5: sent_error, 6: system declined
+        // 0: standart, 1: sent offer, 2: accepted, 4: user declined, 5: sent_error, 6: system declined, 7: no_offer (losted)
         [MarshalAs(UnmanagedType.U2)]
         [FieldOffset(306)]
         public ushort Status;

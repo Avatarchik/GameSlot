@@ -88,13 +88,23 @@ namespace GameSlot
             //XItemsShemaDOTA ii;
            // Logger.ConsoleLog(Helper.ItemsSchemaHelper.TableShemaDOTA.SelectOne(data => data.DefIndex == 6299, out ii));
             //Logger.ConsoleLog(ii.Name);
+
+           /* if(Helper.UserHelper.Authorized(client))
+            {
+                if ((ulong)client.Session["SteamID"] == 76561198063550415 || (ulong)client.Session["SteamID"] == 76561198050218246)
+                {
+                    client.Head.GetParams.Add("whoathea", "1");
+                    Logger.ConsoleLog("Ваня на странице: " + client.URL + " at " + DateTime.Now.ToLongTimeString());
+                }
+            }*/
+
             return true;
         }
 
         public override bool AfterInit(Client client)
         {
             client.Session["Referer"] = client.URL;
-            Logger.ConsoleLog(client.Session["Referer"]);
+            //Logger.ConsoleLog(client.Session["Referer"]);
             return true;
         }
     }

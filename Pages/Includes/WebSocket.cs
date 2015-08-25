@@ -120,11 +120,11 @@ namespace GameSlot.Pages.Includes
                         }
                     }
                 }
-                else if(wsdata[0].Equals("LotteryPage"))
+                else if (wsdata[0].Equals("LotteryPage"))
                 {
                     XLottery x_lot;
                     uint LotteryID;
-                    if(wsdata[1].Equals("Connect") && uint.TryParse(wsdata[2], out LotteryID) && Helper.LotteryHelper.Table.SelectByID(LotteryID, out x_lot))
+                    if (wsdata[1].Equals("Connect") && uint.TryParse(wsdata[2], out LotteryID) && Helper.LotteryHelper.Table.SelectByID(LotteryID, out x_lot))
                     {
                         if (WebSocketPage.ClientsLotteryPage.ContainsKey(x_lot.ID))
                         {
@@ -137,7 +137,7 @@ namespace GameSlot.Pages.Includes
                             WebSocketPage.ClientsLotteryPage.Add(x_lot.ID, cls);
                         }
                     }
-                    else if(wsdata[1].Equals("SetBet"))
+                    else if (wsdata[1].Equals("SetBet"))
                     {
                         /*assert_id : item_type (0: chip, 1: steam: 2: local) ; */
 
@@ -152,7 +152,7 @@ namespace GameSlot.Pages.Includes
                                     List<USteamItem> SteamItems = new List<USteamItem>();
                                     List<Chip> Chips = new List<Chip>();
 
-                                    for (int i = 0; i < Math.Min(23, bet.Length - 1); i++)
+                                    for (int i = 0; i < Math.Min(25, bet.Length); i++)
                                     {
                                         string[] item = bet[i].Split(':');
                                         int item_type;
@@ -163,51 +163,69 @@ namespace GameSlot.Pages.Includes
                                         {
                                             if (item_type == 1 || item_type == 2)
                                             {
-                                                if (Helper.UserHelper.IsUserHaveSteamItem_SteamInventory(assert_id, user.ID, x_lot.SteamGameID) || Helper.UserHelper.IsUserHaveSteamItem(assert_id, item_id, user.ID))
-                                                {
-                                                    USteamItem SteamItem = new USteamItem();
-                                                    SteamItem.ID = item_id;
-                                                    SteamItem.AssertID = assert_id;
-                                                    SteamItems.Add(SteamItem);
-                                                }
+                                                USteamItem SteamItem = new USteamItem();
+                                                SteamItem.ID = item_id;
+                                                SteamItem.AssertID = assert_id;
+                                                SteamItems.Add(SteamItem);
                                             }
                                             else if (item_type == 3)
                                             {
-                                                if (Helper.UserHelper.IsUserHaveChip(assert_id, user.ID))
-                                                {
-                                                    Chip chip = new Chip();
-                                                    chip.ID = item_id;
-                                                    chip.AssertID = assert_id;
-                                                    Chips.Add(chip);
-                                                }
+                                                Chip chip = new Chip();
+                                                chip.ID = item_id;
+                                                chip.AssertID = assert_id;
+                                                Chips.Add(chip);
                                             }
 
-                                          /*  Logger.ConsoleLog(item_type + "::" + assert_id + "::" + item_id, ConsoleColor.Red);
-                                            for (int p = 0; p < wsdata.Length; p++)
-                                                Logger.ConsoleLog(p + ": " + wsdata[p], ConsoleColor.Green);
-
-                                            foreach(Chip c in Chips)
-                                            {
-                                                Logger.ConsoleLog(c.AssertID, ConsoleColor.Magenta);
-                                            }*/
                                         }
                                     }
 
                                     ushort result = Helper.LotteryHelper.SetBet(x_lot.ID, user.ID, SteamItems, Chips, client);
-                                    Logger.ConsoleLog(result + "::" + SteamItems.Count + "::" + Chips.Count);
-                                    if(result == 1)
+
+                                    Logger.ConsoleLog(result + "::test from: " + SteamItems.Count + "::" + Chips.Count);
+                                    if (result == 1)
                                     {
                                         client.SendWebsocket("BetDone" + BaseFuncs.WSplit + "1");
                                     }
-                                    else if(result == 3)
+                                    else if (result == 3)
                                     {
 
                                     }
                                 }
                             }
                         }
-                                                   
+                    }                   
+                }
+                else if (wsdata[0].Equals("UpdateTradeURL"))
+                {
+                    XUser user;
+                    if (Helper.UserHelper.GetCurrentUser(client, out user))
+                    {
+                        string token;
+                        ulong partner;
+                        //Logger.ConsoleLog((Regex.Split(wsdata[1], "partner=")[1].Split('&')[0] + "||"));
+                        if (wsdata[1].Contains("partner=") && wsdata[1].Contains("token=") && ulong.TryParse(Regex.Split(wsdata[1], "partner=")[1].Split('&')[0], out partner))
+                        {
+                            token = Regex.Split(wsdata[1], "token=")[1];
+                            if (token.Length > 0)
+                            {
+                                if (token != user.TradeToken || partner != user.TradePartner)
+                                {
+                                    user.TradeToken = token;
+                                    user.TradePartner = partner;
+                                    Helper.UserHelper.Table.UpdateByID(user, user.ID);
+                                }
+
+                                client.SendWebsocket("UpdateTradeURL" + BaseFuncs.WSplit + "1");
+                               // Logger.ConsoleLog("upd!");
+                            }
+                        }
+                        else
+                        {
+                            client.SendWebsocket("UpdateTradeURL" + BaseFuncs.WSplit + "0");
+                            //Logger.ConsoleLog("no upd!");
+                        }
                     }
+                    //Logger.ConsoleLog("!!!!");
                 }
             }
 
@@ -244,7 +262,7 @@ namespace GameSlot.Pages.Includes
             if (InventoryOpened)
             {
                 client.SendWebsocket("SteamInventory" + BaseFuncs.WSplit + TotalPrice.ToString("###,##0.00") + BaseFuncs.WSplit + StrItems + BaseFuncs.WSplit + ItemsNum);
-                Logger.ConsoleLog(TotalPrice, ConsoleColor.Red);
+                //Logger.ConsoleLog(TotalPrice, ConsoleColor.Red);
                 return;
             }
             client.SendWebsocket("SteamInventoryClosed" + BaseFuncs.WSplit);
@@ -254,6 +272,7 @@ namespace GameSlot.Pages.Includes
         {
             // 4- last
             return SteamItem.Name + "↓" + SteamItem.Price.ToString("###,##0.00") + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + "↓" + SteamItem.Image + ";";
+           // return SteamItem.Name + "↓" + SteamItem.Price.ToString("###,##0.00") + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + ";";
         }
 
         public static void ChangeBetProcessStatus(ulong UserSteamID, ushort status)

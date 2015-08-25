@@ -57,18 +57,6 @@ namespace GameSlot.Pages.Lotteries
             {
                 string total_local_price;
                 Helper.UserHelper.GetLocalSteamInventoryTotalPrice(user.ID, SteamGameID, out total_local_price);
-                UsersInventory UsersInventory;
-
-                if (Helper.UserHelper.GetSteamInventory(user, SteamGameID, out UsersInventory))
-                {
-                    data.Add("SteamInventoryLoaded", true);
-                    data.Add("UsersInventory", UsersInventory);
-                }
-                else
-                {
-                    data.Add("SteamInventoryLoaded", false);
-                    data.Add("UsersInventory", null);
-                }
 
                 data.Add("LocalSteamInventory", Helper.UserHelper.GetSteamLocalInventory(user.ID, SteamGameID));
                 data.Add("LocalTotalPrice", total_local_price);
@@ -76,6 +64,8 @@ namespace GameSlot.Pages.Lotteries
                 double ChipsTotalPrice;
                 data.Add("Chips", Helper.UserHelper.GetChipInventory(user.ID, out ChipsTotalPrice));
                 data.Add("ChipsTotalPrice", ChipsTotalPrice.ToString("###,##0.00"));
+
+                data.Add("User", user);
             }
 
             Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID);

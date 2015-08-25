@@ -231,6 +231,7 @@
 
                     items_html = items_html.replace("[item_price]", item[1]);
                     items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");
+                    /*items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");*/
 
                     items_html = items_html.replace("[item_assert_id]", item[4]);
                     items_html = items_html.replace("[item_assert_id]", item[4]);
@@ -247,6 +248,24 @@
                 $("div#steam_inventory_total_price").text(data[1]);
                 /*$("div#steam_iventory").html(items_content);*/
                 /*$("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");*/
+            }
+
+            else if (data[0] == "UpdateTradeURL")
+            {
+                if (LotteryPageConnect)
+                {
+                    if (data[1] == "0") {
+                        $("div#steam_trade_form").addClass("err");
+                        $("div#trade_url_error").text("Steam Trade URL указан неверно!");
+                        $("div#trade_url_error").attr("style", "");
+                        $("div#trade_url_ok").attr("style", "display:none;");
+                    }
+                    else if (data[1] == "1") {
+                        $("div#steam_trade_form").removeClass("err");
+                        $("div#trade_url_error").attr("style", "display:none;");
+                        $("span#trade_url_btn").attr("class", "active");
+                    }
+                }
             }
         }
     };

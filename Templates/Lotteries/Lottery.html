@@ -431,6 +431,15 @@
                                     <span class="baks">{{=chip.Cost_Str}}</span>
                                 </div>
                             {{end}}
+
+                            {{foreach(USteamItem Item in bet.SteamItems)}}
+                                <div class="item1">
+                                    <!--<img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">-->
+                                    <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
+                                    <span class="baks">{{=Item.Price_Str}}</span>
+                                    <div class="tiltp">{{=Item.Name}}</div>
+                                </div>
+                            {{end}}
                         </div>
                     </div>
                 {{end}}
@@ -467,9 +476,7 @@
     {{if(Helper.UserHelper.Authorized(client))}}
     {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
     {{set List<USteamItem> LocalSteamInventory = (List<USteamItem>) PageData["LocalSteamInventory"]}}
-    {{set bool SteamInventoryLoaded = (bool) PageData["SteamInventoryLoaded"]}}
-    {{set UsersInventory UsersInventory = (UsersInventory) PageData["UsersInventory"]}}
-
+    {{set XUser user = (XUser) PageData["User"]}}
     <div id="steam_items_html" style="display:none;">
         <div class="item1" id="item_id_[item_assert_id]">
             <span style="display:none;" id="iventory_id">[iventory_id]</span>
@@ -517,7 +524,7 @@
 
                             <div class="ready-pp1" id="bet_ready" style="display:none;">
                                 <div class="df-pp2">
-                                    <img src="/cached_files/img/load-test1.png" alt=""><span>Идёт обработка<br>ставки</span>
+                                    <img src="/cached_files/img/9-6_2_obrabotka-stavki_loading_icon.gif" alt=""><span>Идёт обработка<br>ставки</span>
                                 </div>
                             </div>
 
@@ -534,13 +541,6 @@
                             </div>
 
                         </div>
-                        <div class="pr-last-st1">
-                            <div class="ev-fj1">Предыдущие ставки</div>
-                            <p><span>24</span><i>9,915,024</i></p>
-                            <p><span>24</span><i>9,915,024</i></p>
-                            <p><span>24</span><i>9,915,024</i></p>
-                            <p><span>24</span><i>9,915,024</i></p>
-                        </div>
                     </div>
                     <div class="rr1">
                         <div class="ft-nav1">
@@ -556,16 +556,29 @@
                                 <div class="ov-bl1">
                                     <div class="bg-ov-bl1"><div></div></div>
                                     <div class="tit-bl1">
+
                                         <div class="pl-search-st1">
                                             <p>Чтобы передавать вещи из Steam-инвентаря, вы должны правильно указать свой Steam URL</p>
-                                            <div class="frm-sml1">
-                                                <div><input type="text"></div>
-                                                <span>Сохранить<input type="submit" value=""></span>
-                                            </div>
-                                            <div class="st-q1 j1">Неправильная ссылка!</div>
-                                            <div class="st-q1 j2">Ссылка обновлена</div>
+                                            {{if(user.TradePartner == 0 || user.TradeToken.Length == 0)}}
+                                                <div class="frm-sml1 err" id="steam_trade_form">
+                                                    <div><input type="text" id="steam_trade_url" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=139041672&amp;token=IHERy8ya"></div>
+                                                    <span id="trade_url_btn" class="active">Сохранить<input type="submit" value="" onclick="UpdateTradeURL();"></span>
+                                                </div>
+                                                <div class="st-q1 j1" id="trade_url_error">Не указан ваш Steam Trade URL!</div>
+                                                <div class="st-q1 j2" style="display:none;" id="trade_url_ok"></div>
+                                            {{end}}
+                                            {{else}}
+                                                <div class="frm-sml1">
+                                                    <div><input type="text" id="steam_trade_url" value='https://steamcommunity.com/tradeoffer/new/?partner={{=user.TradePartner}}&token={{=user.TradeToken}}'></div>
+                                                    <span id="trade_url_btn" class="active">Сохранить<input type="submit" value="" onclick="UpdateTradeURL();"></span>
+                                                </div>
+                                                <div class="st-q1 j1" style="display:none;" id="trade_url_error"></div>
+                                                <div class="st-q1 j2" style="display:none;" id="trade_url_ok"></div>
+                                            {{end}}
+
                                             <div class="clear"></div>
                                         </div>
+
                                         <div class="ef1" id="steam_inventory_items_num">0</div>
                                         <div class="ef2">Суммарная<br>стоимость:</div>
                                         <div class="ef3" id="steam_inventory_total_price">0</div>
@@ -602,18 +615,7 @@
                                         <div class="df-pp2 df-pp22">
                                             <img src="/cached_files/img/4_5-load3.png" alt=""><span class="j1">Идёт загрузка<br>инвентаря</span>
                                         </div>
-                                    </div>   
-
-                                    {{if(SteamInventoryLoaded && UsersInventory.Opened && UsersInventory.SteamItems.Count / 60 > 0)}}
-                                    <div class="modal-page-s1">
-                                        <ul>
-                                            <li><a href="">В начало</a></li>
-                                            <li><a href="">Предыдущая</a></li>
-                                            <li><a href="">Следующая</a></li>
-                                            <li><a href="">В конец</a></li>
-                                        </ul>
                                     </div>
-                                    {{end}}
                                 </div>
                             </div>
 
@@ -637,18 +639,19 @@
                                         </div>
                                     </div>
                                     <div class="cont-ov-items-more1 more36" id="local_iventory">
-                                    {{foreach(USteamItem Item in LocalSteamInventory.GetRange(0, Math.Min(60, LocalSteamInventory.Count)))}}
-                                        <div class="item1" id="item_id_{{=Item.AssertID}}"
+                                    {{foreach(USteamItem Item in LocalSteamInventory.GetRange(0, Math.Min(30, LocalSteamInventory.Count)))}}
+                                        <div class="item1" id="item_id_{{=Item.AssertID}}">
                                             <span style="display:none;" id="iventory_id">2</span>
                                             <span style="display:none;" id="current_iventory_id">2</span>
                                             <span style="display:none;" id="item_assert_id">{{=Item.AssertID}}</span>
-                                            <span style="display:none;" id="item_id">{{=Item.ID}}</span>
 
-                                            <img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">
+                                            <span style="display:none;" id="item_id">{{=Item.ID}}</span>
+                                            <a href="" onclick="hh({{=Item.AssertID}});"></a>
+                                            <!--<img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">-->
+                                            <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
                                             <span class="baks">{{=Item.Price_Str}}</span>
 
-                                            <a href="" onclick="hh({{=Item.AssertID}});"></a>
-                                            <div class="tiltp" style="margin-left: -50px;">{{=Item.Name}}</div>  
+                                            <div class="tiltp">{{=Item.Name}}</div>  
                                         </div>  
                                     {{end}}
                                     </div>
@@ -696,7 +699,7 @@
                                                 <img src="/cached_files/dogs/100.jpg" alt="{{=Item.Cost_Str}}">
                                                 <span class="baks">{{=Item.Cost_Str}}</span>
                                                 <a href="" onclick="return hh({{=Item.AssertID}});"></a>
-                                                <!--<div class="tiltp" style="margin-left: -50px;">{{=Item.Cost_Str}}</div>  -->
+                                                <div class="tiltp">{{=Item.Cost_Str}}</div>
                                             </div>                                           
                                         {{end}}
                                     </div>
@@ -722,7 +725,6 @@
         </div>
     </div>
     <script>
-
         var bet_count = 0;
 
         function hh(item_id)
@@ -764,7 +766,7 @@
 
         function SetBet()
         {
-            if(bet_count > 0 && bet_count < 24)
+            if(bet_count > 0 && bet_count <= 24)
             {
                 var inventory = $("div#bet_iventory");
 
@@ -788,6 +790,33 @@
 
             return false;
         }
+        var trade_url = "";
+
+        $("document").ready(function () 
+        {
+            trade_url =  $("input#steam_trade_url").val();
+            $("input#steam_trade_url").keyup(function () 
+            {
+                if($("input#steam_trade_url").val() == trade_url)
+                {
+                    $("span#trade_url_btn").attr("class", "active");
+                }
+                else
+                {
+                    $("span#trade_url_btn").attr("class", "");
+                }
+            });
+        });
+
+
+        function UpdateTradeURL()
+        {
+            console.log("UpdateTradeURL{{=BaseFuncs.WSplit}}" + $("input#steam_trade_url").val());
+            if($("span#trade_url_btn").attr("class") != "active"){
+                ws.send("UpdateTradeURL{{=BaseFuncs.WSplit}}" + $("input#steam_trade_url").val());
+            }
+        }
+
     </script>
 
     {{end}}

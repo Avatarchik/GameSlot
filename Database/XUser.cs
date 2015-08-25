@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 862, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 928, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XUser
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -58,5 +58,10 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.R8)]
         [FieldOffset(854)]
         public double Wallet;
+
+        // 2 bts
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 33)]
+        [FieldOffset(864)]
+        public string SteamInventoryHash;
     }
 }

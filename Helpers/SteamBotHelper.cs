@@ -13,7 +13,7 @@ namespace GameSlot.Helpers
     public class SteamBotHelper
     {
         public XTable<XSteamBot> Table = new XTable<XSteamBot>();
-        public XTable<XSteamBotProcessItem> Table_Items = new XTable<XSteamBotProcessItem>();
+        public XTable<XSteamBotProcessItems> Table_Items = new XTable<XSteamBotProcessItems>();
 
         public SteamBotHelper()
         {
@@ -27,8 +27,7 @@ namespace GameSlot.Helpers
                 {
                     Logger.ConsoleLog(ex);
                 }
-            }).Start();
-            
+            }).Start();        
         }
 
         public bool GetFreeBot(out XSteamBot XSteamBot)
@@ -41,7 +40,7 @@ namespace GameSlot.Helpers
                 int count = 0;
                 foreach (XSteamBot Bot in steambots)
                 {
-                    List<XSteamBotProcessItem> processes;
+                    List<XSteamBotProcessItems> processes;
 
                     if (this.Table_Items.Select(data => data.SteamBotID == Bot.ID && data.Status > 0, out processes))
                     {
@@ -59,10 +58,10 @@ namespace GameSlot.Helpers
             return false;
         }
 
-        public bool SelectByOfferID(ulong OfferID, ulong UserSteamID, out XSteamBotProcessItem XSteamBotProcessItem)
+        public bool SelectByOfferID(ulong OfferID, out XSteamBotProcessItems XSteamBotProcessItem)
         {
-            XSteamBotProcessItem = new XSteamBotProcessItem();
-            return this.Table_Items.SelectOne(data => data.UserSteamID == UserSteamID && data.OfferID == OfferID, out XSteamBotProcessItem);
+            XSteamBotProcessItem = new XSteamBotProcessItems();
+            return this.Table_Items.SelectOne(data => data.OfferID == OfferID, out XSteamBotProcessItem);
         }
     }
 }

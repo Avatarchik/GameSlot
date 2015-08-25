@@ -148,6 +148,13 @@
     <EmbeddedResource Include="Content\Cache\favicon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\dogs\10.jpg" />
+    <EmbeddedResource Include="Content\Cache\dogs\100.jpg" />
+    <EmbeddedResource Include="Content\Cache\dogs\25.jpg" />
+    <EmbeddedResource Include="Content\Cache\dogs\5.jpg" />
+    <EmbeddedResource Include="Content\Cache\dogs\50.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Content\Cache\css\ie8.css" />
     <EmbeddedResource Include="Content\Cache\css\jquery_mCustomScrollbar.css" />
     <EmbeddedResource Include="Content\Cache\css\owl_carousel.css" />
@@ -155,6 +162,11 @@
     <EmbeddedResource Include="Content\Cache\img\4-5_loading-icon.gif" />
     <EmbeddedResource Include="Content\Cache\img\4_5-load2.png" />
     <EmbeddedResource Include="Content\Cache\img\4_5-load3.png" />
+    <EmbeddedResource Include="Content\Cache\img\7-3_2_more-btn-loading_icon.gif" />
+    <EmbeddedResource Include="Content\Cache\img\9-2_give-in-Steam-btn-icon.gif" />
+    <EmbeddedResource Include="Content\Cache\img\9-3_inventar_search-icon.gif" />
+    <EmbeddedResource Include="Content\Cache\img\9-5_2_stavka-inv-search_loading_icon.gif" />
+    <EmbeddedResource Include="Content\Cache\img\9-6_2_obrabotka-stavki_loading_icon.gif" />
     <EmbeddedResource Include="Content\Cache\img\av1.png" />
     <EmbeddedResource Include="Content\Cache\img\av2.png" />
     <EmbeddedResource Include="Content\Cache\img\av3.png" />
@@ -166,6 +178,9 @@
     <EmbeddedResource Include="Content\Cache\img\banner-st1.png" />
     <EmbeddedResource Include="Content\Cache\img\banner-st2.png" />
     <EmbeddedResource Include="Content\Cache\img\bd-bl1.png" />
+    <EmbeddedResource Include="Content\Cache\img\beta1.jpg" />
+    <EmbeddedResource Include="Content\Cache\img\beta2.png" />
+    <EmbeddedResource Include="Content\Cache\img\beta3.png" />
     <EmbeddedResource Include="Content\Cache\img\bf1.png" />
     <EmbeddedResource Include="Content\Cache\img\bf2.png" />
     <EmbeddedResource Include="Content\Cache\img\bf3.png" />
@@ -213,6 +228,7 @@
     <EmbeddedResource Include="Content\Cache\img\btn35.png" />
     <EmbeddedResource Include="Content\Cache\img\btn36.png" />
     <EmbeddedResource Include="Content\Cache\img\btn37.png" />
+    <EmbeddedResource Include="Content\Cache\img\btn38.png" />
     <EmbeddedResource Include="Content\Cache\img\btn9.png" />
     <EmbeddedResource Include="Content\Cache\img\char1.png" />
     <EmbeddedResource Include="Content\Cache\img\close-modal1.png" />
@@ -247,6 +263,7 @@
     <EmbeddedResource Include="Content\Cache\img\el7.png" />
     <EmbeddedResource Include="Content\Cache\img\el8.png" />
     <EmbeddedResource Include="Content\Cache\img\el9.png" />
+    <EmbeddedResource Include="Content\Cache\img\error-mess-t1.png" />
     <EmbeddedResource Include="Content\Cache\img\ff-t1.png" />
     <EmbeddedResource Include="Content\Cache\img\ff-t2.png" />
     <EmbeddedResource Include="Content\Cache\img\ff-t3.png" />
@@ -266,7 +283,7 @@
     <EmbeddedResource Include="Content\Cache\img\ft7.png" />
     <EmbeddedResource Include="Content\Cache\img\ft8.png" />
     <EmbeddedResource Include="Content\Cache\img\ft9.png" />
-    <EmbeddedResource Include="Content\Cache\img\icons-s2eebaa1fa4.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons-se98ce02356.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\alert-ic-tt1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\alert-modal-m1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\alert-small-ic-ov-item1.png" />
@@ -296,6 +313,7 @@
     <EmbeddedResource Include="Content\Cache\img\icons\ep-more-ff-th2.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\ep-more-numb1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\epr-ty-efoo1.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\err-input-etry1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\err-link1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\ev-opet1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\ev-opet2.png" />
@@ -317,6 +335,7 @@
     <EmbeddedResource Include="Content\Cache\img\icons\i7.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\i8.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\i9.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\ic-vk-st-over-new1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\level4.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\level5.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\like1.png" />
@@ -444,6 +463,7 @@
     <EmbeddedResource Include="Content\Cache\img\logo-foot.png" />
     <EmbeddedResource Include="Content\Cache\img\logo.png" />
     <EmbeddedResource Include="Content\Cache\img\logo2.png" />
+    <EmbeddedResource Include="Content\Cache\img\logo3.png" />
     <EmbeddedResource Include="Content\Cache\img\main-menu.png" />
     <EmbeddedResource Include="Content\Cache\img\md1.png" />
     <EmbeddedResource Include="Content\Cache\img\md2.png" />
@@ -461,6 +481,7 @@
     <EmbeddedResource Include="Content\Cache\img\q1.png" />
     <EmbeddedResource Include="Content\Cache\img\q2.png" />
     <EmbeddedResource Include="Content\Cache\img\q3.png" />
+    <EmbeddedResource Include="Content\Cache\img\save-after-n1.png" />
     <EmbeddedResource Include="Content\Cache\img\sd1.png" />
     <EmbeddedResource Include="Content\Cache\img\sd2.png" />
     <EmbeddedResource Include="Content\Cache\img\sd3.png" />
@@ -502,7 +523,11 @@
     <EmbeddedResource Include="Content\Cache\img\t34.png" />
     <EmbeddedResource Include="Content\Cache\img\t35.png" />
     <EmbeddedResource Include="Content\Cache\img\t36.png" />
+    <EmbeddedResource Include="Content\Cache\img\t37.png" />
+    <EmbeddedResource Include="Content\Cache\img\t38.png" />
+    <EmbeddedResource Include="Content\Cache\img\t39.png" />
     <EmbeddedResource Include="Content\Cache\img\t4.png" />
+    <EmbeddedResource Include="Content\Cache\img\t40.png" />
     <EmbeddedResource Include="Content\Cache\img\t5.png" />
     <EmbeddedResource Include="Content\Cache\img\t6.png" />
     <EmbeddedResource Include="Content\Cache\img\t7.png" />
@@ -526,20 +551,13 @@
     <EmbeddedResource Include="Content\Cache\js\actions.js" />
     <EmbeddedResource Include="Content\Cache\js\common.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery-ui.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery-ui_min.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery-ui.min.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_easing_1_3.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_formstyler_min.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_mCustomScrollbar.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_placeholder.js" />
     <EmbeddedResource Include="Content\Cache\js\owl_carousel_min.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\dogs\10.jpg" />
-    <EmbeddedResource Include="Content\Cache\dogs\100.jpg" />
-    <EmbeddedResource Include="Content\Cache\dogs\25.jpg" />
-    <EmbeddedResource Include="Content\Cache\dogs\5.jpg" />
-    <EmbeddedResource Include="Content\Cache\dogs\50.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
