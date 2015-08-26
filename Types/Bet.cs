@@ -20,8 +20,8 @@ namespace GameSlot.Types
         public string Price_Str;
         public string TotalPrice_Str;
 
-        public uint FirstToken;
-        public uint LastToken;
+        public int FirstToken;
+        public int LastToken;
 
         public List<Bet> UserBets;
 

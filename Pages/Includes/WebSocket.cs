@@ -180,15 +180,11 @@ namespace GameSlot.Pages.Includes
                                     }
 
                                     ushort result = Helper.LotteryHelper.SetBet(x_lot.ID, user.ID, SteamItems, Chips, client);
-
                                     Logger.ConsoleLog(result + "::test from: " + SteamItems.Count + "::" + Chips.Count);
-                                    if (result == 1)
-                                    {
-                                        client.SendWebsocket("BetDone" + BaseFuncs.WSplit + "1");
-                                    }
-                                    else if (result == 3)
-                                    {
 
+                                    if (result != 2)
+                                    {
+                                        client.SendWebsocket("BetDone" + BaseFuncs.WSplit + result);
                                     }
                                 }
                             }
@@ -275,10 +271,10 @@ namespace GameSlot.Pages.Includes
            // return SteamItem.Name + "↓" + SteamItem.Price.ToString("###,##0.00") + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + ";";
         }
 
-        public static void ChangeBetProcessStatus(ulong UserSteamID, ushort status)
+        /*public static void ChangeBetProcessStatus(ulong UserSteamID, ushort status)
         {
             Logger.ConsoleLog("Send WS TO USER!! status: " + status, ConsoleColor.Yellow);
-        }
+        }*/
 
         public static void AddNewLotteryBet(XLotteryBet XBet, double Bank, int BankItemsNum, int ExtraTime, int LotteryLeftTime)
         {
@@ -353,6 +349,25 @@ namespace GameSlot.Pages.Includes
                     }*/
 
                     WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i].SendWebsocket("AddedNewLotteryBet" + BaseFuncs.WSplit + ws);
+                }
+            }
+        }
+
+        public static void SendLotteryRoulette(uint LotteryID, List<LotteryRouletteData> RouletteData, int JackpotItems, double JackpotPrice, XUser Winner, int WinnerToken)
+        {
+            if (ClientsLotteryPage.ContainsKey(LotteryID))
+            {
+                // from 1: 
+                string ws = JackpotItems + BaseFuncs.WSplit + JackpotPrice + BaseFuncs.WSplit + Winner.ID + BaseFuncs.WSplit + Winner.Name + BaseFuncs.WSplit;
+
+                foreach (LotteryRouletteData data in RouletteData)
+                {
+                    ws += data.UsersAvatar + "↑" + data.Token.ToString() + "↑" + data.Winner + "↓";
+                }
+
+                for (int i = 0; i < WebSocketPage.ClientsLotteryPage[LotteryID].Count; i++)
+                {
+                    WebSocketPage.ClientsLotteryPage[LotteryID][i].SendWebsocket("LotteryRouletteStarted" + BaseFuncs.WSplit + ws);
                 }
             }
         }

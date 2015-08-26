@@ -81,40 +81,115 @@ namespace GameSlot.Helpers
             new Thread(delegate()
             {
                 XLottery XLottery = this.CreateNew(SteamGameID);
+                Random rnd = new Random();
 
                 while (true)
                 {
                     XLottery = this.Table.SelectByID(XLottery.ID);
                     if(XLottery.EndTime > 0 && XLottery.EndTime <= Helper.GetCurrentTime())
                     {
+                        Dictionary<uint, double> UserBetsTotalPrice = new Dictionary<uint, double>();
+                        Dictionary<uint, List<Tokens>> UserBetsTokens = new Dictionary<uint, List<Tokens>>();
+
+                        List<LotteryRouletteData> RouletteData = new List<LotteryRouletteData>();
+
                         List<USteamItem> SteamItems;
                         List<Chip> Chips;
                         XLottery.JackpotPrice = this.GetBank(XLottery.ID, out XLottery.JackpotItemsNum);
 
-                        XLottery.WinnersToken = (uint)(XLottery.JackpotPrice * 100 * XLottery.RaundNumber);
+                        XLottery.WinnersToken = (int)(XLottery.JackpotPrice * 100 * XLottery.RaundNumber);
                         if (XLottery.WinnersToken <= 0)
                         {
                             XLottery.WinnersToken = 1;
                         }
-                        XUser User = this.GetUserByToken(XLottery.WinnersToken, XLottery.ID);
-                        uint WinnerUserID = XLottery.Winner = User.ID;
+                        XUser WinnerUser = this.GetUserByToken(XLottery.WinnersToken, XLottery.ID);
+                        uint WinnerUserID = XLottery.Winner = WinnerUser.ID;
                         //WINRATE = (int)Math.Round(bet.TotalPrice / (this.GetBank(XLottery.ID, out bank_items) / 100));
 
-                        double TotalPrice_UserBets = 0d;
+                        double TotalPrice_WinnersBets = 0d;
+
                         XLotteryBet[] UsersBets;
                         Helper.LotteryHelper.TableBet.SelectArr(data => 
                         {
-                            if(data.LotteryID == XLottery.ID && data.UserID == XLottery.Winner)
+                            if(data.LotteryID == XLottery.ID)
                             {
-                                TotalPrice_UserBets += data.TotalPrice;
+                                if (!UserBetsTotalPrice.ContainsKey(data.UserID))
+                                {
+                                    List<Tokens> Tokens = new List<Tokens>();
+                                    Tokens Token = new Tokens();
+                                    Token.FirstToken = data.FisrtToken;
+                                    Token.LastToken = data.LastToken;
+                                    Tokens.Add(Token);
+
+                                    UserBetsTokens.Add(data.UserID, Tokens);
+
+                                    UserBetsTotalPrice.Add(data.UserID, data.TotalPrice);
+                                }
+                                else
+                                {
+                                    Tokens Token = new Tokens();
+                                    Token.FirstToken = data.FisrtToken;
+                                    Token.LastToken = data.LastToken;
+
+                                    UserBetsTokens[data.UserID].Add(Token);
+                                    Logger.ConsoleLog(UserBetsTokens[data.UserID].Last());
+                                    UserBetsTotalPrice[data.UserID] += data.TotalPrice;
+                                }
+
+                                if (data.UserID == XLottery.Winner)
+                                {
+                                    TotalPrice_WinnersBets += data.TotalPrice;
+                                    // add to RouletteData
+                                }
                             }
                             return false;
                         }, out UsersBets);
 
-                        XLottery.Wonrate = (int)Math.Round(TotalPrice_UserBets / XLottery.JackpotPrice / 100);
-                        XLottery.WinnerGroupID = User.GroupOwnerID;
+                        LotteryRouletteData winners_data = new LotteryRouletteData();
+                        foreach(uint user_id in UserBetsTotalPrice.Keys)
+                        {
+                            int UsersWinrate = (int)Math.Round(UserBetsTotalPrice[user_id] / (XLottery.JackpotPrice / 100));
+                            int AvatarNums = (UsersWinrate <= 1) ? 1 : (int) (UsersWinrate / 2);
+                            AvatarNums *= 2;
+                            XUser xuser = Helper.UserHelper.Table.SelectByID(user_id);
+
+                            if (user_id == WinnerUserID)
+                            {
+                                AvatarNums -= 1;
+                                winners_data.UsersAvatar = xuser.Avatar;
+                            }
+
+                            for(int i = 0; i < AvatarNums; i++)
+                            {
+                                LotteryRouletteData data = new LotteryRouletteData();
+                                data.UsersAvatar = xuser.Avatar;
+                             
+                                int TokensListID = rnd.Next(0, UserBetsTokens[user_id].Count);
+                                data.Token = rnd.Next(UserBetsTokens[user_id][TokensListID].FirstToken, UserBetsTokens[user_id][TokensListID].LastToken + 1);
+
+                                RouletteData.Add(data);
+                            }
+                        }
+
+                        // shuffle list
+                        for (int i = RouletteData.Count; i > 1; i--)
+                        {
+                            int pos = rnd.Next(i);
+                            var x = RouletteData[i - 1];
+                            RouletteData[i - 1] = RouletteData[pos];
+                            RouletteData[pos] = x;
+                        }
+
+                        winners_data.Token = XLottery.WinnersToken;
+                        winners_data.Winner = 1;
+                        RouletteData.Insert(RouletteData.Count - 20, winners_data);
+
+                        XLottery.Wonrate = (int)Math.Round(TotalPrice_WinnersBets / (XLottery.JackpotPrice / 100));
+                        XLottery.WinnerGroupID = WinnerUser.GroupOwnerID;
 
                         this.Table.UpdateByID(XLottery, XLottery.ID);
+                        WebSocketPage.SendLotteryRoulette(XLottery.ID, RouletteData, XLottery.JackpotItemsNum, XLottery.JackpotPrice, WinnerUser, XLottery.WinnersToken);
+
                         this.GetBetItems(XLottery.ID, out SteamItems, out Chips);
                         XLottery = this.CreateNew(SteamGameID);
 
@@ -136,7 +211,7 @@ namespace GameSlot.Helpers
                             XChipUsersInventory.ChipID = chip.ID;
                             XChipUsersInventory.AssertID = chip.AssertID;
                             Helper.UserHelper.Table_ChipUsersInventory.Insert(XChipUsersInventory);
-                        }
+                        }                      
                     }
 
                     Thread.Sleep(100);
@@ -190,7 +265,7 @@ namespace GameSlot.Helpers
            
         }
 
-        public XUser GetUserByToken(uint Token, uint LotteryID)
+        public XUser GetUserByToken(int Token, uint LotteryID)
         {
             XLotteryBet LotteryBet;
             // 1 >= 2685 &&  5000 <=2685
@@ -239,7 +314,7 @@ namespace GameSlot.Helpers
             return false;
         }
 
-        public List<Bet> GetUsersBets(uint LotteryID, int FromID, int ItemsNum)
+        public List<Bet> GetBets(uint LotteryID, int FromID, int ItemsNum)
         {
             //Dictionary<uint, List<Bet>> UserBets = new Dictionary<uint, List<Bet>>();
             uint size = 0;
@@ -751,9 +826,9 @@ namespace GameSlot.Helpers
                     XLotteryBet.GroupOwnerID = User.GroupOwnerID;
 
                     XLotteryBet[] XBets;
-                    this.TableBet.SelectArr(data => data.LotteryID == XLotteryBet.ID, out XBets);
+                    this.TableBet.SelectArr(data => data.LotteryID == XLottery.ID, out XBets);
                     XLotteryBet.FisrtToken = (XBets.Length > 0) ? XBets[XBets.Length-1].LastToken +1 : 1;
-                    XLotteryBet.LastToken = XLotteryBet.FisrtToken + (uint)(TotalPrice * 100 / Configs.TOKEN_PRICE);;
+                    XLotteryBet.LastToken = XLotteryBet.FisrtToken + (int)(TotalPrice * 100 / Configs.TOKEN_PRICE);;
 
                     XLotteryBet.SteamItemIDs = new uint[24];
                     XLotteryBet.ItemAssertIDs = new ulong[24];
@@ -803,6 +878,7 @@ namespace GameSlot.Helpers
                         WebSocketPage.AddNewLotteryBet(this.TableBet.SelectByID(xbet_id), BankPrice + XLotteryBet.TotalPrice, BankItemsNum + XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum, LotteryExtraTime, XLottery.EndTime - Helper.GetCurrentTime());
                     }).Start();
 
+                    client.SendWebsocket("BetDone" + BaseFuncs.WSplit + "1");
                     return 1;
                 }
 
@@ -855,10 +931,15 @@ namespace GameSlot.Helpers
                         }
 
                         Helper.SteamBotHelper.Table_Items.Insert(XSteamBotProcessItems);
+                        if (UTSteam.ClientsOffer.ContainsKey(User.SteamID))
+                        {
+                            UTSteam.ClientsOffer.Remove(User.SteamID);
+                        }
+
+                        UTSteam.ClientsOffer.Add(User.SteamID, client);
                         UpTunnel.Sender.Send(UTSteam.sk, UTRequestSteamMain);
 
-                        client.SendWebsocket("TradeSent" + BaseFuncs.WSplit + xbot.Name + BaseFuncs.WSplit + ProtectionCode);
-
+                        //client.SendWebsocket("TradeSent" + BaseFuncs.WSplit + xbot.Name + BaseFuncs.WSplit + ProtectionCode);
                         Logger.ConsoleLog("Send offer!", ConsoleColor.Green);
                         return 2;
                     }

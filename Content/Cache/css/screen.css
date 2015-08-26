@@ -4483,6 +4483,9 @@ body.vn3 #page #header .r-head .ct-t3 span {
 .pl-big-st1 .cont-pl1 .bg-stl1 .line1 .item1 img, .pl-big-st1 .cont-pl1 .bg-stl1 .line2 .item1 img, .pl-big-st1 .cont-pl1 .bg-stl1 .line3 .item1 img {
   width: 74px;
   height: 74px;
+  -webkit-border-radius: 90px;
+  -moz-border-radius: 90px;
+  border-radius: 90px;
   margin: auto;
   position: relative;
   top: 16px;

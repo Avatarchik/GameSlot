@@ -24,7 +24,7 @@ namespace GameSlot.Types
 
         public uint SteamGameID;
 
-        public uint WinnersToken;
+        public int WinnersToken;
         public XUser Winner;
     }
 }

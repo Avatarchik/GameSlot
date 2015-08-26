@@ -70,7 +70,7 @@ namespace GameSlot.Pages.Lotteries
 
             Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID);
             data.Add("Lottery", Lottery);
-            data.Add("Bets", Helper.LotteryHelper.GetUsersBets(Lottery.ID, 0, 10));
+            data.Add("Bets", Helper.LotteryHelper.GetBets(Lottery.ID, 0, 10));
 
             int items;
             data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items).ToString("###,##0.00"));

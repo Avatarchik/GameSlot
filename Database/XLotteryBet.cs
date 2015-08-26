@@ -34,13 +34,13 @@ namespace GameSlot.Database
         [FieldOffset(112)]
         public ulong[] ItemAssertIDs;
 
-        [MarshalAs(UnmanagedType.U4)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(304)]
-        public uint FisrtToken;
+        public int FisrtToken;
 
-        [MarshalAs(UnmanagedType.U4)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(308)]
-        public uint LastToken;
+        public int LastToken;
 
         [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.U4, SizeConst = 24)]
         [FieldOffset(312)]

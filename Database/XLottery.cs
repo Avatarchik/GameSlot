@@ -18,9 +18,9 @@ namespace GameSlot.Database
         [FieldOffset(4)]
         public uint SteamGameID;
 
-        [MarshalAs(UnmanagedType.U4)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(8)]
-        public uint WinnersToken;
+        public int WinnersToken;
 
         [MarshalAs(UnmanagedType.U4)]
         [FieldOffset(12)]
@@ -50,11 +50,11 @@ namespace GameSlot.Database
         [FieldOffset(44)]
         public int JackpotItemsNum;
 
-        [MarshalAs(UnmanagedType.U4)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(48)]
         public int Wonrate;
 
-        [MarshalAs(UnmanagedType.U4)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(52)]
         public int WinnerGroupID;
     }

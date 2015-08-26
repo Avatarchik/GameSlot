@@ -16,6 +16,9 @@ namespace GameSlot
     {
         public static Dictionary<string, string> Offers = new Dictionary<string, string>();
         public static Socket sk = null;
+
+        public static Dictionary<ulong, Client> ClientsOffer = new Dictionary<ulong, Client>();
+
         public UTSteam()
         {
             UTClient uc = new UTClient("localhost", 7712, "GameSlotTestes", data =>
@@ -63,7 +66,12 @@ namespace GameSlot
                                     XLottery xlottery;
                                     if (Helper.LotteryHelper.Table.SelectByID(ProcessingBet.LotteryID, out xlottery) && xlottery.WinnersToken == 0)
                                     {
-                                        Helper.LotteryHelper.SetBet(xlottery.ID, XSteamBotProcessItem.UserID, ProcessingBet.SteamItems, ProcessingBet.Chips, ProcessingBet.client);
+                                        ushort result = Helper.LotteryHelper.SetBet(xlottery.ID, XSteamBotProcessItem.UserID, ProcessingBet.SteamItems, ProcessingBet.Chips, ProcessingBet.client);
+
+                                        if (result != 2)
+                                        {
+                                            ProcessingBet.client.SendWebsocket("BetDone" + BaseFuncs.WSplit + result);
+                                        }
                                     }
                                 }
                             }
@@ -113,6 +121,7 @@ namespace GameSlot
                         }
                         else if (args[0] == "sent_offer") // запрос шмоток
                         {
+                            
                             XSteamBotProcessItems XSteamBotProcessItem;
                             if (Helper.SteamBotHelper.Table_Items.SelectOne(bt => bt.UserSteamID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XSteamBotProcessItem))
                             {
@@ -121,6 +130,13 @@ namespace GameSlot
                                 XSteamBotProcessItem.OfferID = Convert.ToUInt64(args[2]);
                                 // TODO: отправит уведомление, что выслано
                                 Helper.SteamBotHelper.Table_Items.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
+
+                                if(UTSteam.ClientsOffer.ContainsKey(XSteamBotProcessItem.UserSteamID))
+                                {
+                                    ulong steamID = XSteamBotProcessItem.UserSteamID;
+                                    UTSteam.ClientsOffer[steamID].SendWebsocket("BetDone" + BaseFuncs.WSplit + "2" + BaseFuncs.WSplit + args[2] + BaseFuncs.WSplit
+                                        + XSteamBotProcessItem.ProtectionCode + BaseFuncs.WSplit + Helper.SteamBotHelper.Table.SelectByID(XSteamBotProcessItem.SteamBotID).Name);
+                                }
                             }
 
                             Logger.ConsoleLog("Offer sent to steamid: '" + args[1] + "'; Got offer ID: " + args[2]);

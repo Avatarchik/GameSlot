@@ -58,7 +58,7 @@
         {{include GameSlot Header}}
 
         {{if(Lottery.LeftTime < 0)}}
-            <div class="pl-big-st1" id="standart_lottery_form">
+            <div class="pl-big-st1" id="lottery_standart_form">
                 <div class="bg-dsk1">
                     <i></i>
                     <div></div>
@@ -107,7 +107,7 @@
             </div>
         {{end}}
         {{else if(Lottery.LeftTime > 0)}}
-            <div class="pl-big-st1 pl-big-st11 pl-big-st112">
+            <div class="pl-big-st1 pl-big-st11 pl-big-st112" id="lottery_started_format">
                 <div class="bg-dsk1">
                     <i></i>
                     <div></div>
@@ -294,6 +294,57 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="lottery_roulette_format" style="display:none;">
+            <div class="pl-big-st1 pl-big-st13">
+                <div class="bg-dsk1">
+                    <i></i>
+                    <div></div>
+                </div>
+                <div class="fk4 fk41"></div>
+                <div class="fk5"></div>
+                <div class="fk6 fk61"></div>
+                <div class="fk10"></div>
+                <div class="cont-pl1">
+                    <div class="bt-con-numb1">
+                        <div class="numb1">
+                            <div><span>Номер<br>Игры</span></div>
+                            <i>{{=Lottery.IDStr}}</i>
+                        </div>
+                        <div class="dj1">
+                            <div><span>Джек<br>пот</span></div>
+                            <i class="numb2"><b>2,345</b> предметов</i>
+                        </div>
+                        <div class="dj2">
+                            <div><span></span></div>
+                            <i class="rub1">0</i>
+                        </div>
+                    </div>
+                    <div class="bg-stl1">
+                        <div class="line1">
+                            <div class="ov-elem1 j1" id="users_ball">
+                                
+                            </div>
+                        </div>
+                        <div class="line2">
+                            <div class="ov-elem1 j2"></div>
+                        </div>
+                        <div class="line3">
+                            <div class="ov-elem1 j3"></div>
+                        </div>
+                        <div class="win-bl1"></div>
+                    </div>
+                    <div class="rt-con-bottom1">
+                        <div class="lt-l1">
+                            <div><span>Число судьбы:</span> 0.812345435644321</div>
+                            <a href="" class="lnk1">Принципы честной игры</a>
+                        </div>
+                        <div class="rr-chet1">0000</div>
+                    </div>
+                    <div class="clear"></div>
                 </div>
             </div>
         </div>
@@ -536,10 +587,23 @@
                                         <p><span>Ник бота:</span>[bet_done_bot_name]</p>
                                     </div>
                                     <div class="y3">Для подтверждения сделки<br>перейдите в обмен Steam</div>
-                                    <a href="" class="go-steam1">Перейти в Steam</a>
+                                    <a href="" target="_blank" class="go-steam1" id="steam_trade_btn">Перейти в Steam</a>
                                 </div>
                             </div>
 
+                            <div class="ready-pp1" id="bet_item_not_found" style="display:none;">
+                                <div class="df-pp3">
+                                    <img src="/cached_files/img/not-found-error1.png" alt=""><span>К сожалению бот не нашел<br>предметы в вашем инвентаре</span>
+                                    <a href="" onclick="return try_again();">повторить попытку</a>
+                                </div>
+                            </div>
+
+                            <div class="ready-pp1" id="bet_wtf_error" style="display:none;">
+                                <div class="df-pp3">
+                                    <span>Что-то пошло не так. <br /> Повторите попытку</span>
+                                    <a href="" onclick="return try_again();">повторить попытку</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="rr1">
@@ -613,7 +677,7 @@
 
                                     <div class="ready-pp1" id="steam_inventory_loading">
                                         <div class="df-pp2 df-pp22">
-                                            <img src="/cached_files/img/4_5-load3.png" alt=""><span class="j1">Идёт загрузка<br>инвентаря</span>
+                                            <img src="/cached_files/img/9-6_2_obrabotka-stavki_loading_icon.gif" alt=""><span class="j1">Идёт загрузка<br>инвентаря</span>
                                         </div>
                                     </div>
                                 </div>
@@ -646,7 +710,7 @@
                                             <span style="display:none;" id="item_assert_id">{{=Item.AssertID}}</span>
 
                                             <span style="display:none;" id="item_id">{{=Item.ID}}</span>
-                                            <a href="" onclick="hh({{=Item.AssertID}});"></a>
+                                            <a href="" onclick="return hh({{=Item.AssertID}});"></a>
                                             <!--<img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">-->
                                             <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
                                             <span class="baks">{{=Item.Price_Str}}</span>
@@ -726,34 +790,49 @@
     </div>
     <script>
         var bet_count = 0;
+        {{if(user.TradePartner == 0 || user.TradeToken.Length == 0)}}
+        var trade_ok = false;
+        {{end}}
+        {{else}}
+        var trade_ok = true;
+        {{end}}
+
+        var handler = false;
 
         function hh(item_id)
         {
-            var iventory_id = $("#item_id_" + item_id + " span#iventory_id").text();
-            var current_iventory_id = $("#item_id_" + item_id + " span#current_iventory_id").text();
-            /* 1: steam, 2: local, 0: bet, 3: fishka */
-            if(current_iventory_id > 0)
+            if(handler == false)
             {
-                if(bet_count < 24){
-                    $("#item_id_" + item_id + " span#current_iventory_id").text(0);
-                    $("#item_id_" + item_id).appendTo("div#bet_iventory");
-                    bet_count++;
+                var iventory_id = $("#item_id_" + item_id + " span#iventory_id").text();
+                var current_iventory_id = $("#item_id_" + item_id + " span#current_iventory_id").text();
+                /* 1: steam, 2: local, 0: bet, 3: fishka */
+                if(current_iventory_id > 0)
+                {
+                    if(bet_count < 24){
+                        if(current_iventory_id == 1 && !trade_ok)
+                        {
+                            return false;
+                        }
+
+                        $("#item_id_" + item_id + " span#current_iventory_id").text(0);
+                        $("#item_id_" + item_id).appendTo("div#bet_iventory");
+                        bet_count++;
+                    }
+                }
+                else 
+                {
+                    $("#item_id_" + item_id + " span#current_iventory_id").text(iventory_id);
+
+                    if(iventory_id == 1)
+                        $("#item_id_" + item_id).appendTo("div#steam_iventory");
+                    else if(iventory_id == 2)
+                        $("#item_id_" + item_id).appendTo("div#local_iventory");
+                    else if(iventory_id == 3)
+                        $("#item_id_" + item_id).appendTo("div#chips_iventory");
+
+                    bet_count = bet_count -1;
                 }
             }
-            else 
-            {
-                $("#item_id_" + item_id + " span#current_iventory_id").text(iventory_id);
-
-                if(iventory_id == 1)
-                    $("#item_id_" + item_id).appendTo("div#steam_iventory");
-                else if(iventory_id == 2)
-                    $("#item_id_" + item_id).appendTo("div#local_iventory");
-                else if(iventory_id == 3)
-                    $("#item_id_" + item_id).appendTo("div#chips_iventory");
-
-                bet_count = bet_count -1;
-            }
-
             return false;
         }
 
@@ -768,6 +847,7 @@
         {
             if(bet_count > 0 && bet_count <= 24)
             {
+                handler = true;
                 var inventory = $("div#bet_iventory");
 
                 var bet = "LotteryPage{{=BaseFuncs.WSplit}}SetBet{{=BaseFuncs.WSplit}}" + LotteryPage_LotteryID + "{{=BaseFuncs.WSplit}}";
@@ -779,13 +859,11 @@
                     var item_id = $("span#item_id", this).text();
 
                     bet += assert_id + ":" + item_type + ":" + item_id + ";";
-                    $(this).remove();
                 });
 
                 $("div#bet_ready").attr("style", "display:block;");
                 ws.send(bet);
                 bet_count = 0;
-                console.log(bet);
             }
 
             return false;
@@ -817,9 +895,18 @@
             }
         }
 
-    </script>
+        function try_again()
+        {
+            handler = true;
+            $("div#bet_ready").attr("style", "display:none;");
+            $("div#bet_done").attr("style", "display:none;");
+            $("div#bet_wtf_error").attr("style", "display:none;");
 
+            return false;
+        }
+    </script>
     {{end}}
     <div class="up1"></div>
 </body>
+{{include GameSlot Last}}
 </html>

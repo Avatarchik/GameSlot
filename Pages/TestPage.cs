@@ -105,7 +105,8 @@ namespace GameSlot.Pages
             XLottery last_lot;
             Logger.ConsoleLog((Helper.LotteryHelper.Table.SelectOne(data => data.SteamGameID == 570, out last_lot)));
             uint i = 10000;
-            client.HttpSend(i.ToString("D8"));
+            Random rnd = new Random();
+            client.HttpSend(rnd.Next(0,2).ToString());
             return true;
         }
     }
