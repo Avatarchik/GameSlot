@@ -1,5 +1,6 @@
 ﻿using GameSlot.Database;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,8 +25,10 @@ namespace GameSlot.Pages
         }
         public override bool Init(Client client)
         {
-            client.HttpSend(TemplateActivator.Activate(this, client));
-            return false;
+            Hashtable data = new Hashtable();
+            data.Add("Title", "Comming soon... :)");
+            client.HttpSend(TemplateActivator.Activate(this, client, data));
+            return true;
         }
     }
 }

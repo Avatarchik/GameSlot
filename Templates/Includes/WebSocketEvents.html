@@ -120,91 +120,96 @@
         $("div#steam_inventory_pagination").addClass("active");
     }
 
+    function LoadSteamInventoryData(data)
+    {
+        if (data[0] == "SteamInventoryClosed")
+        {
+            $("div#steam_inventory_loading").attr("style", "display:none;");
+            $("div#steam_iventory").html($("div#steam_inventory_closed").html());
+            $("div#steam_inventory_pagination").removeClass("active");
+            console.log('steam inventory closed');
+        }
+
+        else if (data[0] == "SteamInventory")
+        {
+            USERS_ITEMS_IN_INVENTORY = data[3];
+
+            console.log("SteamInventory");
+            var items = data[2].split(';');
+            var items_content = "";
+            for (var i = 0; i < (items.length - 1) ; i++)
+            {
+                var items_html = $("div#steam_items_html").html();
+                var item = items[i].split('↓');
+
+                items_html = items_html.replace("[item_name]", item[0]);
+                items_html = items_html.replace("[item_name]", item[0]);
+
+                items_html = items_html.replace("[item_id]", item[3]);
+                items_html = items_html.replace("[item_id]", item[3]);
+
+                items_html = items_html.replace("[item_price]", item[1]);
+                /*items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");*/
+                items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");
+
+                items_html = items_html.replace("[item_assert_id]", item[4]);
+                items_html = items_html.replace("[item_assert_id]", item[4]);
+                items_html = items_html.replace("[item_assert_id]", item[4]);
+
+                items_html = items_html.replace("[iventory_id]", "1");
+                items_html = items_html.replace("[current_iventory_id]", "1");
+
+                items_content += items_html;
+            }
+
+            $("div#steam_iventory").html(items_content);
+
+            setTimeout(function () {
+                $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
+                    $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
+                });
+            }, 1000);
+
+
+            $("div#steam_inventory_loading").attr("style", "display:none;");
+            $("div#steam_inventory_items_num").text(data[3]);
+            $("div#steam_inventory_total_price").text(data[1]);
+
+            $("div#steam_inventory_pagination").removeClass("active");
+
+            if (USERS_ITEMS_IN_INVENTORY == INVENTORY_ITEMS_FROM + INVENTORY_ITEMS_NUM) {
+                inventory_getlastpage_disabled = true;
+                $("div#steam_inventory_pagination a#next").removeAttr("href");
+                $("div#steam_inventory_pagination a#last").removeAttr("href");
+            }
+                
+            if (INVENTORY_ITEMS_FROM == 0){
+                inventory_getfirstpage_disabled = true;
+                $("div#steam_inventory_pagination a#first").removeAttr("href");
+                $("div#steam_inventory_pagination a#before").removeAttr("href");
+            }
+
+            if(USERS_ITEMS_IN_INVENTORY >= INVENTORY_ITEMS_NUM)
+            {
+                $("div#steam_inventory_pagination").attr('style', "display:block;");
+            }
+            else
+            {
+                $("div#steam_inventory_pagination").attr('style', "display:none;");
+            }
+
+            /*$("div#steam_iventory").html(items_content);*/
+            /*$("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");*/
+        }
+    }
+
     ws.onmessage = function (evt)
     {
         var data = evt.data.split("{{=BaseFuncs.WSplit}}");
 
         if(GetMyInventoryPage)
         {
-            if (data[0] == "SteamInventoryClosed")
-            {
-                $("div#steam_inventory_loading").attr("style", "display:none;");
-                $("div#steam_iventory").html($("div#steam_inventory_closed").html());
-                $("div#steam_inventory_pagination").removeClass("active");
-                console.log('steam inventory closed');
-            }
-
-            else if (data[0] == "SteamInventory")
-            {
-                USERS_ITEMS_IN_INVENTORY = data[3];
-
-                console.log("SteamInventory");
-                var items = data[2].split(';');
-                var items_content = "";
-                for (var i = 0; i < (items.length - 1) ; i++)
-                {
-                    var items_html = $("div#steam_items_html").html();
-                    var item = items[i].split('↓');
-
-                    items_html = items_html.replace("[item_name]", item[0]);
-                    items_html = items_html.replace("[item_name]", item[0]);
-
-                    items_html = items_html.replace("[item_id]", item[3]);
-                    items_html = items_html.replace("[item_id]", item[3]);
-
-                    items_html = items_html.replace("[item_price]", item[1]);
-                    /*items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");*/
-                    items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");
-
-                    items_html = items_html.replace("[item_assert_id]", item[4]);
-                    items_html = items_html.replace("[item_assert_id]", item[4]);
-                    items_html = items_html.replace("[item_assert_id]", item[4]);
-
-                    items_html = items_html.replace("[iventory_id]", "1");
-                    items_html = items_html.replace("[current_iventory_id]", "1");
-
-                    items_content += items_html;
-                }
-
-                $("div#steam_iventory").html(items_content);
-
-                setTimeout(function () {
-                    $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
-                        $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
-                    });
-                }, 1000);
-
-
-                $("div#steam_inventory_loading").attr("style", "display:none;");
-                $("div#steam_inventory_items_num").text(data[3]);
-                $("div#steam_inventory_total_price").text(data[1]);
-
-                $("div#steam_inventory_pagination").removeClass("active");
-
-                if (USERS_ITEMS_IN_INVENTORY == INVENTORY_ITEMS_FROM + INVENTORY_ITEMS_NUM) {
-                    inventory_getlastpage_disabled = true;
-                    $("div#steam_inventory_pagination a#next").removeAttr("href");
-                    $("div#steam_inventory_pagination a#last").removeAttr("href");
-                }
-                
-                if (INVENTORY_ITEMS_FROM == 0){
-                    inventory_getfirstpage_disabled = true;
-                    $("div#steam_inventory_pagination a#first").removeAttr("href");
-                    $("div#steam_inventory_pagination a#before").removeAttr("href");
-                }
-
-                if(USERS_ITEMS_IN_INVENTORY >= INVENTORY_ITEMS_NUM)
-                {
-                    $("div#steam_inventory_pagination").attr('style', "display:block;");
-                }
-                else
-                {
-                    $("div#steam_inventory_pagination").attr('style', "display:none;");
-                }
-
-                /*$("div#steam_iventory").html(items_content);*/
-                /*$("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");*/
-            }
+            LoadSteamInventoryData(data);        
         }
 
         else if (MyGroupPageConnect)
@@ -232,6 +237,8 @@
 
         else if(LotteryPageConnect)
         {
+            LoadSteamInventoryData(data);
+
             if (data[0] == "AddedNewLotteryBet")
             {
                 var html_block = $("div#new_bet").html();
@@ -445,59 +452,7 @@
                     $("div#bet_wtf_error").attr("style", "display:block;");
                     console.log("wtf error :: setbet() returned 0!");
                 }
-            }
-            
-
-            else if (data[0] == "SteamInventoryClosed")
-            {
-                $("div#steam_inventory_loading").attr("style", "display:none;");
-                $("div#steam_iventory").html($("div#steam_inventory_closed").html());
-                console.log('steam inventory closed');
-            }
-
-            else if (data[0] == "SteamInventory")
-            {
-                console.log("SteamInventory");
-                var items = data[2].split(';');
-                items_content = "";
-                for (var i = 0; i < (items.length - 1) ; i++)
-                {
-                    var items_html = $("div#steam_items_html").html();
-                    var item = items[i].split('↓');
-
-                    items_html = items_html.replace("[item_name]", item[0]);
-                    items_html = items_html.replace("[item_name]", item[0]);
-
-                    items_html = items_html.replace("[item_id]", item[3]);
-                    items_html = items_html.replace("[item_id]", item[3]);
-
-                    items_html = items_html.replace("[item_price]", item[1]);
-                    /*items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");*/
-                    items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");
-
-                    items_html = items_html.replace("[item_assert_id]", item[4]);
-                    items_html = items_html.replace("[item_assert_id]", item[4]);
-                    items_html = items_html.replace("[item_assert_id]", item[4]);
-
-                    items_html = items_html.replace("[iventory_id]", "1");
-                    items_html = items_html.replace("[current_iventory_id]", "1");
-
-                    $("div#steam_iventory").append(items_html);
-                }
-
-                setTimeout(function () {
-                    $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
-                        $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
-                    });
-                }, 1000);
-
-
-                $("div#steam_inventory_loading").attr("style", "display:none;");
-                $("div#steam_inventory_items_num").text(data[3]);
-                $("div#steam_inventory_total_price").text(data[1]);
-                /*$("div#steam_iventory").html(items_content);*/
-                /*$("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");*/
-            }
+            }             
 
             else if (data[0] == "UpdateTradeURL")
             {
