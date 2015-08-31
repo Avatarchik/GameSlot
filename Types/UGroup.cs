@@ -13,5 +13,16 @@ namespace GameSlot.Types
         public string Name;
         public List<XUser> Users;
         public int UserCount;
+
+        public int Winrate;
+        public int BetItemsCount;
+        public double BetPrice;
+
+        public string BetItemsPrice_Str;
+
+        public double GotPriceFromGroup;
+        public int GotItemsFromGroup;
+
+        public string GotPriceFromGroup_Str;
     }
 }

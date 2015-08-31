@@ -73,6 +73,15 @@ namespace GameSlot.Pages.Includes
                                 }
                             }
                         }
+
+                        else if (wsdata[1].Equals("ExitFromGroup") && Helper.UserHelper.GetCurrentUser(client, out User))
+                        {
+                            if (Helper.GroupHelper.ExitFromGroup(GroupID, client))
+                            {
+                                WebSocketPage.UpdateGroupData(GroupID);
+                            }
+                        }
+
                     }
                 }
                 else if(wsdata[0].Equals("MyGroupPage"))
@@ -93,7 +102,11 @@ namespace GameSlot.Pages.Includes
                 {
                     XUser User;
                     uint SteamGameID;
-                    if (Helper.UserHelper.GetCurrentUser(client, out User)&& uint.TryParse(wsdata[1], out SteamGameID))
+                    int ItemsNum;
+                    int FromNum;
+                    ushort SortByLowPrice;
+
+                    if (Helper.UserHelper.GetCurrentUser(client, out User) && uint.TryParse(wsdata[1], out SteamGameID) && int.TryParse(wsdata[2], out FromNum) && int.TryParse(wsdata[3], out ItemsNum) && ushort.TryParse(wsdata[4], out SortByLowPrice))
                     {
                         UsersInventory Inventory = null;
                         bool InList = Helper.UserHelper.GetSteamInventory(User, SteamGameID, out Inventory);
@@ -106,12 +119,20 @@ namespace GameSlot.Pages.Includes
                             else
                             {
                                 string StrItems = "";
-                                for (int i = 0; i < Math.Min(30, Inventory.SteamItems.Count); i++)
+                                Logger.ConsoleLog("From num: " + FromNum + " ItemsNum:" + ItemsNum);
+
+                                List<USteamItem> SteamItems = Helper.SteamItemsHelper.SearchByString(Inventory.SteamItems, wsdata[5]);
+                                if(SortByLowPrice == 1)
                                 {
-                                    StrItems += WebSocketPage.InventoryItemToString(Inventory.SteamItems[i]);
+                                    SteamItems = (from it in SteamItems orderby it.Price ascending select it).ToList();
                                 }
 
-                                WebSocketPage.UpdateInventory(StrItems, Inventory.TotalPrice, Inventory.SteamItems.Count, client, true);
+                                for (int i = FromNum; i < FromNum + Math.Min(ItemsNum, SteamItems.Count); i++)
+                                {
+                                    StrItems += WebSocketPage.InventoryItemToString(SteamItems[i]);
+                                }
+
+                                WebSocketPage.UpdateInventory(StrItems, Inventory.TotalPrice, SteamItems.Count, client, true);
                             }
                         }
                         else
@@ -266,6 +287,9 @@ namespace GameSlot.Pages.Includes
 
         public static string InventoryItemToString(USteamItem SteamItem)
         {
+            string image;
+            Helper.SteamItemsHelper.GetImageFromMemory(SteamItem.ID, SteamItem.SteamGameID, out image);
+            //Logger.ConsoleLog(image + "::" + SteamItem.ID + "::" + SteamItem.SteamGameID);
             // 4- last
             return SteamItem.Name + "↓" + SteamItem.Price.ToString("###,##0.00") + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + "↓" + SteamItem.Image + ";";
            // return SteamItem.Name + "↓" + SteamItem.Price.ToString("###,##0.00") + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + ";";
@@ -353,21 +377,36 @@ namespace GameSlot.Pages.Includes
             }
         }
 
-        public static void SendLotteryRoulette(uint LotteryID, List<LotteryRouletteData> RouletteData, int JackpotItems, double JackpotPrice, XUser Winner, int WinnerToken)
+        public static void SendLotteryRoulette(XLottery XLottery, List<LotteryRouletteData> RouletteData, XUser Winner)
         {
-            if (ClientsLotteryPage.ContainsKey(LotteryID))
+            if (ClientsLotteryPage.ContainsKey(XLottery.ID))
             {
-                // from 1: 
-                string ws = JackpotItems + BaseFuncs.WSplit + JackpotPrice + BaseFuncs.WSplit + Winner.ID + BaseFuncs.WSplit + Winner.Name + BaseFuncs.WSplit;
+                // from 1: JackpotItems 2: JackpotPrice 3:Winner.ID 4: Winner.Name 5:RaundNumber 6: WinnerToken 7:(JackpotPrice * 100) 8: Winner.Avatar
+                string ws = XLottery.JackpotItemsNum + BaseFuncs.WSplit + XLottery.JackpotPrice + BaseFuncs.WSplit + Winner.ID + BaseFuncs.WSplit + Winner.Name + BaseFuncs.WSplit;
+                ws += XLottery.RaundNumber + BaseFuncs.WSplit + XLottery.WinnersToken + BaseFuncs.WSplit + (XLottery.JackpotPrice * 100) + BaseFuncs.WSplit + Winner.Avatar + BaseFuncs.WSplit;
+                // 9: wonrate; 10: winners_items_num; 11: winners_price
+                ws += XLottery.Wonrate + BaseFuncs.WSplit + XLottery.WinnersBetItemsNum + BaseFuncs.WSplit + XLottery.WinnersBetPrice + BaseFuncs.WSplit;
 
+                // 12: data
                 foreach (LotteryRouletteData data in RouletteData)
                 {
-                    ws += data.UsersAvatar + "↑" + data.Token.ToString() + "↑" + data.Winner + "↓";
+                    ws += data.UsersAvatar + "↑" + data.Token.ToString("D8") + "↑" + data.Winner + "↓";
                 }
 
-                for (int i = 0; i < WebSocketPage.ClientsLotteryPage[LotteryID].Count; i++)
+                ws += BaseFuncs.WSplit;
+                for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XLottery.ID].Count; i++)
                 {
-                    WebSocketPage.ClientsLotteryPage[LotteryID][i].SendWebsocket("LotteryRouletteStarted" + BaseFuncs.WSplit + ws);
+                    XUser CurrentUser;
+                    if (Helper.UserHelper.GetCurrentUser(WebSocketPage.ClientsLotteryPage[XLottery.ID][i], out CurrentUser))
+                    {
+                        ws += 1.ToString();
+                    }
+                    else
+                    {
+                        ws += 0.ToString();
+                    }
+
+                    WebSocketPage.ClientsLotteryPage[XLottery.ID][i].SendWebsocket("LotteryRouletteStarted" + BaseFuncs.WSplit + ws);
                 }
             }
         }

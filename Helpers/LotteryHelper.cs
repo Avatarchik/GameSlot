@@ -18,6 +18,9 @@ namespace GameSlot.Helpers
     {
         public XTable<XLottery> Table = new XTable<XLottery>();
         public XTable<XLotteryBet> TableBet = new XTable<XLotteryBet>();
+        public XTable<XLotteryUsersMemory> TableUsersMemory = new XTable<XLotteryUsersMemory>();
+        public XTable<XLotteryPercentage> TablePercentage = new XTable<XLotteryPercentage>();
+        
         //public List<>
 
         private static List<ProcessingBet> ProcessingBets = new List<ProcessingBet>();
@@ -86,7 +89,7 @@ namespace GameSlot.Helpers
                 while (true)
                 {
                     XLottery = this.Table.SelectByID(XLottery.ID);
-                    if(XLottery.EndTime > 0 && XLottery.EndTime <= Helper.GetCurrentTime())
+                    if (XLottery.EndTime > 0 && (XLottery.EndTime) < Helper.GetCurrentTime())
                     {
                         Dictionary<uint, double> UserBetsTotalPrice = new Dictionary<uint, double>();
                         Dictionary<uint, List<Tokens>> UserBetsTokens = new Dictionary<uint, List<Tokens>>();
@@ -139,11 +142,13 @@ namespace GameSlot.Helpers
                                 if (data.UserID == XLottery.Winner)
                                 {
                                     TotalPrice_WinnersBets += data.TotalPrice;
-                                    // add to RouletteData
+                                    XLottery.WinnersBetItemsNum += data.SteamItemsNum + data.ChipsNum;
                                 }
                             }
                             return false;
                         }, out UsersBets);
+
+                        XLottery.WinnersBetPrice = TotalPrice_WinnersBets;
 
                         LotteryRouletteData winners_data = new LotteryRouletteData();
                         foreach(uint user_id in UserBetsTotalPrice.Keys)
@@ -188,10 +193,96 @@ namespace GameSlot.Helpers
                         XLottery.WinnerGroupID = WinnerUser.GroupOwnerID;
 
                         this.Table.UpdateByID(XLottery, XLottery.ID);
-                        WebSocketPage.SendLotteryRoulette(XLottery.ID, RouletteData, XLottery.JackpotItemsNum, XLottery.JackpotPrice, WinnerUser, XLottery.WinnersToken);
+                        WebSocketPage.SendLotteryRoulette(XLottery, RouletteData, WinnerUser);
 
                         this.GetBetItems(XLottery.ID, out SteamItems, out Chips);
+
+                        double WinnersBetsPrice = 0d;
+                        int WinnersBetsItemsCount = 0;
+
+                        XLotteryBet[] WinnersBets;
+                        this.TableBet.SelectArr(data => 
+                        { 
+                            if(data.LotteryID == XLottery.ID && data.UserID == WinnerUser.ID)
+                            {
+                                WinnersBetsItemsCount += data.SteamItemsNum + data.ChipsNum;
+                                WinnersBetsPrice += data.TotalPrice;
+                            }
+                            return false;
+                        }, out WinnersBets);
+
+                        // ???
+                        XLottery LastLottery = XLottery;
                         XLottery = this.CreateNew(SteamGameID);
+
+                        // update winners info (group and user)
+                        WinnerUser.WonCount++;
+                        WinnerUser.WonTotalPrice += LastLottery.JackpotPrice - WinnersBetsPrice;
+                        WinnerUser.WonItemsCount += SteamItems.Count + Chips.Count - WinnersBetsItemsCount;
+
+
+                        int WinnerBetPercentage = Convert.ToInt32(Math.Round((100 * WinnersBetsPrice) / LastLottery.JackpotPrice));
+                        if (WinnersBetsPrice > 80)
+                        {
+                            XLotteryPercentage[] XLotteryPercentages;
+                            if (this.TablePercentage.SelectArr(data => data.LotteryID == LastLottery.ID, out XLotteryPercentages))
+                            {
+                                for(int i = 0; i < XLotteryPercentages.Length; i++)
+                                {
+                                    XUser GroupOwner = Helper.UserHelper.Table.SelectByID(XLotteryPercentages[i].UserID);
+                                    double GroupGetItemPrice = XLotteryPercentages[i].SteamItemsPrice;
+                                    double GroupGetChipPrice = XLotteryPercentages[i].ChipPrice;
+
+                                    foreach (USteamItem SteamItem in SteamItems)
+                                    {
+                                        if (GroupGetItemPrice < Configs.MIN_ITEMS_PRICE)
+                                        {
+                                            break;
+                                        }
+
+                                        if(SteamItem.Price <= GroupGetItemPrice)
+                                        {
+                                            GroupOwner.GotItemsFromGroup++;
+                                            GroupOwner.GotPriceFromGroup += SteamItem.Price;
+
+                                            XSItemUsersInventory XSItemUsersInventory = new XSItemUsersInventory();
+                                            XSItemUsersInventory.UserID = GroupOwner.ID;
+                                            XSItemUsersInventory.SteamItemID = SteamItem.ID;
+                                            XSItemUsersInventory.AssertID = SteamItem.AssertID;
+                                            XSItemUsersInventory.SteamGameID = SteamItem.SteamGameID;
+                                            XSItemUsersInventory.SteamBotID = SteamItem.SteamBotID;
+
+                                            Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
+                                            SteamItems.Remove(SteamItem);
+                                        }
+                                    }
+
+                                    foreach (Chip chip in Chips)
+                                    {
+                                        if (GroupGetItemPrice < Configs.MIN_ITEMS_PRICE)
+                                        {
+                                            break;
+                                        }
+
+                                        if (chip.Cost <= GroupGetItemPrice)
+                                        {
+                                            GroupOwner.GotItemsFromGroup++;
+                                            GroupOwner.GotPriceFromGroup += chip.Cost;
+
+                                            XChipUsersInventory XChipUsersInventory = new XChipUsersInventory();
+                                            XChipUsersInventory.UserID = WinnerUserID;
+                                            XChipUsersInventory.ChipID = chip.ID;
+                                            XChipUsersInventory.AssertID = chip.AssertID;
+
+                                            Helper.UserHelper.Table_ChipUsersInventory.Insert(XChipUsersInventory);
+                                            Chips.Remove(chip);
+                                        }
+                                    }
+
+                                    Helper.UserHelper.Table.UpdateByID(GroupOwner, GroupOwner.ID);
+                                }
+                            }
+                        }
 
                         foreach (USteamItem SteamItem in SteamItems)
                         {
@@ -202,6 +293,7 @@ namespace GameSlot.Helpers
                             XSItemUsersInventory.SteamGameID = SteamItem.SteamGameID;
                             XSItemUsersInventory.SteamBotID = SteamItem.SteamBotID;
                             Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
+
                         }
                         //Logger.ConsoleLog(Chips.Count + "|||" + WinnerUserID);
                         foreach (Chip chip in Chips)
@@ -211,7 +303,29 @@ namespace GameSlot.Helpers
                             XChipUsersInventory.ChipID = chip.ID;
                             XChipUsersInventory.AssertID = chip.AssertID;
                             Helper.UserHelper.Table_ChipUsersInventory.Insert(XChipUsersInventory);
-                        }                      
+                        }
+
+                        XLotteryUsersMemory XLotteryUsersMemory;
+                        if (WinnerUser.GroupOwnerID >= 0 && this.TableUsersMemory.SelectOne(data => data.LotteryID == LastLottery.ID && data.GroupOwnerID == WinnerUser.GroupOwnerID, out XLotteryUsersMemory))
+                        {
+                            if (WinnerUser.GroupOwnerID == WinnerUser.ID)
+                            {
+                                WinnerUser.GroupWonCount++;
+                                WinnerUser.GroupWonItemsCount += WinnerUser.WonItemsCount;
+                                WinnerUser.GroupWonTotalPrice += WinnerUser.WonTotalPrice;
+                            }
+                            else
+                            {
+                                XUser GroupOwner = Helper.UserHelper.Table.SelectByID((uint)WinnerUser.GroupOwnerID);
+                                GroupOwner.GroupWonCount++;
+                                GroupOwner.GroupWonItemsCount += WinnerUser.WonItemsCount;
+                                GroupOwner.GroupWonTotalPrice += WinnerUser.WonTotalPrice;
+
+                                Helper.UserHelper.Table.UpdateByID(GroupOwner, GroupOwner.ID);
+                            }
+                        }
+
+                        Helper.UserHelper.Table.UpdateByID(WinnerUser, WinnerUser.ID);
                     }
 
                     Thread.Sleep(100);
@@ -248,7 +362,6 @@ namespace GameSlot.Helpers
                         }
                     }
 
-                   // Logger.ConsoleLog(XLotteryBet.ChipsNum + "| LOLS");
                     // chips
                     for (int x = 0; x < XLotteryBet.ChipsNum; x++)
                     {
@@ -261,8 +374,10 @@ namespace GameSlot.Helpers
                         }
                     }
                 }
-            }
-           
+
+                SteamItems = (from it in SteamItems orderby it.Price descending select it).ToList();
+                Chips = (from it in Chips orderby it.Cost descending select it).ToList();
+            }         
         }
 
         public XUser GetUserByToken(int Token, uint LotteryID)
@@ -299,22 +414,37 @@ namespace GameSlot.Helpers
 
                 //Logger.ConsoleLog(xlot.EndTime, ConsoleColor.Blue);
                 Lottery.LeftTime = (xlot.EndTime > 0) ? this.CalcLeftTime(xlot.ID) : -1;
-                
-                Lottery.RaundNumber = xlot.RaundNumber;
+               
                 Lottery.RaundNumber_MD5 = BaseFuncs.MD5(xlot.RaundNumber.ToString());
 
                 //Lottery.Bets = this.GetBets(xlot.ID);
                 Lottery.SteamGameID = xlot.SteamGameID;
 
-                Lottery.WinnersToken = xlot.WinnersToken;
-                Lottery.Winner = Helper.UserHelper.Table.SelectByID(xlot.Winner);
+                if (xlot.EndTime > 0 && xlot.EndTime <= Helper.GetCurrentTime() + 1)
+                {
+                    XLottery new_xlot;
+                    if(this.Table.SelectOne(data => data.SteamGameID == xlot.SteamGameID && data.WinnersToken == 0 && data.ID != xlot.ID, out new_xlot))
+                    {
+                        Lottery.StartTimeNextGame = new_xlot.StartTime;
+                        Lottery.LeftTimeNextGame = (new_xlot.StartTime - Helper.GetCurrentTime() > 0) ? new_xlot.StartTime - Helper.GetCurrentTime() : 0;
+                    }
+
+                    Lottery.WinnersToken = xlot.WinnersToken;
+                    Lottery.Winner = Helper.UserHelper.Table.SelectByID(xlot.Winner);
+                    Lottery.RaundNumber = xlot.RaundNumber;
+                    Lottery.Wonrate = xlot.Wonrate;
+
+                    Lottery.WinnersBetItemsNum = xlot.WinnersBetItemsNum;
+                    Lottery.WinnersBetPrice = xlot.WinnersBetPrice;
+                    Lottery.WinnersBetPrice_Str = xlot.WinnersBetPrice.ToString("###,##0.00");
+                }
                 return true;
             }
             Lottery = null;
             return false;
         }
 
-        public List<Bet> GetBets(uint LotteryID, int FromID, int ItemsNum)
+        public List<Bet> GetBets(uint LotteryID, int From, int ItemsNum)
         {
             //Dictionary<uint, List<Bet>> UserBets = new Dictionary<uint, List<Bet>>();
             uint size = 0;
@@ -331,12 +461,15 @@ namespace GameSlot.Helpers
             if (this.Table.SelectByID(LotteryID, out XLottery))
             {
                 XLotteryBet[] XBets;
-                if (this.TableBet.SelectArrFromEnd(data => data.LotteryID == LotteryID, out XBets, FromID, 10))
+                if (this.TableBet.SelectArrFromEnd(data => data.LotteryID == LotteryID, out XBets, From, ItemsNum))
                 {
+                    Logger.ConsoleLog(XBets.Length);
                     for (int bb = 0; bb < XBets.Length; bb++)
                     {
+                        Logger.ConsoleLog(XBets[bb].ChipsNum, ConsoleColor.Green);
                         Bet bet = new Bet();
-                        //Logger.ConsoleLog(bet.ID);
+                        Logger.ConsoleLog(XBets[bb].ID + "user: " + XBets[bb].UserID);
+                        bet.ID = XBets[bb].ID;
                         bet.SteamItems = new List<USteamItem>();
                         bet.Chips = new List<Chip>();
 
@@ -354,14 +487,13 @@ namespace GameSlot.Helpers
                                 bet.SteamItems.Add(Item);
                             }
                         }
-
+                        
                         // chips
                         for (uint i = 0; i < XBets[bb].ChipsNum; i++)
                         {
                             Chip Chip;
                             if (Helper.ChipHelper.SelectByID(XBets[bb].ChipIDs[i], out Chip))
                             {
-                                Chip = Chip.Clone();
                                 Chip.AssertID = XBets[bb].ChipAssertIDs[i];
 
                                 bet.Price += Chip.Cost;
@@ -381,11 +513,12 @@ namespace GameSlot.Helpers
                         else
                         {
                             XLotteryBet[] XUsersBets;
-                            if (this.TableBet.SelectArrFromEnd(data => data.LotteryID == XLottery.ID && data.UserID == XBets[bb].UserID, out XUsersBets))
+                            if (this.TableBet.SelectArrFromEnd(data => data.LotteryID == XLottery.ID && data.UserID == XBets[bb].UserID, out XUsersBets, 0, 15))
                             {
                                 for (int gg = 0; gg < XUsersBets.Length; gg++)
                                 {
                                     Bet UsersBet = new Bet();
+                                    UsersBet.ID = XUsersBets[gg].ID;
                                     UsersBet.FirstToken = XUsersBets[gg].FisrtToken;
                                     UsersBet.LastToken = XUsersBets[gg].LastToken;
 
@@ -415,6 +548,7 @@ namespace GameSlot.Helpers
                         int bank_items;
                         bet.Winrate = (int)Math.Round(bet.TotalPrice / (this.GetBank(XLottery.ID, out bank_items) / 100));
 
+                        //Logger.ConsoleLog(this.TableBet.SelectByID(bet.ID).ChipsNum + "SHT" + bet.ID);
                         Bets.Add(bet);
                                          
                     }          
@@ -424,269 +558,6 @@ namespace GameSlot.Helpers
             return Bets;
         }
 
-       /* public ushort SetBet(uint LotteryID, uint UserID, List<USteamItem> SteamItems, List<Chip> Chips, Client client)
-        {
-            XLottery XLottery;
-            XUser User;
-            if (Helper.UserHelper.Table.SelectByID(UserID, out User) && this.Table.SelectByID(LotteryID, out XLottery) && XLottery.WinnersToken == 0 && SteamItems.Count + Chips.Count <= 24)
-            {
-                XLotteryBet XLotteryBet = new XLotteryBet();
-                XLotteryBet.TotalPrice = 0d;
-                ushort ItemsFromSteamInventory = 0;
-                ulong[] SteamItemAsserIDs_FromSteamInventory = new ulong[24];
-                uint[] SteamItemIDs_FromSteamInventory = new uint[24];
-
-                ProcessingBet ProcessingBet = new ProcessingBet();
-                UTRequestSteamMain UTRequestSteamMain = new UTRequestSteamMain();
-
-                // Steam items
-                if(SteamItems.Count > 0)
-                {
-                    XLotteryBet.ItemAssertIDs = new ulong[24];
-                    XLotteryBet.SteamItemIDs = new uint[24];
-                    XLotteryBet.SteamBotIDs = new uint[24];
-                    XLotteryBet.SteamItemsPrice = new double[24];
-
-                    ushort array_index = 0;
-                    List<USteamItem> st_itms = new List<USteamItem>();
-
-                    string UsersSteamInventory_str;
-                    Helper.UserHelper.GetUsersSteamInventory(User.ID, XLottery.SteamGameID, out UsersSteamInventory_str);
-
-                    foreach(USteamItem SteamItem in SteamItems)
-                    {
-                        Logger.ConsoleLog("SteamItem Assert: " + SteamItem.AssertID);
-                        XSteamItem xitem;
-                        if (Helper.SteamItemsHelper.SelectByID(SteamItem.ID, XLottery.SteamGameID, out xitem) && SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
-                        {
-                            // проверить, есть ли данный предмет у юзера
-                            // сначала в локальном инвентаре
-                            if (Helper.UserHelper.IsUserHaveSteamItem(SteamItem.AssertID, SteamItem.ID, User.ID))
-                            {
-                                st_itms.Add(SteamItem);
-                                ProcessingBet.SteamItems.Add(SteamItem);
-                            }
-                            // steam инвентарь
-                            else if (Helper.UserHelper.IsUserHaveSteamItem_SteamInventory(SteamItem.AssertID, UserID, XLottery.SteamGameID, UsersSteamInventory_str))
-                            {
-                                //Logger.ConsoleLog("SteamItem done: " + SteamItem.AssertID);
-                                SteamItemAsserIDs_FromSteamInventory[ItemsFromSteamInventory] = SteamItem.AssertID;
-                                SteamItemIDs_FromSteamInventory[ItemsFromSteamInventory] = xitem.ID;
-
-                                // добалвяем счетчик
-                                ItemsFromSteamInventory++;
-                                ProcessingBet.SteamItems.Add(SteamItem);
-
-                                UTRequestSteamItem UTRequestSteamItem = new UTRequestSteamItem();
-                                UTRequestSteamItem.appid = (int) XLottery.SteamGameID;
-                                UTRequestSteamItem.contextid = 2;
-                                UTRequestSteamItem.assertid = (long) SteamItem.AssertID;
-                                UTRequestSteamMain.Items.Add(UTRequestSteamItem);
-                            }
-                            else
-                            {
-                                return 3;
-                            }
-                        }
-                    }
-
-                    if(st_itms.Count > 0)
-                    {
-                        foreach (USteamItem SteamItem in st_itms)
-                        {
-                            XSItemUsersInventory XSItemUsersInventory;
-                            XSteamItem xitem;
-                            if (Helper.SteamItemsHelper.SelectByID(SteamItem.ID, XLottery.SteamGameID, out xitem) && Helper.UserHelper.GetSteamLocalItem(SteamItem.AssertID, SteamItem.ID, User.ID, out XSItemUsersInventory))
-                            {
-                                XLotteryBet.ItemAssertIDs[array_index] = SteamItem.AssertID;
-                                XLotteryBet.SteamItemIDs[array_index] = SteamItem.ID;
-                                XLotteryBet.SteamBotIDs[array_index] = XSItemUsersInventory.SteamBotID;
-
-                                array_index++;
-                                XLotteryBet.SteamItemsNum = array_index;
-
-                                XSItemUsersInventory.Deleted = true;
-                                Helper.UserHelper.Table_SteamItemUsersInventory.UpdateByID(XSItemUsersInventory, XSItemUsersInventory.ID);
-                                XLotteryBet.TotalPrice += SteamItem.Price = xitem.Price;
-                            }
-                        }
-                    }
-                }
-
-                // Chips
-                if (Chips.Count > 0)
-                {
-                    XLotteryBet.ChipAssertIDs = new ulong[24];
-                    XLotteryBet.ChipIDs = new uint[24];
-
-                    List<XChipUsersInventory> ch_check = new List<XChipUsersInventory>();
-                    ushort array_index = 0;
-                    foreach (Chip chip in Chips)
-                    {
-                        XChipUsersInventory x_chip;
-
-                        if (Helper.UserHelper.Table_ChipUsersInventory.SelectOne(data => data.UserID == UserID && data.AssertID == chip.AssertID && !data.Deleted, out x_chip)
-                            && Helper.UserHelper.IsUserHaveChip(x_chip.AssertID, UserID))
-                        {
-                            if (ItemsFromSteamInventory > 0)
-                            {
-                                ProcessingBet.Chips.Add(chip);
-                            }
-                            else
-                            {
-                                // забираем предмет у пользователя
-                                x_chip.Deleted = true;
-                                ch_check.Add(x_chip);
-                            }
-                        }
-                        else
-                        {
-                            //Logger.ConsoleLog("error chips: " + chip.AssertID);
-                            return 3;
-                        }
-                    }
-
-                    if (ch_check.Count > 0)
-                    {
-                        foreach (XChipUsersInventory x_ch in ch_check)
-                        {
-                            Chip ch;
-                            if (Helper.UserHelper.IsUserHaveChip(x_ch.AssertID, UserID) && Helper.ChipHelper.SelectByID(x_ch.ChipID, out ch) && ch.Cost > Configs.MIN_ITEMS_PRICE)
-                            {
-                                XLotteryBet.ChipAssertIDs[array_index] = x_ch.AssertID;
-                                XLotteryBet.ChipIDs[array_index] = x_ch.ChipID;
-                                array_index++;
-                                XLotteryBet.ChipsNum = array_index;
-                                XLotteryBet.TotalPrice += ch.Cost;
-
-                                Helper.UserHelper.Table_ChipUsersInventory.UpdateByID(x_ch, x_ch.ID);
-                            }
-                        }
-                    }
-
-                }
-                if (ProcessingBet.SteamItems.Count + ProcessingBet.Chips.Count > 0) 
-                {
-                    if (XLotteryBet.TotalPrice >= Configs.MIN_ITEMS_PRICE)
-                    {
-                        if (ItemsFromSteamInventory <= 0)
-                        {
-                            int bank_items;
-                            double Bank = this.GetBank(XLottery.ID, out bank_items);
-                            //Logger.ConsoleLog(ff_bets, ConsoleColor.Yellow);
-
-                            //ДОБАВЛЕНИЕ ВРЕМЕНИ
-                            int LotteryExtraTime = -1;
-                            if (Bank <= 0)
-                            {
-                                XLottery.EndTime = Helper.GetCurrentTime() + Configs.LOTTERY_GAME_TIME;
-                            }
-                            else
-                            {
-                                double oneproc = Bank / 100;
-                                double proctime = XLotteryBet.TotalPrice / oneproc;
-                                double fl = Configs.LOTTERY_EXTRA_TIME / 100;
-                                LotteryExtraTime = (int)Math.Round(proctime * fl);
-                                //Logger.ConsoleLog(Bank + ":" + Math.Round(main), ConsoleColor.DarkCyan);
-
-                                int EndTimeBefore = XLottery.EndTime;
-                                XLottery.EndTime += LotteryExtraTime;
-
-                                if (XLottery.EndTime > Helper.GetCurrentTime() + Configs.LOTTERY_GAME_TIME)
-                                {
-                                    XLottery.EndTime = Helper.GetCurrentTime() + Configs.LOTTERY_GAME_TIME;
-                                    LotteryExtraTime = XLottery.EndTime - EndTimeBefore;
-                                }
-                            }
-
-                            List<XLotteryBet> lottery_bets;
-                            bool LastBet = this.TableBet.Select(data => data.LotteryID == XLottery.ID, out lottery_bets);
-
-                            XLotteryBet.FisrtToken = (LastBet) ? lottery_bets[lottery_bets.Count - 1].LastToken + 1 : 1;
-                            XLotteryBet.LastToken = XLotteryBet.FisrtToken + (uint)(XLotteryBet.TotalPrice * 100 / Configs.TOKEN_PRICE);
-                            //Logger.ConsoleLog(XLotteryBet.TotalPrice / Configs.TOKEN_PRICE + "::" + XLotteryBet.LastToken);
-
-                            if (ProcessingBet.SteamItems.Count > 0)
-                            {
-                                // забираем предметы у пользователя
-                                foreach (USteamItem itm in ProcessingBet.SteamItems)
-                                {
-                                    XSItemUsersInventory x_itm;
-                                    Helper.UserHelper.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == itm.AssertID && data.UserID == UserID && !data.Deleted, out x_itm);
-                                    x_itm.Deleted = true;
-                                    Helper.UserHelper.Table_SteamItemUsersInventory.UpdateByID(x_itm, x_itm.ID);
-                                }
-                            }
-
-                            XLotteryBet.LotteryID = XLottery.ID;
-                            XLotteryBet.UserID = User.ID;
-                            XLotteryBet.GroupOwnerID = User.GroupOwnerID;
-
-                            uint xbet_id = this.TableBet.Insert(XLotteryBet);
-                            //Logger.ConsoleLog(this.TableBet.SelectByID(xbet_id).LotteryID, ConsoleColor.Red);
-                            this.Table.UpdateByID(XLottery, XLottery.ID);
-
-                            new Thread(delegate()
-                            {
-                                WebSocketPage.AddNewLotteryBet(this.TableBet.SelectByID(xbet_id), Bank + XLotteryBet.TotalPrice, bank_items + XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum, LotteryExtraTime, XLottery.EndTime - Helper.GetCurrentTime());
-                            }).Start();
-
-                            return 1;
-                        }
-                        else if(User.TradeToken != null)
-                        {
-                            // SAVE PROCESSING BET
-                            ProcessingBet.UserID = User.ID;
-                            ProcessingBet.SteamGameID = XLottery.SteamGameID;
-                            ProcessingBet.ProcessCreatedTime = Helper.GetCurrentTime();
-                            ProcessingBet.LotteryID = XLottery.ID;
-                            LotteryHelper.ProcessingBets.Add(ProcessingBet);
-
-                            // send steam trade
-                            XSteamBot xbot;
-                            if (Helper.SteamBotHelper.GetFreeBot(out xbot))
-                            {
-                                string ProtectionCode = "";
-                                for (ushort i = 0; i < 4; i++)
-                                {
-                                    ProtectionCode += (char)new Random().Next(0x30, 0x5B);
-                                    Thread.Sleep(3);
-                                }
-
-                                UTRequestSteamMain.message = "Код протекции: " + ProtectionCode;
-                                UTRequestSteamMain.BotID = (int)xbot.ID;
-                                UTRequestSteamMain.steamid = User.SteamID.ToString();
-                                UTRequestSteamMain.trade_acc_id = User.TradeToken;
-                                UTRequestSteamMain.SendItems = false;
-
-
-                                XSteamBotProcessItem XSteamBotProcessItem = new XSteamBotProcessItem();
-                                XSteamBotProcessItem.UserSteamID = User.SteamID;
-                                XSteamBotProcessItem.SteamBotID = xbot.ID;
-                                XSteamBotProcessItem.SteamGameID = XLottery.SteamGameID;
-
-                                XSteamBotProcessItem.ItemAssertIDs = SteamItemAsserIDs_FromSteamInventory;
-                                XSteamBotProcessItem.SteamItemIDs = SteamItemIDs_FromSteamInventory;
-                                XSteamBotProcessItem.SteamItemsNum = ItemsFromSteamInventory;
-                                XSteamBotProcessItem.Status = 0;
-                                XSteamBotProcessItem.UserID = User.ID;
-                                XSteamBotProcessItem.ProtectionCode = ProtectionCode;
-
-                                Helper.SteamBotHelper.Table_Items.Insert(XSteamBotProcessItem);
-                                UpTunnel.Sender.Send(UTSteam.sk, UTRequestSteamMain);
-
-                                client.SendWebsocket("TradeSent" + BaseFuncs.WSplit + xbot.Name + BaseFuncs.WSplit + ProtectionCode);
-                                return 2;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 0: false, 1: true, 2: process, 3: нету шмотки
-            return 0;
-        }
-        */
         public ushort SetBet(uint LotteryID, uint UserID, List<USteamItem> SteamItems, List<Chip> Chips, Client client)
         {
             XLottery XLottery;
@@ -781,7 +652,9 @@ namespace GameSlot.Helpers
                     Chip CurrentChip;
                     if(Helper.UserHelper.SelectChipByAssertID(Chip.AssertID, User.ID, out CurrentChip))
                     {
+                        Logger.ConsoleLog("Chip assert: " + CurrentChip.AssertID);
                         ProcessingBet.Chips.Add(CurrentChip);
+                       // Logger.ConsoleLog("last assert: " + ProcessingBet.Chips.Last().AssertID);
                         TotalPrice += CurrentChip.Cost;
 
                         //Logger.ConsoleLog("Chip found!");
@@ -841,12 +714,15 @@ namespace GameSlot.Helpers
 
                     XLotteryBet.TotalPrice = TotalPrice;
 
+                    double TotalPrice_Items = 0d;
+                    double TotalPrice_Chips = 0d;
+
                     // foreach and delete from user item
                     foreach(USteamItem Item in ProcessingBet.SteamItems)
                     {
                         XLotteryBet.SteamItemIDs[XLotteryBet.SteamItemsNum] = Item.ID;
                         XLotteryBet.ItemAssertIDs[XLotteryBet.SteamItemsNum] = Item.AssertID;    
-                        XLotteryBet.SteamItemsPrice[XLotteryBet.SteamItemsNum] = Item.Price;
+                        TotalPrice_Items += XLotteryBet.SteamItemsPrice[XLotteryBet.SteamItemsNum] = Item.Price;
                         XLotteryBet.SteamBotIDs[XLotteryBet.SteamItemsNum] = Item.SteamBotID;
                         XLotteryBet.SteamItemsNum++;
 
@@ -858,21 +734,129 @@ namespace GameSlot.Helpers
 
                     foreach(Chip Chip in ProcessingBet.Chips)
                     {
+                        Logger.ConsoleLog(Chip.AssertID, ConsoleColor.Red);
                         XLotteryBet.ChipIDs[XLotteryBet.ChipsNum] = Chip.ID;
                         XLotteryBet.ChipAssertIDs[XLotteryBet.ChipsNum] = Chip.AssertID;
+
+                        Chip chip;
+                        Helper.ChipHelper.SelectByID(XLotteryBet.ChipIDs[XLotteryBet.ChipsNum], out chip);
+                        TotalPrice_Chips += chip.Cost;
+
                         XLotteryBet.ChipsNum++;
 
                         XChipUsersInventory XChipUsersInventory;
                         Helper.UserHelper.Table_ChipUsersInventory.SelectOne(data => !data.Deleted && data.AssertID == Chip.AssertID, out XChipUsersInventory);
                         XChipUsersInventory.Deleted = true;
+                       // Logger.ConsoleLog("removed " + XChipUsersInventory.AssertID + "From " + Chip.AssertID);
                         Helper.UserHelper.Table_ChipUsersInventory.UpdateByID(XChipUsersInventory, XChipUsersInventory.ID);
                     }
 
                     //Logger.ConsoleLog("Bet created! :D");
 
+                    User.TotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                    User.TotalBetPrice += XLotteryBet.TotalPrice;
+
+                    XLotteryUsersMemory XLotteryUsersMemory;
+
+                    if(!this.TableUsersMemory.SelectOne(data => data.UserID == User.ID && data.LotteryID == XLottery.ID, out XLotteryUsersMemory))
+                    {
+                        User.GamesCount++;
+
+                        XLotteryUsersMemory = new XLotteryUsersMemory();
+                        XLotteryUsersMemory.LotteryID = XLottery.ID;
+                        XLotteryUsersMemory.UserID = (int)User.ID;
+                        XLotteryUsersMemory.GroupOwnerID = -1;
+
+                        this.TableUsersMemory.Insert(XLotteryUsersMemory);
+                    }
+
+                    XLotteryPercentage GroupPercentage;
+                    int GameSlot_Percentage = Configs.GAMESLOT_PERCENTAGE;
+
+                    if(User.GroupOwnerID >= 0)
+                    {
+                        GameSlot_Percentage -= Configs.GROUP_PERCENTAGE;
+                        XUser GroupOwner;
+
+                        if(this.TablePercentage.SelectOne(data => data.LotteryID == XLottery.ID && data.UserID == User.GroupOwnerID, out GroupPercentage))
+                        {
+                            GroupPercentage.ChipPrice += ((TotalPrice_Chips * Configs.GROUP_PERCENTAGE) / 100);
+                            GroupPercentage.SteamItemsPrice += ((TotalPrice_Items * Configs.GROUP_PERCENTAGE) / 100);
+                            this.TablePercentage.UpdateByID(GroupPercentage, GroupPercentage.ID);
+                        }
+                        else
+                        {
+                            GroupPercentage = new XLotteryPercentage();
+                            GroupPercentage.ChipPrice += ((TotalPrice_Chips * Configs.GROUP_PERCENTAGE) / 100);
+                            GroupPercentage.SteamItemsPrice += ((TotalPrice_Items * Configs.GROUP_PERCENTAGE) / 100);
+
+                            GroupPercentage.UserID = (uint)User.GroupOwnerID;
+                            GroupPercentage.LotteryID = XLottery.ID;
+                            this.TablePercentage.Insert(GroupPercentage);
+                        }
+
+                        if(User.GroupOwnerID == User.ID)
+                        {
+                            User.GroupTotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                            User.GroupTotalBetPrice += XLotteryBet.TotalPrice;
+
+                            if (!this.TableUsersMemory.SelectOne(data => data.GroupOwnerID == User.ID && data.LotteryID == XLottery.ID, out XLotteryUsersMemory))
+                            {
+                                User.GroupGamesCount++;
+
+                                XLotteryUsersMemory = new XLotteryUsersMemory();
+                                XLotteryUsersMemory.LotteryID = XLottery.ID;
+                                XLotteryUsersMemory.UserID = -1;
+                                XLotteryUsersMemory.GroupOwnerID = User.GroupOwnerID;
+                                this.TableUsersMemory.Insert(XLotteryUsersMemory);
+                            }
+                        }
+                        else
+                        {
+                            if(Helper.UserHelper.Table.SelectByID((uint)User.GroupOwnerID, out GroupOwner))
+                            {
+                                GroupOwner.GroupTotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                                GroupOwner.GroupTotalBetPrice += XLotteryBet.TotalPrice;
+
+                                if (!this.TableUsersMemory.SelectOne(data => data.GroupOwnerID == User.GroupOwnerID && data.LotteryID == XLottery.ID, out XLotteryUsersMemory))
+                                {
+                                    GroupOwner.GroupGamesCount++;
+
+                                    XLotteryUsersMemory = new XLotteryUsersMemory();
+                                    XLotteryUsersMemory.LotteryID = XLottery.ID;
+                                    XLotteryUsersMemory.UserID = -1;
+                                    XLotteryUsersMemory.GroupOwnerID = User.GroupOwnerID;
+                                    this.TableUsersMemory.Insert(XLotteryUsersMemory);
+                                }
+
+                                Helper.UserHelper.Table.UpdateByID(GroupOwner, GroupOwner.ID);
+                            }
+                        }
+                    }
+
+
+                    if (this.TablePercentage.SelectOne(data => data.LotteryID == XLottery.ID && data.UserID == Configs.ADMIN_ACCOUNT, out GroupPercentage))
+                    {
+                        GroupPercentage.ChipPrice += ((TotalPrice_Chips * GameSlot_Percentage) / 100);
+                        GroupPercentage.SteamItemsPrice += ((TotalPrice_Items * GameSlot_Percentage) / 100);
+                        this.TablePercentage.UpdateByID(GroupPercentage, GroupPercentage.ID);
+                    }
+                    else
+                    {
+                        GroupPercentage = new XLotteryPercentage();
+                        GroupPercentage.ChipPrice += ((TotalPrice_Chips * GameSlot_Percentage) / 100);
+                        GroupPercentage.SteamItemsPrice += ((TotalPrice_Items * GameSlot_Percentage) / 100);
+
+                        GroupPercentage.UserID = Configs.ADMIN_ACCOUNT;
+                        GroupPercentage.LotteryID = XLottery.ID;
+                        this.TablePercentage.Insert(GroupPercentage);
+                    }
+
                     uint xbet_id = this.TableBet.Insert(XLotteryBet);
                     this.Table.UpdateByID(XLottery, XLottery.ID);
+                    Helper.UserHelper.Table.UpdateByID(User, User.ID);
 
+                    //Logger.ConsoleLog(this.TableBet.SelectByID(0).ChipsNum + "SHT");
                     new Thread(delegate()
                     {
                         WebSocketPage.AddNewLotteryBet(this.TableBet.SelectByID(xbet_id), BankPrice + XLotteryBet.TotalPrice, BankItemsNum + XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum, LotteryExtraTime, XLottery.EndTime - Helper.GetCurrentTime());

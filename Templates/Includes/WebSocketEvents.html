@@ -8,11 +8,36 @@
     var LotteryPageConnect, LotteryPage_LotteryID = false;
     var LotteryPage_GetInventory, LotteryPage_GetInventory_SteamGameID = false;
 
+    var INVENTORY_ITEMS_NUM = 30;
+    var INVENTORY_ITEMS_FROM = 0;
+
+    var USERS_ITEMS_IN_INVENTORY = 0;
+
+    var USERS_INVENTORY_SORT = 0;
+    var SEARCH_IN_INVENTORY = "";
+
+    var inventory_getlastpage_disabled = false;
+    var inventory_getfirstpage_disabled = false;
+
+    $("document").ready(function () {
+        $("input#search_in_steam_inventory").keyup(function ()
+        {
+            var text = $("input#search_in_steam_inventory").val();
+            SEARCH_IN_INVENTORY = $("input#search_in_steam_inventory").val();
+            INVENTORY_ITEMS_FROM = 0;
+
+            inventory_getlastpage_disabled = false;
+            inventory_getfirstpage_disabled = false;
+
+            GetSteamInventory(INVENTORY_ITEMS_NUM);
+        });
+    });
+
     ws.onopen = function ()
     {
         if(GetMyInventoryPage)
         {
-            ws.send("GetInventory{{=BaseFuncs.WSplit}}" + MyInventoryPage_SteamGameID);
+            GetSteamInventory(INVENTORY_ITEMS_NUM);
         }
         else if (MyGroupPageConnect)
         {
@@ -29,10 +54,71 @@
 
             if (LotteryPage_GetInventory) {
                 console.log("GetInventory{{=BaseFuncs.WSplit}}" + LotteryPage_GetInventory_SteamGameID);
-                ws.send("GetInventory{{=BaseFuncs.WSplit}}" + LotteryPage_GetInventory_SteamGameID);
+                MyInventoryPage_SteamGameID = LotteryPage_GetInventory_SteamGameID;
+                GetSteamInventory(INVENTORY_ITEMS_NUM);
             }
         }
     };
+
+    function Inventory_GetNextPage(num)
+    {
+        if (!inventory_getlastpage_disabled) {
+            INVENTORY_ITEMS_FROM = INVENTORY_ITEMS_FROM + num;
+            GetSteamInventory(num);
+
+            inventory_getfirstpage_disabled = false;
+            $("div#steam_inventory_pagination a#first").attr("href", "");
+            $("div#steam_inventory_pagination a#before").attr("href", "");
+        }
+
+        return false;
+    }
+
+    function Inventory_GetBeforePage(num) {
+
+        if (!inventory_getfirstpage_disabled) {
+            INVENTORY_ITEMS_FROM = INVENTORY_ITEMS_FROM - num;
+            GetSteamInventory(num);
+
+            inventory_getlastpage_disabled = false;
+            $("div#steam_inventory_pagination a#next").attr("href", "");
+            $("div#steam_inventory_pagination a#last").attr("href", "");
+        }
+        return false;
+    }
+
+    function Inventory_GetFirstPage(num) {
+
+        if (!inventory_getfirstpage_disabled) {
+            INVENTORY_ITEMS_FROM = 0;
+            GetSteamInventory(num);
+
+            inventory_getlastpage_disabled = false;
+            $("div#steam_inventory_pagination a#next").attr("href", "");
+            $("div#steam_inventory_pagination a#last").attr("href", "");
+        }
+        return false;
+    }
+
+    function Inventory_GetLastPage(num) 
+    {
+        if (!inventory_getlastpage_disabled)
+        {
+            INVENTORY_ITEMS_FROM = USERS_ITEMS_IN_INVENTORY - num;
+            GetSteamInventory(num);
+
+            inventory_getfirstpage_disabled = false;
+            $("div#steam_inventory_pagination a#first").attr("href", "");
+            $("div#steam_inventory_pagination a#before").attr("href", "");
+        }
+        return false;
+    }
+
+    function GetSteamInventory(num)
+    {
+        ws.send("GetInventory{{=BaseFuncs.WSplit}}" + MyInventoryPage_SteamGameID + "{{=BaseFuncs.WSplit}}" + INVENTORY_ITEMS_FROM + "{{=BaseFuncs.WSplit}}" + num + "{{=BaseFuncs.WSplit}}" + USERS_INVENTORY_SORT + "{{=BaseFuncs.WSplit}}" + SEARCH_IN_INVENTORY);
+        $("div#steam_inventory_pagination").addClass("active");
+    }
 
     ws.onmessage = function (evt)
     {
@@ -40,28 +126,83 @@
 
         if(GetMyInventoryPage)
         {
-            if (data[0] == "InventoryClosed") {
-                /*$("div#inventory" + data[1]).html("Инвентарь закрыт!");*/
-                alert("CLOSED!!!");
+            if (data[0] == "SteamInventoryClosed")
+            {
+                $("div#steam_inventory_loading").attr("style", "display:none;");
+                $("div#steam_iventory").html($("div#steam_inventory_closed").html());
+                $("div#steam_inventory_pagination").removeClass("active");
+                console.log('steam inventory closed');
             }
 
-            else if (data[0] == "Inventory") {
+            else if (data[0] == "SteamInventory")
+            {
+                USERS_ITEMS_IN_INVENTORY = data[3];
+
+                console.log("SteamInventory");
                 var items = data[2].split(';');
-
-                $("div#inventory_items").text("");
-
                 var items_content = "";
-                for (var i = 0; i < (items.length - 1) ; i++) {
+                for (var i = 0; i < (items.length - 1) ; i++)
+                {
+                    var items_html = $("div#steam_items_html").html();
                     var item = items[i].split('↓');
-                    var name = "<div class='tiltp'>" + item[0] + "</div>";
-                    var price = "<span style='baks'>" + item[1] + "</span>";
-                    var image = "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>";
-                    var assertID = "<assert_id style='display:none;'>" + item[4] + "</assert_id>";
 
-                    items_content += "<div class='item1'>" + image + price + "<a href=''></a>" + name + assertID + "</div>";
+                    items_html = items_html.replace("[item_name]", item[0]);
+                    items_html = items_html.replace("[item_name]", item[0]);
+
+                    items_html = items_html.replace("[item_id]", item[3]);
+                    items_html = items_html.replace("[item_id]", item[3]);
+
+                    items_html = items_html.replace("[item_price]", item[1]);
+                    /*items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");*/
+                    items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");
+
+                    items_html = items_html.replace("[item_assert_id]", item[4]);
+                    items_html = items_html.replace("[item_assert_id]", item[4]);
+                    items_html = items_html.replace("[item_assert_id]", item[4]);
+
+                    items_html = items_html.replace("[iventory_id]", "1");
+                    items_html = items_html.replace("[current_iventory_id]", "1");
+
+                    items_content += items_html;
                 }
 
-                $("div#inventory_items").html(items_content);
+                $("div#steam_iventory").html(items_content);
+
+                setTimeout(function () {
+                    $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
+                        $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
+                    });
+                }, 1000);
+
+
+                $("div#steam_inventory_loading").attr("style", "display:none;");
+                $("div#steam_inventory_items_num").text(data[3]);
+                $("div#steam_inventory_total_price").text(data[1]);
+
+                $("div#steam_inventory_pagination").removeClass("active");
+
+                if (USERS_ITEMS_IN_INVENTORY == INVENTORY_ITEMS_FROM + INVENTORY_ITEMS_NUM) {
+                    inventory_getlastpage_disabled = true;
+                    $("div#steam_inventory_pagination a#next").removeAttr("href");
+                    $("div#steam_inventory_pagination a#last").removeAttr("href");
+                }
+                
+                if (INVENTORY_ITEMS_FROM == 0){
+                    inventory_getfirstpage_disabled = true;
+                    $("div#steam_inventory_pagination a#first").removeAttr("href");
+                    $("div#steam_inventory_pagination a#before").removeAttr("href");
+                }
+
+                if(USERS_ITEMS_IN_INVENTORY >= INVENTORY_ITEMS_NUM)
+                {
+                    $("div#steam_inventory_pagination").attr('style', "display:block;");
+                }
+                else
+                {
+                    $("div#steam_inventory_pagination").attr('style', "display:none;");
+                }
+
+                /*$("div#steam_iventory").html(items_content);*/
                 /*$("span#totalPrice").html("Шмоток: " + (items.length - 1) + " На сумму: " + data[1] + "$<br><br>");*/
             }
         }
@@ -70,7 +211,7 @@
         {
             if (data[0] == "UpdateGroupData") {
                 GroupName = data[1];
-                $("span#users_count").text(data[2]);
+                $("i#users_count").text(data[2]);
             }
         }
 
@@ -111,16 +252,26 @@
 
                 var otherbets = data[13].split('↓');
                 var addition_bets = "";
-                for (var i = 0; i < otherbets.length -1; i++)
-                {
-                    var spl = otherbets[i].split('::');
 
-                    var extra = $("div#new_bet_mini").html();
-                    extra = extra.replace("[ITEMS_NUM]", spl[2]);
-                    extra = extra.replace("[TOTAL_PRICE]", spl[3]);
-                    extra = extra.replace("[FIRST_TOKEN]", spl[0]);
-                    extra = extra.replace("[LAST_TOKEN]", spl[1]);
-                    addition_bets += extra;
+                if (otherbets.length > 1)
+                {
+                    for (var i = 0; i < otherbets.length - 1; i++)
+                    {
+                        var spl = otherbets[i].split('::');
+
+                        var extra = $("div#new_bet_mini").html();
+                        extra = extra.replace("[ITEMS_NUM]", spl[2]);
+                        extra = extra.replace("[TOTAL_PRICE]", spl[3]);
+                        extra = extra.replace("[FIRST_TOKEN]", spl[0]);
+                        extra = extra.replace("[LAST_TOKEN]", spl[1]);
+                        addition_bets += extra;
+                    }
+
+                    html_block = html_block.replace("[diss_btn]", '<a href="" class="sp-tt1" dt="0"></a>');
+                }
+                else
+                {
+                    html_block = html_block.replace("[diss_btn]", '<a href="" class="sp-tt1 diss1" dt="2"></a>');
                 }
 
                 var bet_items = data[19].split("↓");
@@ -190,7 +341,7 @@
 
             else if(data[0] == "LotteryRouletteStarted")
             {
-                var users = data[5].split('↓');
+                var users = data[12].split('↓');
                 var avatars_html = "";
                 for (var i = 0; i < users.length - 1; i++)
                 {
@@ -208,6 +359,7 @@
                 $("div#lottery_standart_form").attr("style", "display:none;");
                 $("div#lottery_started_format").attr("style", "display:none;");
 
+                $("div#lottery_roulette_format div#raund_number").html($("div#lottery_roulette_format div#raund_number").html() + data[5]);
                 $("div#lottery_roulette_format").attr("style", "display:block;");
                 $("div#bet_sys").attr('style', 'display:none;');
 
@@ -222,13 +374,30 @@
                 j3 = $('.ov-elem1.j1 .item1').length - 1;
                 /* trash code end */
 
+                /* updating end data */
+                $("div#lottery_end_format own#raund_number").text(data[5]);
+                $("div#lottery_end_format own#winners_token").text(data[6]);
+                $("div#lottery_end_format own#bank_cent").text(data[7]);
+
+                $("div#lottery_end_format div#jackpot_price").text(data[2]);
+                $("div#lottery_end_format span#jackpot_items").text(data[1]);
+
+                $("div#lottery_end_format img#winners_avatar").attr('src', data[8]);
+                $("div#lottery_end_format div#winners_name").text(data[4]);
+
+                $("div#lottery_end_format b#winners_bet_items_num").text(data[10]);
+                $("div#lottery_end_format b#winners_bet_price").text(data[11]);
+
+                $("div#lottery_end_format div#winners_wonrate").text(data[9] + "%");
+                /* end updating here */
+
                 rull();
+                rrch();
                 console.log("LotteryRouletteStarted");
             }
 
             else if (data[0] == "BetDone")
             {
-                handler = true;
 
                 if (data[1] == "1")
                 {
@@ -239,7 +408,7 @@
                     $("div#bet_sys").attr('style', 'display:none;');
                     $("div#bet_ready").attr("style", "display:none;");
                     $("div#bet_done").attr("style", "display:none;");
-
+                    handler = false;
                 }
 
                 else if (data[1] == "2")
@@ -303,8 +472,8 @@
                     items_html = items_html.replace("[item_id]", item[3]);
 
                     items_html = items_html.replace("[item_price]", item[1]);
-                    items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");
-                    /*items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");*/
+                    /*items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");*/
+                    items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");
 
                     items_html = items_html.replace("[item_assert_id]", item[4]);
                     items_html = items_html.replace("[item_assert_id]", item[4]);
@@ -316,9 +485,12 @@
                     $("div#steam_iventory").append(items_html);
                 }
 
-                $('div#steam_iventory div.item1').each(function () {
-                    $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
-                });
+                setTimeout(function () {
+                    $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
+                        $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
+                    });
+                }, 1000);
+
 
                 $("div#steam_inventory_loading").attr("style", "display:none;");
                 $("div#steam_inventory_items_num").text(data[3]);
@@ -350,6 +522,11 @@
     };
     function rull_done()
     {
-        console.log("done!");
+        setTimeout(function ()
+        {
+            $("div#lottery_roulette_format").attr("style", "display:none;");
+            $("div#lottery_end_format").attr("style", "display:block;");
+            console.log("Rouletter done!");
+        }, 1500);
     }
 </script>

@@ -334,8 +334,8 @@ namespace GameSlot.Helpers
                                     XSteamItem.SteamGameID = SteamGameID;
 
                                     uint NewSteamItemID = Helper.SteamItemsHelper.Table.Insert(XSteamItem);
-                                    //Helper.SteamItemsHelper.DownloadItemsImage(NewSteamItemID, SteamGameID);
-                                    //Helper.SteamItemsHelper.AddSteamImageToMemory(NewSteamItemID, SteamGameID);
+                                    Helper.SteamItemsHelper.DownloadItemsImage(NewSteamItemID, SteamGameID);
+                                    Helper.SteamItemsHelper.AddSteamImageToCache(NewSteamItemID, SteamGameID);
                                 }
 
                                 if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
@@ -474,11 +474,12 @@ namespace GameSlot.Helpers
                 if (this.Table_ChipUsersInventory.SelectOne(data => data.AssertID == AssertID && data.UserID == UserID && !data.Deleted, out XChipInventory) && Helper.ChipHelper.SelectByID(XChipInventory.ChipID, out Chip))
                 {
                     Chip.AssertID = XChipInventory.AssertID;
+                    //Logger.ConsoleLog(XChipInventory.AssertID + "::" + Chip.AssertID);
                     return true;
                 }
             }
 
-            Chip = null;
+            Chip = new Chip();
             return false;
         }
 

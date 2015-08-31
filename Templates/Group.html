@@ -16,17 +16,16 @@
 
         <section id="content">
             <div class="ct">
-                <div class="tit-mt1">ТУСОВКА: <kek id="group_name">{{=Group.Name}}</kek></div>
+                <div class="tit-mt1">Тусовка: <span><kek id="group_name">{{=Group.Name}}</kek></span></div>
                 <div class="ef-ref1">
-                    <span>Ссылка на текущую тусовку</span>
-                    <div>http://{{=client.Host}}/hangout/{{=Group.ID}}</div>
-                    <a href="">Скопировать ссылку</a>
+                    <span>Ссылка на текущую тусовку:</span>
+                    <div><a href="http://{{=client.Host}}/hangout/{{=Group.ID}}">http://{{=client.Host}}/hangout/{{=Group.ID}}</a></div>
                 </div>
                 <div class="tf-sz2">
                     <div class="item1 j1">
                         <p><span>Количество членов лобби:</span><i><kek id="users_num">{{=Group.UserCount}}</kek></i><!--онлайн: <i>150</i>--></p>
-                        <p><span>Средний показатель побед:</span>23%</p>
-                        <p><span>Общая сумма ставок:</span><b class="j1"><i>1800</i> предметов</b><b class="j2">123,000</b></p>
+                        <p><span>Средний показатель побед:</span>{{=Group.Winrate}}%</p>
+                        <p><span>Общая сумма ставок:</span><b class="j1"><i>{{=Group.BetItemsCount}}</i> предметов</b><b class="j2">{{=Group.BetItemsPrice_Str}}</b></p>
                     </div>
                     <div id="main_action">
                         {{if(!Helper.UserHelper.Authorized(client))}}
@@ -35,8 +34,8 @@
                                     <div class="ln1">
                                         <span>Хозяин<br>тусовки:</span>
                                         <img src="{{=Owner.Avatar}}" alt="">
-                                        <div>{{=Owner.Name}}</div>
-                                        <a href="" class="stm1">Авторизоваться через steam</a>
+                                        <div><i><i>{{=Owner.Name}}</i></i></div>
+                                        <a href="/login" class="stm1">Авторизоваться через steam</a>
                                     </div>
                                     <div class="ln2">Чтобы вступить в эту тусовку вам необходимо авторизоваться</div>
                                 </div>
@@ -47,8 +46,8 @@
                                 <div class="dc-vm1">
                                     <div class="ln1">
                                         <span>Хозяин<br>тусовки:</span>
-                                        <img src="/cached_files/img/av1.png" alt="">
-                                        <div>Bob square<br>D.Franklin</div>
+                                         <img src="{{=Owner.Avatar}}" alt="">
+                                        <div><i><i>{{=Owner.Name}}</i></i></div>
                                         <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
                                     </div>
                                     {{if(InOtherGroup)}}
@@ -60,23 +59,29 @@
                         {{else}}
                             <div class="item1 j3">
                                 <div class="dc-vm1">
-                                    <div class="ln1">
+                                    <div class="ln1" >
                                         <span>Хозяин<br>тусовки:</span>
-                                        <img src="/cached_files/img/av1.png" alt="">
-                                        <div>Bob square<br>D.Franklin</div>
-                                        <a href="" class="link-autr">Покинуть тусовку</a>
+                                        <img src="{{=Owner.Avatar}}" alt="">
+                                        <div><i><i>{{=Owner.Name}}</i></i></div>
+                                        <a href="" class="link-autr" onclick="return exit();">Покинуть тусовку</a>
                                     </div>
                                 </div>
                             </div>
                         {{end}}
                     </div>
-
                     <div id="entry_to_group" style="display:none">
-                        <div class="ln1">
-                            <span>Хозяин<br>тусовки:</span>
-                            <img src="/cached_files/img/av1.png" alt="">
-                            <div>Bob square<br>D.Franklin</div>
-                            <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
+                        <div class="item1 j3">
+                            <div class="dc-vm1">
+                                <div class="ln1">
+                                    <span>Хозяин<br>тусовки:</span>
+                                    <img src="{{=Owner.Avatar}}" alt="">
+                                    <div><i><i>{{=Owner.Name}}</i></i></div>
+                                    <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
+                                </div>
+                                {{if(InOtherGroup)}}
+                                    <div class="ln2">Вступив в текущую тусовку, вы автоматически выйдите из предыдущей</div>
+                                {{end}}
+                            </div>
                         </div>
                     </div>
 
@@ -85,15 +90,15 @@
                             <div class="dc-vm1">
                                 <div class="ln1">
                                     <span>Хозяин<br>тусовки:</span>
-                                    <img src="/cached_files/img/av1.png" alt="">
-                                    <div>Bob square<br>D.Franklin</div>
-                                    <a href="" class="link-autr">Покинуть тусовку</a>
+                                    <img src="{{=Owner.Avatar}}" alt="">
+                                    <div><i><i>{{=Owner.Name}}</i></i></div>
+                                    <a href="" class="link-autr" onclick="return exit();">Покинуть тусовку</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
+                <!--
                 <div class="link-tt-bot1"><span>Лучшие игроки</span><a href="">все члены моей тусовки (234)</a></div>
                 <div class="tb-s1-table tb-s1-table1">
                     <div class="j1"><a href=""><span>Профиль</span></a></div>
@@ -147,6 +152,7 @@
                         </div>
                     </div>
                 </div>
+                -->
             </div>
             
             {{include GameSlot Footer}}
@@ -160,6 +166,17 @@
             ws.send("GroupPage{{=BaseFuncs.WSplit}}EntryToGroup{{=BaseFuncs.WSplit}}{{=Group.ID}}");
             $("div#main_action").attr("style", "display:none");
             $("div#exit_from_group").attr("style", "");
+            $("div#entry_to_group").attr("style", "display:none;");
+
+            return false;
+        }
+
+        function exit() {
+            ws.send("GroupPage{{=BaseFuncs.WSplit}}ExitFromGroup{{=BaseFuncs.WSplit}}{{=Group.ID}}");
+            $("div#main_action").attr("style", "display:none");
+            $("div#exit_from_group").attr("style", "display:none;");
+            $("div#entry_to_group").attr("style", "");
+
             return false;
         }
     </script>

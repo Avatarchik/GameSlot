@@ -46,37 +46,60 @@ namespace GameSlot.Pages
                 return false;
             }
 
-            XLottery[] Lotteries;
-            XUser User;
-            if (urls.Length > 1 && urls[1].Equals("my") && Helper.UserHelper.GetCurrentUser(client, out User))
+            bool MyLots = false;
+
+            XLottery[] Lots = new XLottery[0];
+            List<XLottery> LotteryList = new List<XLottery>();
+
+            int ShowNum = 10;
+            int from = 0;
+
+            if(client.GetParam("from") != null)
             {
-                int count = 0;
-                Helper.LotteryHelper.Table.SelectArrFromEnd(data => 
+                int.TryParse(client.GetParam("from"), out from);
+            }
+
+            XUser user;
+            if (urls.Length > 1 && urls[1].Equals("my") && Helper.UserHelper.GetCurrentUser(client, out user))
+            {
+                Helper.LotteryHelper.Table.SelectArrFromEnd(data =>
                 {
-                    if (count < 10)
+                    if (data.SteamGameID == SteamGameID && data.WinnersToken > 0)
                     {
-                        if (data.SteamGameID == SteamGameID && data.WinnersToken > 0)
+                        XLotteryBet b;
+                        if (Helper.LotteryHelper.TableBet.SelectOne(bt => bt.LotteryID == data.ID && bt.UserID == user.ID, out b))
                         {
-                            XLotteryBet bet;
-                            if (Helper.LotteryHelper.TableBet.SelectOne(b => b.LotteryID == data.ID && b.UserID == User.ID, out bet))
-                            {
-                                count++;
-                                return true;
-                            }
+                            return true;
                         }
                     }
                     return false;
-                }, out Lotteries);
+                }, out Lots);
+
+                MyLots = true;
             }
             else
             {
-                Helper.LotteryHelper.Table.SelectArrFromEnd(data => data.SteamGameID == SteamGameID && data.WinnersToken > 0, out Lotteries, 0, 11);
+                Helper.LotteryHelper.Table.SelectArrFromEnd(data => data.SteamGameID == SteamGameID && data.WinnersToken > 0, out Lots);
+            }
+
+            from = Math.Min(from, ((Lots.Length - ShowNum < 0) ? 0 : Lots.Length - ShowNum));
+
+            for (int i = from; i < Math.Min(from + ShowNum, Lots.Length); i++)
+            {
+                LotteryList.Add(Lots[i]);
             }
 
             Hashtable page_data = new Hashtable();
+
             page_data.Add("Title", "История лотерей " + title);
-            page_data.Add("Lotteries", Lotteries);
+            page_data.Add("MyLots", MyLots);
+            page_data.Add("Lotteries", LotteryList);
             page_data.Add("SteamGameID", SteamGameID);
+            page_data.Add("GameURL", (SteamGameID == 570) ? "dota2" : "csgo");
+            page_data.Add("From", from);
+            page_data.Add("ShowNum", ShowNum);
+            
+            page_data.Add("GamesNum", Lots.Length);
             client.HttpSend(TemplateActivator.Activate(this, client, page_data));
             return true;
         }

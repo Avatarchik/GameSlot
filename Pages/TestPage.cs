@@ -101,6 +101,19 @@ namespace GameSlot.Pages
                     }
                 }
             }
+            else if (client.GetParam("all_bets") != null)
+            {
+                XLotteryBet[] XBets;
+                if (Helper.LotteryHelper.TableBet.SelectArrFromEnd(data => true, out XBets))
+                {
+                    Logger.ConsoleLog("count::" + XBets.Length, ConsoleColor.Red);
+
+                    for (int x = 0; x < XBets.Length; x++)
+                    {
+                        Logger.ConsoleLog(XBets[x].ID + ":UserID:" + XBets[x].UserID + ":ChipsNum:" + XBets[x].ChipsNum + ":SteamItemsNum:" + XBets[x].SteamItemsNum + ":FisrtToken:" + XBets[x].FisrtToken + ":LastToken:" + XBets[x].LastToken + "-------------");
+                    }
+                }
+            }
 
             XLottery last_lot;
             Logger.ConsoleLog((Helper.LotteryHelper.Table.SelectOne(data => data.SteamGameID == 570, out last_lot)));

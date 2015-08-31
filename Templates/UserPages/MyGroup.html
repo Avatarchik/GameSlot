@@ -1,19 +1,13 @@
 ﻿<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml">
 {{include GameSlot Head}}
-<body>
+
+<body class="vn1">
+    <div class="ft-img1"><span><img src="/cached_files/img/b2.png" alt=""></span></div>
     {{include GameSlot Header}}
 
     {{using GameSlot.Types}}
     {{set UGroup Group = (UGroup) PageData["Group"]}}
-
-   <form onsubmit="return update();">
-        <input type="text" id="group_name"  value="{{=Group.Name}}" oninput="show_btn();"/> 
-        <input type="submit" id="upd_sb" value="Сохранить!" style="display:none"> <br />
-    </form>
-
-    Group URL: <a href="/group/{{=Group.ID}}">/group/{{=Group.ID}}</a><br />
-    Group users count: <span id="users_count">{{=Group.UserCount}}</span>
 
     <script>
         MyGroupPageConnect = true;
@@ -31,13 +25,31 @@
         function show_btn()
         {
             var CurrentName = $("input#group_name").val();
-            if (validCheck(CurrentName))
+            if (CurrentName.length > 3)
             {
-                $("input#upd_sb").attr("style", "");
+                if (GroupName == CurrentName) {
+                    $("b#upd_sb").attr("class", "active");
+                    $("b#upd_sb own").text("Сохранено");
+                }
+                else
+                {
+                    $("b#upd_sb own").text("Сохранить");
+
+                    if (validCheck(CurrentName)) {
+                        $("b#upd_sb").removeClass("active");
+                    }
+                    else {
+                        $("b#upd_sb").attr("class", "active");
+                    }
+
+                    $(".sm-search-new1").removeClass("err");
+                }
             }
             else
             {
-                $("input#upd_sb").attr("style", "display:none;");
+                $("b#upd_sb own").text("Сохранить");
+                $("b#upd_sb").attr("class", "active");
+                $(".sm-search-new1").addClass("err");
             }
         }
 
@@ -46,7 +58,8 @@
             var name = $("input#group_name").val();
             if(validCheck(name))
             {
-                $("input#upd_sb").attr("style", "display:none;");
+                $("b#upd_sb").attr("class", "active");
+                $("b#upd_sb own").text("Сохранить");
                 ws.send("MyGroupPage{{=BaseFuncs.WSplit}}ChangeName{{=BaseFuncs.WSplit}}" + name);
 
                 GroupName = name;
@@ -55,6 +68,92 @@
             return false;
         }
     </script>
+
+	<div id="page">
+        <section id="content">
+            <div class="ct">
+                <div class="tit-mt1">Моя Тусовка</div>
+                <div class="ef-ref1">
+                    <span>Ваша реферальная ссылка</span>
+                    <div><a href="http://{{=client.Host}}/hangout/{{=Group.ID}}" target="_blank">http://{{=client.Host}}/hangout/{{=Group.ID}}</a></div>
+                </div>
+                <div class="sm-search-new1">
+                    <span>Название тусовки</span>
+                    <div><input type="text" value="{{=Group.Name}}" id="group_name" oninput="show_btn();"></div>
+                    <b class="active" id="upd_sb"><own>Сохранить</own><input type="submit" value="" onclick="update();"></b>
+                </div>
+                <div class="tf-sz1">
+                    <div class="item1"><p><span>Вы можете зарабатывать 5% со ставок людей,</span>которые будут играть, вступив в вашу тусовку.</p></div>
+                    <div class="item1"><p>Пока человек не покинет тусовку, вам будут начисляться<span>5% предметов со всех его ставок.</span></p></div>
+                </div>
+                <div class="tf-sz2">
+                    <div class="item1 j1">
+                        <p><span>Количество членов лобби:</span><i id="users_count">{{=Group.UserCount}}</i></p>
+                        <p><span>Средний показатель побед:</span>{{=Group.Winrate}}%</p>
+                        <p><span>Общая сумма ставок:</span><b class="j1"><i>{{=Group.BetItemsCount}}</i> предметов</b><b class="j2">{{=Group.BetItemsPrice_Str}}</b></p>
+                    </div>
+                    <div class="item1 j2">
+                        <p>Моя тусовка  принесла мне</p>
+                        <p><b class="j1"><i>{{=Group.GotItemsFromGroup}}</i> предметов</b><b class="j2">{{=Group.GotPriceFromGroup_Str}}</b></p>
+                    </div>
+                </div>
+                <!--
+                <div class="tb-s1-table tb-s1-table1">
+                    <div class="j1"><a href=""><span>Профиль</span></a></div>
+                    <div class="j2"><a href=""><span>Место</span></a></div>
+                    <div class="j3"><a href=""><span>Сыграно</span></a></div>
+                    <div class="j4"><a href=""><span>Побед</span></a></div>
+                    <div class="j5"><a href=""><span>Процент побед</span></a></div>
+                    <div class="j6"><a href=""><span>Поставил<br>предметов</span></a></div>
+                    <div class="j7"><a href=""><span>Выиграл<br>предметов</span></a></div>
+                    <div class="j8"><a href=""><span>Сумма ставок</span></a></div>
+                    <div class="j9"><a href=""><span>Сумма выигрышей</span></a></div>
+                </div>
+                <div class="ov-sp1">
+                    <div class="item1 j1">
+                        <div class="over-st1">
+                            <div class="et j1"><span class="dc1"><img src="/cached_files/img/av1.png" alt=""><span>Bobby dodo</span></span></div>
+                            <div class="et j2"><span class="dc1"><span class="md">1</span></span></div>
+                            <div class="et j3"><span class="dc1">67</span></div>
+                            <div class="et j4"><span class="dc1">456</span></div>
+                            <div class="et j5"><span class="dc1">35%</span></div>
+                            <div class="et j6"><span class="dc1">2,367</span></div>
+                            <div class="et j7"><span class="dc1">1,300</span></div>
+                            <div class="et j8"><span class="dc1 dc11">5,000, 300</span></div>
+                            <div class="et j9"><span class="dc1 dc11">5,000, 300</span></div>
+                        </div>
+                    </div>
+                    <div class="item1 j2">
+                        <div class="over-st1">
+                            <div class="et j1"><span class="dc1"><img src="/cached_files/img/av1.png" alt=""><span>Bobby dodo</span></span></div>
+                            <div class="et j2"><span class="dc1"><span class="md">1</span></span></div>
+                            <div class="et j3"><span class="dc1">67</span></div>
+                            <div class="et j4"><span class="dc1">456</span></div>
+                            <div class="et j5"><span class="dc1">35%</span></div>
+                            <div class="et j6"><span class="dc1">2,367</span></div>
+                            <div class="et j7"><span class="dc1">1,300</span></div>
+                            <div class="et j8"><span class="dc1 dc11">5,000, 300</span></div>
+                            <div class="et j9"><span class="dc1 dc11">5,000, 300</span></div>
+                        </div>
+                    </div>
+                    <div class="item1 j3">
+                        <div class="over-st1">
+                            <div class="et j1"><span class="dc1"><img src="/cached_files/img/av1.png" alt=""><span>Bobby dodo</span></span></div>
+                            <div class="et j2"><span class="dc1"><span class="md">1</span></span></div>
+                            <div class="et j3"><span class="dc1">67</span></div>
+                            <div class="et j4"><span class="dc1">456</span></div>
+                            <div class="et j5"><span class="dc1">35%</span></div>
+                            <div class="et j6"><span class="dc1">2,367</span></div>
+                            <div class="et j7"><span class="dc1">1,300</span></div>
+                            <div class="et j8"><span class="dc1 dc11">5,000, 300</span></div>
+                            <div class="et j9"><span class="dc1 dc11">5,000, 300</span></div>
+                        </div>
+                    </div>
+                </div>-->
+            </div>
+            {{include GameSlot Footer}}
+        </section>
+    </div>
+    <div class="up1"></div>
 </body>
-{{include GameSlot Last}}
 </html>

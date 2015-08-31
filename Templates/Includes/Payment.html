@@ -1,0 +1,46 @@
+﻿{{if(Helper.UserHelper.Authorized(client))}}
+<div class="modal" style="display:none;" id="payment_modal">
+    <div class="modal-tb">
+        <div class="bg-modal"></div>
+        <div class="modal-con m3">
+            <div class="close1">Закрыть</div>
+            <div class="tit-mp3">Пополнение счета</div>
+            <form method="post" action="/payment/do">
+                <div class="enter-pay1">
+                    <span>Введите сумму</span>
+                    <input type="text" value="" id="money">
+                </div>
+                <div class="pay-bl1">
+                    <div class="tit-pay1">Способы оплаты</div>
+                    <div class="lv-check1">
+                        <label>
+                            <input type="radio" name="r1" checked>
+                            <span class="rd-text1">Робокасса</span>
+                            <img src="/cached_files/img/pay-st2.png" alt="">
+                        </label>
+                    </div>
+                    <div class="sub-st-pay1">Перейти к оплате<input type="submit" value="" onsubmit="return payment_submit();"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function payment_modal()
+    {
+        $("div#payment_modal").attr("style", "display:block;");
+        return false;
+    }
+
+    function payment_submit()
+    {
+        var money = $("input#money").val();
+        if (IsNumeric(money) && money > 1)
+        {
+            return false;
+        }
+        return false;
+    }
+</script>
+{{end}}

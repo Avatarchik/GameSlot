@@ -17,9 +17,11 @@
         {{end}}
 
         var left_secs = "{{=Lottery.LeftTime}}";
+        var mins = 0;
+        var secs = 0;
 
         timer();
-        setInterval(timer, 1000);
+        var def_timer_interval = setInterval(timer, 1000);
         function timer()
         {
             if (left_secs >= 0) {
@@ -41,6 +43,40 @@
                 }
 
                 left_secs = left_secs - 1;
+            }
+        }
+
+        var ower_left_secs = "{{=Lottery.LeftTimeNextGame}}";
+        var ower_mins = Math.floor(ower_left_secs / 60);
+        var ower_secs = ower_left_secs - 60 * mins;
+
+        ower_timer();
+        var ower_timer_interval = setInterval(ower_timer, 1000);
+        function ower_timer()
+        {
+            if (ower_secs >= 0) 
+            {
+                if (ower_secs < 10) {
+                    $("#ower_secs").text("0" + ower_secs);
+                }
+                else {
+                    $("#ower_secs").text(ower_secs);
+                }
+
+                if (ower_mins < 10) {
+                    $("#ower_mins").text("0" + ower_mins);
+                }
+                else {
+                    $("#ower_mins").text(ower_mins);
+                }
+
+                ower_secs = ower_secs-1;
+            }
+            else
+            {
+                $("div#ower_timer").html('<a href="" class="new-game">Новая игра</a>');
+                clearInterval(ower_timer_interval);
+                console.log("timer finished");
             }
         }
     </script>
@@ -198,29 +234,60 @@
                 <div class="cont-pl1">
                     <div class="game-over-s1">
                         <div class="ll1">
-                            <div class="tl1"><span>Номер<br>Игры</span><div>#{{=Lottery.IDStr}}</div></div>
+                            <div class="tl1"><span>Номер<br>Игры</span><div>{{=Lottery.IDStr}}</div></div>
                             <div class="tl3">Число судьбы: <span>{{=Lottery.RaundNumber}}</span></div>
-                            <div class="tl2"><span>Победный<br>жетон</span><i>112239234</i></div>
+                            <div class="tl2"><span>Победный<br>жетон</span><i>{{=Lottery.WinnersToken}}</i></div>
                             <div class="tl4">
                                 <div>Честная игра</div>
                                 <p><i></i>{{=Lottery.RaundNumber}} <span>(Число судьбы)</span></p>
-                                <p><i>х</i>{{=Lottery.JackpotPrice * 100}} <span>(Банк)</span></p>
-                                <p><i>=</i>{{=Lottery.WinnersToken}}<span> (Победный жетон)</span></p>
+                                <p><i>х</i>{{=Lottery.JackpotPrice * 100}} <span>(Банк в центах)</span></p>
+                                <p><i>=</i>{{=Lottery.WinnersToken}} <span>(Победный жетон)</span></p>
                             </div>
                         </div>
-                        <div class="rr1">
-                            <div class="tf1">
+                        <div class="rr1 rr11">
+                            <div class="tf1 tf11">
                                 <div class="tfs1">Сорвал джекпот</div>
                                 <div class="tf2"><span>{{=Lottery.JackpotItems}}</span>предметов</div>
-                                <div class="tf3 baks">{{=Lottery.JackpotPrice_Str}}</div>
+                                <div class="tf3">{{=Lottery.JackpotPrice_Str}}</div>
                                 <p>Все предметы перемещены<br>в ваш временный <a href="">инвентарь</a></p>
                             </div>
+                            <div class="td1">
+                                <div class="eo1">
+                                    <span>победил<br>с шансом:</span>
+                                    <div>{{=Lottery.Wonrate}}</div>
+                                </div>
+                                <div class="eo2">
+                                    <span>Поставил:</span>
+                                    <div><i class="j1"><b>{{=Lottery.WinnersBetItemsNum}}</b> предметов</i><i class="j2"><b>{{=Lottery.WinnersBetPrice_Str}}</b></i></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="ct-game-over1">
-                            <div class="tit-game-over1">Игра окончена</div>
-                            <div class="win-bl1"><div><img src="/cached_files/img/av1.png" alt=""></div></div>
-                            <div class="np-ett1">{{=Lottery.Winner.Name}}</div>
-                            <a href="" class="new-game">Новая игра</a>
+                        <div class="ct-game-over1 ct-game-over11">
+                            <div class="ev-ft1">
+                                <div class="tit-game-over1">Игра окончена</div>
+                                <div class="win-bl1"><div><img src="{{=Lottery.Winner.Avatar}}" alt="{{=Lottery.Winner.Name}}"></div></div>
+                                <div class="np-ett1">{{=Lottery.Winner.Name}}</div>
+                                {{if(Lottery.LeftTimeNextGame > 0)}}
+                                    <div id="ower_timer">
+                                        <div class="ep-nt-text1">Следующая игра<br>начнётся через</div>
+                                        {{set int Minutes_ower = (Lottery.LeftTimeNextGame / 60)}}
+                                        {{set int Sec_ower = Lottery.LeftTimeNextGame-60 * Minutes_ower}}
+                                        <div class="ch-tt1"><span id="ower_mins">00</span><i>:</i>
+                                            <span id="ower_secs">
+                                                {{if(Sec_ower < 10)}}
+                                                    0{{=Sec_ower}}
+                                                {{end}}
+                                                {{else}}
+                                                    {{=Sec_ower}}
+                                                {{end}}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {{end}}
+                                {{else}}
+                                    <a href="" class="new-game">Новая игра</a>
+                                {{end}}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,7 +329,7 @@
                                 <a href="/login" class="start-game1 start-game11">Принять участие</a>
                             {{end}}
                             {{else}}
-                                <a href="" class="start-game1 start-game11">Принять участие</a>
+                                <a href="" class="start-game1 start-game11" onclick="return open_bet();">Принять участие</a>
                             {{end}}
                         </div>
                         <div class="r-text1">
@@ -294,6 +361,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -339,12 +407,64 @@
                     </div>
                     <div class="rt-con-bottom1">
                         <div class="lt-l1">
-                            <div><span>Число судьбы:</span> 0.812345435644321</div>
-                            <a href="" class="lnk1">Принципы честной игры</a>
+                            <div id="raund_number"><span>Число судьбы: </span></div>
+                            <a href="/fair-play" target="_blank" class="lnk1">Принципы честной игры</a>
                         </div>
-                        <div class="rr-chet1">0000</div>
+                        <div class="rr-chet1">00000000</div>
                     </div>
                     <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pl-big-st1 pl-big-st11 pl-big-st112" id="lottery_end_format" style="display:none">
+            <div class="bg-dsk1">
+                <i></i>
+                <div></div>
+            </div>
+            <div class="fk1 fk111"></div>
+            <div class="fk5"></div>
+            <div class="fk14"></div>
+            <div class="fk15"></div>
+            <div class="cont-pl1">
+                <div class="game-over-s1">
+                    <div class="ll1">
+                        <div class="tl1"><span>Номер<br>Игры</span><div>#{{=Lottery.IDStr}}</div></div>
+                        <div class="tl3">Число судьбы: <span><own id="raund_number"></own></span></div>
+                        <div class="tl2"><span>Победный<br>жетон</span><i><own id="winners_token"></own></i></div>
+                        <div class="tl4">
+                            <div>Честная игра</div>
+                            <p><i></i><own id="raund_number"></own> <span>(Число судьбы)</span></p>
+                            <p><i>х</i><own id="bank_cent"></own> <span>(Банк в центах)</span></p>
+                            <p><i>=</i><own id="winners_token"></own> <span>(Победный жетон)</span></p>
+                        </div>
+                    </div>
+                    <div class="rr1 rr11">
+                        <div class="tf1 tf11">
+                            <div class="tfs1">Сорвал джекпот</div>
+                            <div class="tf2"><span id="jackpot_items"></span>предметов</div>
+                            <div class="tf3" id="jackpot_price"></div>
+                            <p>Все предметы перемещены<br>в ваш временный <a href="">инвентарь</a></p>
+                        </div>
+                        <div class="td1">
+                            <div class="eo1">
+                                <span>победил<br>с шансом:</span>
+                                <div id="winners_wonrate"></div>
+                            </div>
+                            <div class="eo2">
+                                <span>Поставил:</span>
+                                <div><i class="j1"><b id="winners_bet_items_num"></b> предметов</i><i class="j2"><b id="winners_bet_price"></b></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ct-game-over1 ct-game-over11">
+                        <div class="ev-ft1">
+                            <div class="tit-game-over1">Игра окончена</div>
+                            <div class="win-bl1"><div><img src="" alt="" id="winners_avatar"></div></div>
+                            <div class="np-ett1" id="winners_name"></div>
+                            <a href="" class="new-game">Новая игра</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -383,7 +503,7 @@
                         </div>
                         <div class="gt1">Предметы</div>
                         <div class="gt1 gt11">Жетоны</div>
-                        <a href="" class="sp-tt1" dt="0"></a>
+                        [diss_btn]
                         <div class="ovr-cont1">
                             <div class="content3 [RANDOM_HASH]">
                                 [OTHER_BETS]
@@ -444,22 +564,25 @@
                                 </div>
                                 <div class="gt1">Предметы</div>
                                 <div class="gt1 gt11">Жетоны</div>
-                                <a href="" class="sp-tt1" dt="0"></a>
-                                <div class="ovr-cont1">
-                                    <div class="content3">
-
-                                        {{for(int i = 0; i < Math.Min(15, bet.UserBets.Count); i++)}}
-                                            {{if(bet.UserBets[i].ID != bet.ID)}}
-                                            <div class="item1">
-                                                <a href="" class="j1">{{=bet.UserBets[i].ItemsNum}}</a>
-                                                <a href="" class="j2 baks">{{=bet.UserBets[i].TotalPrice_Str}}</a>
-                                                <a href="" class="j3">{{=bet.UserBets[i].FirstToken.ToString("D8")}}-{{=bet.UserBets[i].LastToken.ToString("D8")}}</a>
-                                            </div>
+                                {{if(bet.UserBets.Count > 1)}}
+                                    <a href="" class="sp-tt1" dt="0"></a>
+                                    <div class="ovr-cont1">
+                                        <div class="content3">
+                                            {{for(int i = 0; i < Math.Min(15, bet.UserBets.Count); i++)}}
+                                                {{if(bet.UserBets[i].ID != bet.ID)}}
+                                                <div class="item1">
+                                                    <a href="" class="j1">{{=bet.UserBets[i].ItemsNum}}</a>
+                                                    <a href="" class="j2 baks">{{=bet.UserBets[i].TotalPrice_Str}}</a>
+                                                    <a href="" class="j3">{{=bet.UserBets[i].FirstToken.ToString("D8")}}-{{=bet.UserBets[i].LastToken.ToString("D8")}}</a>
+                                                </div>
+                                                {{end}}
                                             {{end}}
-                                        {{end}}
-
+                                        </div>
                                     </div>
-                                </div>
+                                {{end}}
+                                {{else}}
+                                    <a href="" class="sp-tt1 diss1" dt="2"></a>
+                                {{end}}
                             </div>
 
                             <div class="ov-rr1">
@@ -475,10 +598,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="ov-ic-more-s1">
+
+                        <div class="ov-ic-more-s1">            
                             {{foreach(Chip chip in bet.Chips)}}
                                 <div class="item1">
-                                    <img src="/cached_files/img/sld-img1.jpg" alt="">
+                                    <img src="/chip-image/{{=chip.ID}}">
                                     <span class="baks">{{=chip.Cost_Str}}</span>
                                 </div>
                             {{end}}
@@ -492,12 +616,13 @@
                                 </div>
                             {{end}}
                         </div>
+
                     </div>
                 {{end}}
-            <a href="" class="show-more-items1">Показать ещё</a>
+            <!--<a href="" class="show-more-items1">Показать ещё</a>-->
             {{end}}
         </section>
-
+        <!--
         <div class="bt-ov-ft1">
             <div class="item1">
                 <div class="et-tt1">Максимальный джекпот за всё время:</div>
@@ -519,7 +644,7 @@
                     <div class="j2">{{=PageData["TodaysJackpotItems"]}} <span>предметов</span></div>
                 </div>
             </div>
-        </div>
+        </div>-->
 
         {{include GameSlot Footer}}
     </div>
@@ -553,8 +678,8 @@
                     <div class="ll1">
                         <div class="tit-rt1">
                             <div class="bl-rr1">
-                                <span>Суммарный<br>шанс победы:</span>
-                                <div>25%</div>
+                                <span></span>
+                                <div></div>
                             </div>
                             <div class="ep-rt1">Игровая ставка</div>
                         </div>
@@ -649,7 +774,7 @@
                                         <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
                                     </div>
                                     <div class="search1">
-                                        <div class="srh1"><input type="text" value="Поиск по инвентарю" data-place="Поиск по инвентарю"><input type="submit" value=""></div>
+                                        <div class="srh1"><input type="text" placeholder="Поиск по инвентарю" id="search_in_steam_inventory"><input type="submit" value=""></div>
                                         <div class="rr-sort1">
                                             <ul>
                                                 <li>Сортировка:</li>
@@ -671,8 +796,15 @@
                                         </div>
                                     </div>
 
-                                    <div class="cont-ov-items-more1 cont-ov-items-more11" id="steam_iventory" dt="0">
-                                                                    
+                                    <div class="cont-ov-items-more1 cont-ov-items-more11" id="steam_iventory" dt="0"></div>
+
+                                    <div class="modal-page-s1" id="steam_inventory_pagination" style="display:none;">
+                                        <ul>
+                                            <li><a href="" onclick="return Inventory_GetFirstPage(36);" id="first">В начало</a></li>
+                                            <li><a href="" onclick="return Inventory_GetBeforePage(36);" id="before">Предыдущая</a></li>
+                                            <li><a href="" onclick="return Inventory_GetNextPage(36);" id="next">Следующая</a></li>
+                                            <li><a href="" onclick="return Inventory_GetLastPage(36);" id="last">В конец</a></li>
+                                        </ul>
                                     </div>
 
                                     <div class="ready-pp1" id="steam_inventory_loading">
@@ -719,17 +851,6 @@
                                         </div>  
                                     {{end}}
                                     </div>
-
-                                    {{if(LocalSteamInventory.Count / 60 > 0)}}
-                                        <div class="modal-page-s1">
-                                            <ul>
-                                                <li><a href="">В начало</a></li>
-                                                <li><a href="">Предыдущая</a></li>
-                                                <li><a href="">Следующая</a></li>
-                                                <li><a href="">В конец</a></li>
-                                            </ul>
-                                        </div>
-                                    {{end}}
                                 </div>
                             </div>
                             <div class="over-tt-item1">
@@ -760,7 +881,7 @@
                                                 <span style="display:none;" id="item_assert_id">{{=Item.AssertID}}</span>
                                                 <span style="display:none;" id="item_id">{{=Item.ID}}</span>
 
-                                                <img src="/cached_files/dogs/100.jpg" alt="{{=Item.Cost_Str}}">
+                                                <img src="/chip-image/{{=Item.ID}}" alt="{{=Item.Cost_Str}}">
                                                 <span class="baks">{{=Item.Cost_Str}}</span>
                                                 <a href="" onclick="return hh({{=Item.AssertID}});"></a>
                                                 <div class="tiltp">{{=Item.Cost_Str}}</div>
@@ -768,16 +889,7 @@
                                         {{end}}
                                     </div>
 
-                                    {{if(Chips.Count / 60 > 0)}}
-                                    <div class="modal-page-s1">
-                                        <ul>
-                                            <li><a href="">В начало</a></li>
-                                            <li><a href="">Предыдущая</a></li>
-                                            <li><a href="">Следующая</a></li>
-                                            <li><a href="">В конец</a></li>
-                                        </ul>
-                                    </div>
-                                    {{end}}
+
                                 </div>
                             </div>                 
                         </div>
@@ -884,6 +996,10 @@
                     $("span#trade_url_btn").attr("class", "");
                 }
             });
+
+            $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
+                $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
+            });
         });
 
 
@@ -897,7 +1013,7 @@
 
         function try_again()
         {
-            handler = true;
+            handler = false;
             $("div#bet_ready").attr("style", "display:none;");
             $("div#bet_done").attr("style", "display:none;");
             $("div#bet_wtf_error").attr("style", "display:none;");
@@ -908,5 +1024,4 @@
     {{end}}
     <div class="up1"></div>
 </body>
-{{include GameSlot Last}}
 </html>

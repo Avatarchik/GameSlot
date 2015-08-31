@@ -16,6 +16,7 @@ namespace GameSlot
         public static GroupHelper GroupHelper;
         public static ChipHelper ChipHelper;
         public static SteamBotHelper SteamBotHelper;
+        public static OrderHelper OrderHelper;
 
         public static double Rub_ExchangeRate = 64;
 

@@ -27,6 +27,17 @@ namespace GameSlot.Helpers
                 group.Users = this.GetUsers(user.ID);
                 group.UserCount = group.Users.Count();
 
+                group.Winrate = this.CalcWinrate(group.ID);
+                group.BetItemsCount = user.GroupTotalBetItemsCount;
+                group.BetPrice = user.GroupTotalBetPrice;
+
+                group.BetItemsPrice_Str = group.BetPrice.ToString("###,##0.00");
+
+                group.GotItemsFromGroup = user.GotItemsFromGroup;
+                group.GotPriceFromGroup = user.GotPriceFromGroup;
+
+                group.GotPriceFromGroup_Str = group.GotPriceFromGroup.ToString("###,##0.00");
+
                 Owner = user;
                 return true;
             }
@@ -65,6 +76,21 @@ namespace GameSlot.Helpers
             return false;
         }
 
+        public bool ExitFromGroup(uint GroupID, Client client)
+        {
+            XUser user;
+            if (this.GroupExist(GroupID) && Helper.UserHelper.GetCurrentUser(client, out user) && user.GroupOwnerID == GroupID)
+            {
+                user.GroupOwnerID = -1;
+                Helper.UserHelper.Table.UpdateByID(user, user.ID);
+
+                client.Session["GroupOwnerID"] = GroupID;
+                return true;
+            }
+
+            return false;
+        }
+
         public bool UpdateNameByID(uint id, string GroupName)
         {
             XUser user_GroupID;
@@ -78,6 +104,20 @@ namespace GameSlot.Helpers
                 }
             }
             return false;
+        }
+
+        public int CalcWinrate(uint id)
+        {
+            XUser GroupOwner;
+            if (Helper.UserHelper.Table.SelectByID(id, out GroupOwner) && GroupOwner.GroupWonCount > 0 && GroupOwner.GroupGamesCount > 0)
+            {
+
+                Logger.ConsoleLog(GroupOwner.GroupWonCount + " " + GroupOwner.GroupGamesCount);
+                return (int)(100 * GroupOwner.GroupWonCount / GroupOwner.GroupGamesCount);
+            }
+
+            Logger.ConsoleLog(GroupOwner.GroupWonCount + " " + GroupOwner.GroupGamesCount);
+            return 0;
         }
     }
 }

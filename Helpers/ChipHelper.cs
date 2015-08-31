@@ -3,6 +3,7 @@ using GameSlot.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,6 +17,7 @@ namespace GameSlot.Helpers
     {
         public XTable<XChipCustomer> Table = new XTable<XChipCustomer>();
         private static List<Chip> Chips = new List<Chip>();
+
         public ChipHelper()
         {
             this.CreateChip(5);
@@ -32,14 +34,18 @@ namespace GameSlot.Helpers
             chip.ID = (Chips.Count > 0) ? ChipHelper.Chips.Last().ID + 1 : 0;
             chip.Cost = cost;
             chip.Cost_Str = cost.ToString("###,##0.00");
-            chip.Image = "/cached_files/dogs/" + chip.Cost + ".jpg";
+
+            string path = "FileStorage\\Upload\\Chips\\" + chip.ID + ".jpg";
+            if (File.Exists(path))
+            {
+                chip.Image = FilesProcessor.CacheFile(File.ReadAllBytes(path), ".jpg");
+            }
 
             ChipHelper.Chips.Add(chip);
         }
 
         public bool SelectByID(uint ID, out Chip chip)
         {
-
             for (int i = 0; i < ChipHelper.Chips.Count; i++)
             {
                 if (ChipHelper.Chips[i].ID == ID)
@@ -50,7 +56,7 @@ namespace GameSlot.Helpers
             }
             
 
-            chip = null;
+            chip = new Chip();
             return true;
         }
 

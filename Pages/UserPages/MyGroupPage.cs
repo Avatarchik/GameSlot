@@ -16,7 +16,7 @@ namespace GameSlot.Pages.UserPages
     {
         public override string URL
         {
-            get { return "/mygroup"; }
+            get { return "/my.hangout"; }
         }
         public override string TemplateAddr
         {
@@ -32,7 +32,6 @@ namespace GameSlot.Pages.UserPages
 
                 Hashtable data = new Hashtable();
                 data.Add("Group", group);
-
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }

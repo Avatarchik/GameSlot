@@ -1,8 +1,13 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 {{include GameSlot Head}}
-{{set XLottery[] Lotteries = (XLottery[]) PageData["Lotteries"]}}
+{{set List<XLottery> Lotteries = (List<XLottery>) PageData["Lotteries"]}}
 {{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
+{{set bool MyLots = (bool) PageData["MyLots"]}}
+{{set int From = (int) PageData["From"]}}
+{{set int ShowNum = (int) PageData["ShowNum"]}}
+{{set int GamesNum = (int) PageData["GamesNum"]}}
+
 <body class="vn1">
 	<div id="page">
        <div class="ft-img1"><span>
@@ -21,14 +26,26 @@
                     <div class="ll1">
                         <div class="tit1 j3">
                             <span>История игр</span>
-                            <i>Мои игры:</i>
-                            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
-                                <a href="/games-history/dota2" class="active">Dota2</a>
-                                <a href="/games-history/csgo">Cs go</a>
+                            <i>Игры:</i>
+                            {{if(!MyLots)}}
+                                {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                                    <a class="active">Dota2</a>
+                                    <a href="/games-history/csgo">Cs go</a>
+                                {{end}}
+                                {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                                <a href="/games-history/dota2">Dota2</a>
+                                <a class="active">Cs go</a>
+                                {{end}}
                             {{end}}
-                            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
-                            <a href="/games-history/dota2">Dota2</a>
-                            <a href="/games-history/csgo" class="active">Cs go</a>
+                            {{else}}
+                                {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                                    <a class="active">Dota2</a>
+                                    <a href="/games-history/csgo/my">Cs go</a>
+                                {{end}}
+                                {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                                <a href="/games-history/dota2/my">Dota2</a>
+                                <a class="active">Cs go</a>
+                                {{end}}
                             {{end}}
                         </div>
                     </div>
@@ -42,38 +59,61 @@
                         <div class="j5"><a href=""><span>Сумма джекпота</span></a></div>
                     </div>
                     <div class="rr1">
-                        <a class="active">Все игры</a>
-                        <span></span>
-                        {{if(Helper.UserHelper.Authorized(client))}}
-                            <a href="{{=client.URL}}/my">Мои игры</a>
+                        {{if(!MyLots)}}
+                            <a class="active">Все игры</a>
+                            <span></span>
+                            {{if(Helper.UserHelper.Authorized(client))}}
+                                <a href='/games-history/{{=PageData["GameURL"]}}/my'>Мои игры</a>
+                            {{end}}
+                            {{else}}
+                                <a href="/login">Мои игры</a>
+                            {{end}}
                         {{end}}
                         {{else}}
-                            <a href="/login">Мои игры</a>
+                            <a href='/games-history/{{=PageData["GameURL"]}}'>Все игры</a>
+                            <span></span>
+                            <a class="active">Мои игры</a>
                         {{end}}
                     </div>
 
                 </div>
                 <div class="ov-sp1 ov-sp11">
-                    {{for(int i = 0; i < Lotteries.Length; i++)}}
-                        {{set XUser User = Helper.UserHelper.Table.SelectByID(Lotteries[i].Winner)}}
+                    {{foreach(XLottery Lottery in Lotteries)}}
+                        {{set XUser User = Helper.UserHelper.Table.SelectByID(Lottery.Winner)}}
                         <div class="item1">
                             <div class="over-st1">
-                                <div class="et j1"><span class="dc1"><span class="ep-sml-y2">#{{=Lotteries[i].ID.ToString("000-000-000")}}</span></span></div>
+                                <div class="et j1"><span class="dc1"><span class="ep-sml-y2">#{{=Lottery.ID.ToString("000-000-000")}}</span></span></div>
                                 <div class="et j2"><span class="dc1"><span class="ev-avt1"><img src="{{=User.Avatar}}" alt=""></span><span class="ov-text-avt1"><span>{{=User.Name}}</span></span></span></div>
-                                <div class="et j3"><span class="dc1">{{=Lotteries[i].Wonrate}}%</span></div>
-                                <div class="et j4"><span class="dc1">{{=Lotteries[i].JackpotItemsNum.ToString("##,###")}}</span></div>
-                                <div class="et j5"><span class="dc1 dc11"><span class="price-st-y1 baks">{{=Lotteries[i].JackpotPrice.ToString("###,##0.00")}}</span></span></div>
-                                <div class="et j6"><span class="dc1"><a href="/game-history/" class="bt-link1">Посмотреть полную историю игры</a></span></div>
+                                <div class="et j3"><span class="dc1">{{=Lottery.Wonrate}}%</span></div>
+                                <div class="et j4"><span class="dc1">{{=Lottery.JackpotItemsNum.ToString("##,###")}}</span></div>
+                                <div class="et j5"><span class="dc1 dc11"><span class="price-st-y1 baks">{{=Lottery.JackpotPrice.ToString("###,##0.00")}}</span></span></div>
+                                <div class="et j6"><span class="dc1"><a href="/game-history/" onclick="return false;" style="opacity: 0.6;" class="bt-link1">Полная история еще недоступна</a></span></div>
                             </div>
                         </div>
                     {{end}}
                 </div>
-                <div class="nav-sp1">
-                    <div><a class="diss">В начало</a></div>
-                    <div><a class="diss">Предыдущая</a></div>
-                    <div><a href="">Следующая</a></div>
-                    <div><a href="">В конец</a></div>
-                </div>
+
+                {{if(GamesNum > ShowNum)}}
+                    <div class="nav-sp1">
+                        {{if(From <= 0)}}
+                            <div><a class="diss">В начало</a></div>
+                            <div><a class="diss">Предыдущая</a></div>
+                        {{end}}
+                        {{else}}
+                            <div><a class="" href='/games-history/{{=PageData["GameURL"]}}'>В начало</a></div>
+                            <div><a class="" href='/games-history/{{=PageData["GameURL"]}}/?from={{=((From-ShowNum < 0) ? 0 : (From-ShowNum))}}'>Предыдущая</a></div>
+                        {{end}}
+
+                        {{if(GamesNum <= (From+ShowNum))}}
+                            <div><a class="diss">Следующая</a></div>
+                            <div><a class="diss">В конец</a></div>
+                        {{end}}
+                        {{else}}
+                            <div><a href='/games-history/{{=PageData["GameURL"]}}/?from={{=(From+ShowNum)}}'>Следующая</a></div>
+                            <div><a href='/games-history/{{=PageData["GameURL"]}}/?from={{=GamesNum}}'>В конец</a></div>
+                        {{end}}
+                    </div>
+                {{end}}
             </div>
             {{include GameSlot Footer}}
         </section>

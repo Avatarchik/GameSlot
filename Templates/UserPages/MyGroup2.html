@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+{{include GameSlot Head}}
+<body>
+    {{include GameSlot Header}}
+
+    {{using GameSlot.Types}}
+    {{set UGroup Group = (UGroup) PageData["Group"]}}
+
+   <form onsubmit="return update();">
+        <input type="text" id="group_name"  value="{{=Group.Name}}" oninput="show_btn();"/> 
+        <input type="submit" id="upd_sb" value="Сохранить!" style="display:none"> <br />
+    </form>
+
+    Group URL: <a href="/group/{{=Group.ID}}">/group/{{=Group.ID}}</a><br />
+    Group users count: <span id="users_count">{{=Group.UserCount}}</span>
+
+    <script>
+        MyGroupPageConnect = true;
+        MyGroupPage_GroupID = "{{=Group.ID}}";
+
+        var GroupName = "{{=Group.Name}}";
+        function validCheck(current_group_name)
+        {
+            if (GroupName != current_group_name && current_group_name.length > 2) {
+                return true;
+            }
+            return false;
+        }
+
+        function show_btn()
+        {
+            var CurrentName = $("input#group_name").val();
+            if (validCheck(CurrentName))
+            {
+                $("input#upd_sb").attr("style", "");
+            }
+            else
+            {
+                $("input#upd_sb").attr("style", "display:none;");
+            }
+        }
+
+        function update()
+        {
+            var name = $("input#group_name").val();
+            if(validCheck(name))
+            {
+                $("input#upd_sb").attr("style", "display:none;");
+                ws.send("MyGroupPage{{=BaseFuncs.WSplit}}ChangeName{{=BaseFuncs.WSplit}}" + name);
+
+                GroupName = name;
+                alert("name updated!")
+            }
+            return false;
+        }
+    </script>
+</body>
+{{include GameSlot Last}}
+</html>

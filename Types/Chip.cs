@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Types
 {
-    public class Chip
+    public struct Chip
     {
         public uint ID;
         public double Cost;

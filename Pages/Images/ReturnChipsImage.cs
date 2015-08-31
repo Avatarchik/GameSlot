@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameSlot.Types;
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -6,7 +7,7 @@ using UpServer;
 
 namespace GameSlot.Pages.Images
 {
-    public class ReturnSteamImage : SiteGameSlot
+    public class ReturnChipsImage : SiteGameSlot
     {
         public override PageType PageType
         {
@@ -14,7 +15,7 @@ namespace GameSlot.Pages.Images
         }
         public override string URL
         {
-            get { return "/steam-image/"; }
+            get { return "/chip-image/"; }
         }
         public override bool FilterAfter
         {
@@ -22,14 +23,13 @@ namespace GameSlot.Pages.Images
         }
         public override bool Init(Client client)
         {
-            uint SteamGameID, ItemID;
-            if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out SteamGameID) && uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[1], out ItemID))
+            uint ChipID;
+            if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out ChipID))
             {
-                string image;
-                if (Helper.SteamItemsHelper.GetImageFromMemory(ItemID, SteamGameID, out image))
+                Chip chip;
+                if (Helper.ChipHelper.SelectByID(ChipID, out chip) && chip.Image != null)
                 {
-                    FileSender.SendCachedFile(client, (CachedFile)UpCacher.files[image]);
-                    //FileSender.SendUserFile(client, image);
+                    FileSender.SendCachedFile(client, (CachedFile)UpCacher.files[chip.Image]);
                     return false;
                 }
             }

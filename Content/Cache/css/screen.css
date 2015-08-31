@@ -151,7 +151,7 @@ body.vn3 #page #header .r-head .ct-t3 span {
   clear: both;
 }
 
-.cv:before, .ft-img1 span:before, #header .logo:before, #header .r-head .ct-t1 .ll1 .av-s1 a:before, .sld-big-fake1 .item1-fake:before, .sld-big-fake1 .item1 .vt-img1:before, .ov-ic1 .item1:before, #content .ov-sp1.ov-sp11 .item1 .et .dc1 .ev-avt1:before, #content .stl-vl1 .fsh1 .item1 .ft-img:before, #content2 .bl-ov-et1 .head-bl-et1 .av-ll1:before, #content2 .over-bl-tf1 .item1 .ct-elm1 .av-m1:before, .modal .modal-con.m3 .vt-bl1 .tt-top-t1 .item1:before, .modal .modal-con.m2 .people-inf1 .ll1 .vt-img1:before, .sz1-modal1 .ov-bl1 .ready-pp1 .df-pp2:before, .cont-pl-st1:before, .store-page1 .more-items-et-tb1 .item1 .ev .ev-ovt-lnk1:before, .store-page1 .rr-cont1 .action1 .ep-item1 div a:before, .shop-ic1:before, .cv:after, .ft-img1 span:after, #header .logo:after, #header .r-head .ct-t1 .ll1 .av-s1 a:after, .sld-big-fake1 .item1-fake:after, .sld-big-fake1 .item1 .vt-img1:after, .ov-ic1 .item1:after, #content .ov-sp1.ov-sp11 .item1 .et .dc1 .ev-avt1:after, #content .stl-vl1 .fsh1 .item1 .ft-img:after, #content2 .bl-ov-et1 .head-bl-et1 .av-ll1:after, #content2 .over-bl-tf1 .item1 .ct-elm1 .av-m1:after, .modal .modal-con.m3 .vt-bl1 .tt-top-t1 .item1:after, .modal .modal-con.m2 .people-inf1 .ll1 .vt-img1:after, .sz1-modal1 .ov-bl1 .ready-pp1 .df-pp2:after, .cont-pl-st1:after, .store-page1 .more-items-et-tb1 .item1 .ev .ev-ovt-lnk1:after, .store-page1 .rr-cont1 .action1 .ep-item1 div a:after, .shop-ic1:after {
+.cv:before, .ft-img1 span:before, #header .logo:before, #header .r-head .ct-t1 .ll1 .av-s1 a:before, .sld-big-fake1 .item1-fake:before, .sld-big-fake1 .item1 .vt-img1 a:before, .ov-ic1 .item1:before, #content .ov-sp1.ov-sp11 .item1 .et .dc1 .ev-avt1:before, #content .stl-vl1 .fsh1 .item1 .ft-img:before, #content2 .bl-ov-et1 .head-bl-et1 .av-ll1:before, #content2 .over-bl-tf1 .item1 .ct-elm1 .av-m1:before, .modal .modal-con.m3 .vt-bl1 .tt-top-t1 .item1:before, .modal .modal-con.m2 .people-inf1 .ll1 .vt-img1:before, .sz1-modal1 .ov-bl1 .ready-pp1 .df-pp2:before, .cont-pl-st1:before, .store-page1 .more-items-et-tb1 .item1 .ev .ev-ovt-lnk1:before, .store-page1 .rr-cont1 .action1 .ep-item1 div a:before, .shop-ic1:before, .cv:after, .ft-img1 span:after, #header .logo:after, #header .r-head .ct-t1 .ll1 .av-s1 a:after, .sld-big-fake1 .item1-fake:after, .sld-big-fake1 .item1 .vt-img1 a:after, .ov-ic1 .item1:after, #content .ov-sp1.ov-sp11 .item1 .et .dc1 .ev-avt1:after, #content .stl-vl1 .fsh1 .item1 .ft-img:after, #content2 .bl-ov-et1 .head-bl-et1 .av-ll1:after, #content2 .over-bl-tf1 .item1 .ct-elm1 .av-m1:after, .modal .modal-con.m3 .vt-bl1 .tt-top-t1 .item1:after, .modal .modal-con.m2 .people-inf1 .ll1 .vt-img1:after, .sz1-modal1 .ov-bl1 .ready-pp1 .df-pp2:after, .cont-pl-st1:after, .store-page1 .more-items-et-tb1 .item1 .ev .ev-ovt-lnk1:after, .store-page1 .rr-cont1 .action1 .ep-item1 div a:after, .shop-ic1:after {
   position: absolute;
   top: 0;
   left: 0;
@@ -666,6 +666,10 @@ body.vn3 #page #header .r-head .ct-t3 span {
   bottom: 0;
   left: 0;
   display: block;
+}
+.sld-big-fake1 .item1 .vt-img1 a {
+  display: block;
+  position: relative;
 }
 .sld-big-fake1 .item1 .tit-s1 {
   position: absolute;
@@ -4511,17 +4515,6 @@ body.vn3 #page #header .r-head .ct-t3 span {
   display: block;
   content: "";
   background: black;
-}
-.pl-big-st1 .cont-pl1 .bg-stl1 .line1 .item1.win1:before, .pl-big-st1 .cont-pl1 .bg-stl1 .line2 .item1.win1:before, .pl-big-st1 .cont-pl1 .bg-stl1 .line3 .item1.win1:before {
-  z-index: 10;
-  position: absolute;
-  top: 30px;
-  left: 30px;
-  bottom: 30px;
-  right: 30px;
-  display: block;
-  content: "";
-  background: red;
 }
 .pl-big-st1 .cont-pl1 .bg-stl1 .line2 {
   top: 196px;

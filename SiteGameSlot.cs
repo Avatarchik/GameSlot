@@ -67,7 +67,7 @@ namespace GameSlot
             Helper.GroupHelper = new GroupHelper();
             Helper.ChipHelper = new ChipHelper();
             Helper.SteamBotHelper = new SteamBotHelper();
-
+            Helper.OrderHelper = new OrderHelper();
 
             Helper.LotteryHelper.StartLottery(Configs.DOTA2_STEAM_GAME_ID);
             Thread.Sleep(100);

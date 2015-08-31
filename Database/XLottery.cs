@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 56, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 68, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XLottery
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -22,7 +22,7 @@ namespace GameSlot.Database
         [FieldOffset(8)]
         public int WinnersToken;
 
-        [MarshalAs(UnmanagedType.U4)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(12)]
         public int EndTime;
 
@@ -34,7 +34,7 @@ namespace GameSlot.Database
         [FieldOffset(24)]
         public uint Winner;
 
-        [MarshalAs(UnmanagedType.U4)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(28)]
         public int StartTime;
 
@@ -46,7 +46,7 @@ namespace GameSlot.Database
         [FieldOffset(36)]
         public double JackpotPrice;
 
-        [MarshalAs(UnmanagedType.U4)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(44)]
         public int JackpotItemsNum;
 
@@ -57,5 +57,13 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(52)]
         public int WinnerGroupID;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(56)]
+        public int WinnersBetItemsNum;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(60)]
+        public double WinnersBetPrice;
     }
 }

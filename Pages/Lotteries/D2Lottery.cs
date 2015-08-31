@@ -70,6 +70,7 @@ namespace GameSlot.Pages.Lotteries
 
             Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID);
             data.Add("Lottery", Lottery);
+
             data.Add("Bets", Helper.LotteryHelper.GetBets(Lottery.ID, 0, 10));
 
             int items;

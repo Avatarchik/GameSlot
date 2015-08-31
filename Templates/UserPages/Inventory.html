@@ -9,7 +9,30 @@
 {{set bool SteamInventoryLoaded = (bool) PageData["SteamInventoryLoaded"]}}
 {{set UsersInventory UsersInventory = (UsersInventory) PageData["UsersInventory"]}}
 
+
 <body class="vn1">
+    <script>
+        GetMyInventoryPage = true;
+        MyInventoryPage_SteamGameID = MyInventoryPage_SteamGameID = "{{=SteamGameID}}";
+        INVENTORY_ITEMS_NUM = 36;
+        INVENTORY_ITEMS_FROM = 0;
+    </script>
+
+    <div id="steam_items_html" style="display:none;">
+        <div class="item1" id="item_id_[item_assert_id]">
+            <span style="display:none;" id="iventory_id">[iventory_id]</span>
+            <span style="display:none;" id="current_iventory_id">[current_iventory_id]</span>
+            <span style="display:none;" id="item_assert_id">[item_assert_id]</span>
+            <span style="display:none;" id="item_id">[item_id]</span>
+
+            [item_steam_image]
+            <span class="baks">[item_price]</span>
+
+            <a href="" onclick="return false;"></a>
+            <div class="tiltp">[item_name]</div>  
+        </div>    
+    </div>
+
 	<div id="page">
         <div class="ft-img1"><span>
             {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
@@ -38,13 +61,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="search-steam">
-                    <span>Мой Steam Trade URL</span>
-                    <input type="text" value="https://steamcommunity.com/tradeoffer/new/?partner=139041672&token=IHERy8ya">
-                    <div class="sub-st-e1">Сохранить<input type="submit" value=""></div>
-                </div>
-
-                <div class="tit-pr-stl1">Игровые фишки</div>
+                <!--<div class="tit-pr-stl1">Игровые фишки</div>
                 <div class="stl-vl1">
                     <div class="text-left-ll1">
                         <p>Вы можете ставить игровые фишки вместо предметов.</p>
@@ -55,33 +72,30 @@
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t1.png" alt=""></span></div>
                             <div class="sp-tt1">х0</div>
-                            <a href="" class="bt-now1">Купить за 280</a>                            
+                            <a href="/comming-soon" class="bt-now1">Купить за 280</a>                            
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t2.png" alt=""></span></div>
-                            <div class="sp-tt1">х4</div>
-                            <a href="" class="bt-now1">Купить за 560</a>
-                            <a href="" class="link2">Продать все за 2240</a>
+                            <div class="sp-tt1">x0</div>
+                            <a href="/comming-soon" class="bt-now1">Купить за 560</a>
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t3.png" alt=""></span></div>
-                            <div class="sp-tt1">x2</div>
-                            <a href="" class="bt-now1">Купить за 1400</a>
-                            <a href="" class="link2">Продать все за 2840</a>
+                            <div class="sp-tt1">x0</div>
+                            <a href="/comming-soon" class="bt-now1">Купить за 1400</a>
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t4.png" alt=""></span></div>
                             <div class="sp-tt1">x0</div>
-                            <a href="" class="bt-now1">Купить за 2800</a>                            
+                            <a href="/comming-soon" class="bt-now1">Купить за 2800</a>                            
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t5.png" alt=""></span></div>
-                            <div class="sp-tt1">x0</div>
-                            <a href="" class="bt-now1">Купить за 5600</a>                            
+                            <div class="sp-tt1">x0</div>                          
                         </div>
                     </div>
                 </div>
-
+                -->
                 <div class="sz1-modal1">
                     <div class="rr1 rr2">
                         <div class="sp-top-st1">
@@ -109,7 +123,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="cont-ov-items-more1 jcheck more36" dt="0">
+                            <div class="cont-ov-items-more1 jcheck more36" dt="0" style="min-height: 444px;">
                                 {{foreach(USteamItem Item in LocalSteamInventory.GetRange(0, Math.Min(60, LocalSteamInventory.Count)))}}
                                     <div class="item1">
                                         <img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">
@@ -131,25 +145,20 @@
                             {{end}}
                         </div>
                     </div>
+
                     <div class="rr1 rr3">
                         <div class="sp-top-st1">
                             <div class="ev-tit-ll1">Инвентарь Steam</div>
-                            <div class="srh1"><input type="text" value="Поиск по инвентарю"><input type="submit" value=""></div>
+                            <div class="srh1"><input type="text" placeholder="Поиск по инвентарю" id="search_in_steam_inventory"><input type="submit" value=""></div>
                         </div>
                         <div class="ov-bl1">
                             <div class="bg-ov-bl1"><div></div></div>
 
                             <div class="tit-bl1">
-                                {{if(SteamInventoryLoaded && UsersInventory.Opened)}}  
-                                    <div class="ef1">{{=UsersInventory.SteamItems.Count}}</div>
-                                    <div class="ef2">Суммарная<br>стоимость:</div>
-                                    <div class="ef3 baks">{{=UsersInventory.TotalPrice_Str}}</div>
-                                {{end}}
-                                {{else}}
-                                    <div class="ef1">0</div>
-                                    <div class="ef2">Суммарная<br>стоимость:</div>
-                                    <div class="ef3">0</div>
-                                {{end}}
+                                <div class="ef1" id="steam_inventory_items_num">0</div>
+                                <div class="ef2">Суммарная<br>стоимость:</div>
+                                <div class="ef3 baks" id="steam_inventory_total_price">0</div>
+
                                 <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
                             </div>
                             <div class="search1">
@@ -162,53 +171,34 @@
                                 </div>
                             </div>
 
-                            <div class="cont-ov-items-more1 jcheck more36" dt="0">
-                                {{if(SteamInventoryLoaded)}}                             
-                                    {{if(!UsersInventory.Opened)}}
-                                    <div class="dc-hide-error1">
-                                        <div class="dc-f1">
-                                            <div class="ev-error1">
-                                                <div>
-                                                    <p>Для того, чтобы подгрузить ваши<br>предметы из Steam, вы должны<br><a href="">открыть инвентарь</a> в настройках.</p>
-                                                </div>
+                            <div class="cont-ov-items-more1 jcheck more36" id="steam_iventory" style="min-height: 444px;" dt="0"></div>
+
+                            <div class="modal-page-s1" id="steam_inventory_pagination" style="display:none;">
+                                <ul>
+                                    <li><a href="" onclick="return Inventory_GetFirstPage(36);" id="first">В начало</a></li>
+                                    <li><a href="" onclick="return Inventory_GetBeforePage(36);" id="before">Предыдущая</a></li>
+                                    <li><a href="" onclick="return Inventory_GetNextPage(36);" id="next">Следующая</a></li>
+                                    <li><a href="" onclick="return Inventory_GetLastPage(36);" id="last">В конец</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="ready-pp1" id="steam_inventory_loading">
+                                <div class="df-pp2 df-pp22">
+                                    <img src="/cached_files/img/9-6_2_obrabotka-stavki_loading_icon.gif" alt=""><span class="j1">Идёт загрузка<br>инвентаря</span>
+                                </div>
+                            </div>
+
+                            <div id="steam_inventory_closed" style="display:none;">
+                                <div class="dc-hide-error1">
+                                    <div class="dc-f1">
+                                        <div class="ev-error1">
+                                            <div>
+                                                <p>Для того, чтобы подгрузить ваши<br>предметы из Steam, вы должны<br><a href="">открыть инвентарь</a> в настройках.</p>
                                             </div>
                                         </div>
                                     </div>
-                                    {{end}}
-                                    {{else}}
-                                        {{foreach(USteamItem Item in UsersInventory.SteamItems.GetRange(0, Math.Min(60, UsersInventory.SteamItems.Count)))}}
-                                            <div class="item1">
-                                                <img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">
-                                                <span class="baks">{{=Item.Price_Str}}</span>
-                                                <a href="" onclick="return false;"></a>
-                                                <div class="tiltp" style="margin-left: -50px;">{{=Item.Name}}</div>  
-                                            </div>                                           
-                                        {{end}}
-                                    {{end}}
-                                {{end}}
-                                {{else}}
-                                    <div class="dc-hide-error1">
-                                        <div class="dc-f1">
-                                            <div class="ev-error1">
-                                                <div>
-                                                    <p>Ваш Steam инвентарь еще не успел<br>подгрузиться, пожалуйста, ожидайте.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>                                  
-                                {{end}}
-                            </div>
-
-                            {{if(SteamInventoryLoaded && UsersInventory.Opened && UsersInventory.SteamItems.Count / 60 > 0)}}
-                                <div class="modal-page-s1">
-                                    <ul>
-                                        <li><a href="">В начало</a></li>
-                                        <li><a href="">Предыдущая</a></li>
-                                        <li><a href="">Следующая</a></li>
-                                        <li><a href="">В конец</a></li>
-                                    </ul>
                                 </div>
-                            {{end}}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -224,5 +214,4 @@
     </div>
     <div class="up1"></div>
 </body>
-{{include GameSlot Last}}
 </html>

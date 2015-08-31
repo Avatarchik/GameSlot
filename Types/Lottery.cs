@@ -26,5 +26,12 @@ namespace GameSlot.Types
 
         public int WinnersToken;
         public XUser Winner;
+        public int Wonrate;
+        public int WinnersBetItemsNum;
+        public double WinnersBetPrice;
+        public string WinnersBetPrice_Str;
+
+        public int StartTimeNextGame;
+        public int LeftTimeNextGame;
     }
 }
