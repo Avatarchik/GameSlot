@@ -160,9 +160,25 @@
     <EmbeddedResource Include="Content\Cache\favicon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\Last.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Lotteries\Lottery3.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\UserPages\MyGroup.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\Payment.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\CommingSoon.html" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Content\Cache\css\ie8.css" />
     <EmbeddedResource Include="Content\Cache\css\jquery_mCustomScrollbar.css" />
     <EmbeddedResource Include="Content\Cache\css\owl_carousel.css" />
+    <EmbeddedResource Include="Content\Cache\css\screen.css" />
     <EmbeddedResource Include="Content\Cache\img\4-5_loading-icon.gif" />
     <EmbeddedResource Include="Content\Cache\img\4_5-load2.png" />
     <EmbeddedResource Include="Content\Cache\img\4_5-load3.png" />
@@ -553,36 +569,16 @@
     <EmbeddedResource Include="Content\Cache\img\wt6.png" />
     <EmbeddedResource Include="Content\Cache\js\accounting_min.js" />
     <EmbeddedResource Include="Content\Cache\js\actions.js" />
+    <EmbeddedResource Include="Content\Cache\js\common.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery-ui.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery-ui.min.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery-ui_min.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_easing_1_3.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_formstyler_min.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_mCustomScrollbar.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_placeholder.js" />
     <EmbeddedResource Include="Content\Cache\js\owl_carousel_min.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\Includes\Last.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\js\common.js" />
     <EmbeddedResource Include="Content\Cache\js\rull.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\Lotteries\Lottery3.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\css\screen.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\UserPages\MyGroup.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\Includes\Payment.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\CommingSoon.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

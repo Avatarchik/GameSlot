@@ -51,12 +51,12 @@
                             <span>Инвентарь</span>
                             <i>Мои игры:</i>
                             {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
-                                <a href="/inventory/dota2" class="active">Dota2</a>
+                                <a class="active">Dota2</a>
                                 <a href="/inventory/csgo">CS GO</a>
                             {{end}}
                             {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
                                 <a href="/inventory/dota2">Dota2</a>
-                                <a href="/inventory/csgo" class="active">CS GO</a>
+                                <a class="active">CS GO</a>
                             {{end}}
                         </div>
                     </div>
@@ -165,8 +165,8 @@
                                 <div class="rr-sort1">
                                     <ul>
                                         <li>Сортировка:</li>
-                                        <li><a href="">Сперва дорогие</a></li>
-                                        <li class="active"><a href="">Сперва дешевые</a></li>
+                                        <li id="inventory_sort_by_high_price" class="active"><a onclick="return SortInventoryByLowPrice(36, 0);">Сперва дорогие</a></li>
+                                        <li id="inventory_sort_by_low_price"><a href="" onclick="return SortInventoryByLowPrice(36, 1);">Сперва дешевые</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -203,14 +203,13 @@
                     </div>
                 </div>
             </div>
-
+            <div class="ev-foot1"></div>
             <script>
                 /*GetMyInventoryPage = true;
                 MyInventoryPage_SteamGameID = "{{=SteamGameID}}";*/
             </script>
-
-            {{include GameSlot Footer}}
         </section>
+        {{include GameSlot Footer}}
     </div>
     <div class="up1"></div>
 </body>

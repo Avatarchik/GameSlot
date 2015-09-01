@@ -113,6 +113,7 @@ body.vn3 #page #header .r-head .ct-t3 span {
   width: 100%;
   position: relative;
   overflow: hidden;
+  min-height: 100%;
 }
 
 .ft-img1 {
@@ -1011,8 +1012,13 @@ body.vn3 #page #header .r-head .ct-t3 span {
   background-position: bottom;
 }
 
+.ev-foot1 {
+  height: 107px;
+}
+
 #footer {
   height: 107px;
+  margin-top: -107px;
 }
 #footer .logo {
   display: block;
@@ -7416,13 +7422,19 @@ body.vn3 #page #header .r-head .ct-t3 span {
   line-height: 30px;
 }
 .sz1-modal1 .modal-page-s1 li a {
-  color: #514b45;
+  color: black;
   font-family: "Tahoma";
   font-size: 11px;
+  text-decoration: underline;
 }
 .sz1-modal1 .modal-page-s1 li a:hover {
-  text-decoration: underline;
-  color: black;
+  text-decoration: none;
+  color: #514b45;
+}
+.sz1-modal1 .modal-page-s1 li a.diss {
+  color: #534c46;
+  cursor: default;
+  text-decoration: none;
 }
 .sz1-modal1 .modal-page-s1 li:first-child {
   width: 105px;
@@ -7444,23 +7456,10 @@ body.vn3 #page #header .r-head .ct-t3 span {
 .sz1-modal1 .modal-page-s1 li:first-child + li + li {
   width: 95px;
 }
-.sz1-modal1 .modal-page-s1 li:first-child + li + li a {
-  color: black;
-  text-decoration: underline;
-  margin-left: -3px;
-}
-.sz1-modal1 .modal-page-s1 li:first-child + li + li a:hover {
-  text-decoration: none;
-  color: #514b45;
-}
 .sz1-modal1 .modal-page-s1 li:first-child + li + li + li {
   overflow: hidden;
   width: auto;
   float: none;
-}
-.sz1-modal1 .modal-page-s1 li:first-child + li + li + li a {
-  color: black;
-  text-decoration: underline;
 }
 .sz1-modal1 .modal-page-s1 li:first-child + li + li + li a:after {
   display: inline-block;
@@ -7472,10 +7471,6 @@ body.vn3 #page #header .r-head .ct-t3 span {
   vertical-align: top;
   position: relative;
   top: 12px;
-}
-.sz1-modal1 .modal-page-s1 li:first-child + li + li + li a:hover {
-  text-decoration: none;
-  color: #514b45;
 }
 .sz1-modal1 .ov-bl1 {
   position: relative;
@@ -9167,6 +9162,9 @@ body.vn3 #page #header .r-head .ct-t3 span {
   position: relative;
   top: 16px;
   display: block;
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  border-radius: 100px;
 }
 .game-over-s1 .ct-game-over1 .win-bl1 div:after {
   position: absolute;
@@ -10004,13 +10002,19 @@ body.vn3 #page #header .r-head .ct-t3 span {
   line-height: 30px;
 }
 .store-page1 .modal-page-s1 li a {
-  color: #514b45;
+  color: black;
   font-family: "Tahoma";
   font-size: 11px;
+  text-decoration: underline;
 }
 .store-page1 .modal-page-s1 li a:hover {
-  text-decoration: underline;
-  color: black;
+  text-decoration: none;
+  color: #514b45;
+}
+.store-page1 .modal-page-s1 li a.diss {
+  color: #534c46;
+  cursor: default;
+  text-decoration: none;
 }
 .store-page1 .modal-page-s1 li:first-child {
   width: 105px;
@@ -10032,23 +10036,10 @@ body.vn3 #page #header .r-head .ct-t3 span {
 .store-page1 .modal-page-s1 li:first-child + li + li {
   width: 95px;
 }
-.store-page1 .modal-page-s1 li:first-child + li + li a {
-  color: black;
-  text-decoration: underline;
-  margin-left: -3px;
-}
-.store-page1 .modal-page-s1 li:first-child + li + li a:hover {
-  text-decoration: none;
-  color: #514b45;
-}
 .store-page1 .modal-page-s1 li:first-child + li + li + li {
   overflow: hidden;
   width: auto;
   float: none;
-}
-.store-page1 .modal-page-s1 li:first-child + li + li + li a {
-  color: black;
-  text-decoration: underline;
 }
 .store-page1 .modal-page-s1 li:first-child + li + li + li a:after {
   display: inline-block;
@@ -10060,10 +10051,6 @@ body.vn3 #page #header .r-head .ct-t3 span {
   vertical-align: top;
   position: relative;
   top: 12px;
-}
-.store-page1 .modal-page-s1 li:first-child + li + li + li a:hover {
-  text-decoration: none;
-  color: #514b45;
 }
 .store-page1 .tit-more-items-et-tb2 {
   height: 49px;
@@ -11632,6 +11619,9 @@ body.vn3 #page #header .r-head .ct-t3 span {
   position: relative;
   font-size: 0.01px;
   border-bottom: 9px solid #090702;
+}
+#header3 .nohead {
+  border: none;
 }
 #header3:before {
   position: absolute;

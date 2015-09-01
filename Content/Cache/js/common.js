@@ -16,7 +16,7 @@ $(document).ready(function() {
 		if($(this).val()=='') {
 			$(this).val($(this).attr('data-place'));
 		}
-	});*/
+	});
 	$('textarea').focus(function() {
 		if($(this).attr('data-place')==$(this).val()) {
 			$(this).val('');
@@ -27,7 +27,7 @@ $(document).ready(function() {
 		if($(this).val().length==0) {
 			$(this).val(ff);
 		}
-	});
+	});*/
 	function ress() {
 		if($('.dc-f1').length>0) {
 			$('.dc-f1').each(function() {

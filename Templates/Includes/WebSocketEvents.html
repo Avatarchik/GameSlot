@@ -60,15 +60,33 @@
         }
     };
 
+    function SortInventoryByLowPrice(num, sort_bool)
+    {
+        var go = true;
+
+        if (sort_bool == 0 && $("li#inventory_sort_by_high_price").hasClass("active") == true)
+        {
+            go = false;
+        }
+        else if (sort_bool == 1 && $("li#inventory_sort_by_low_price").hasClass("active") == true)
+        {
+            go = false;
+        }
+
+        if (go)
+        {
+            USERS_INVENTORY_SORT = sort_bool;
+            INVENTORY_ITEMS_FROM = 0;
+            GetSteamInventory(num);
+        }
+        return false;
+    }
+
     function Inventory_GetNextPage(num)
     {
         if (!inventory_getlastpage_disabled) {
             INVENTORY_ITEMS_FROM = INVENTORY_ITEMS_FROM + num;
             GetSteamInventory(num);
-
-            inventory_getfirstpage_disabled = false;
-            $("div#steam_inventory_pagination a#first").attr("href", "");
-            $("div#steam_inventory_pagination a#before").attr("href", "");
         }
 
         return false;
@@ -79,10 +97,6 @@
         if (!inventory_getfirstpage_disabled) {
             INVENTORY_ITEMS_FROM = INVENTORY_ITEMS_FROM - num;
             GetSteamInventory(num);
-
-            inventory_getlastpage_disabled = false;
-            $("div#steam_inventory_pagination a#next").attr("href", "");
-            $("div#steam_inventory_pagination a#last").attr("href", "");
         }
         return false;
     }
@@ -92,10 +106,6 @@
         if (!inventory_getfirstpage_disabled) {
             INVENTORY_ITEMS_FROM = 0;
             GetSteamInventory(num);
-
-            inventory_getlastpage_disabled = false;
-            $("div#steam_inventory_pagination a#next").attr("href", "");
-            $("div#steam_inventory_pagination a#last").attr("href", "");
         }
         return false;
     }
@@ -106,10 +116,6 @@
         {
             INVENTORY_ITEMS_FROM = USERS_ITEMS_IN_INVENTORY - num;
             GetSteamInventory(num);
-
-            inventory_getfirstpage_disabled = false;
-            $("div#steam_inventory_pagination a#first").attr("href", "");
-            $("div#steam_inventory_pagination a#before").attr("href", "");
         }
         return false;
     }
@@ -162,6 +168,23 @@
                 items_content += items_html;
             }
 
+            if (USERS_INVENTORY_SORT == 0)
+            {
+                $("li#inventory_sort_by_high_price").attr("class", "active");
+                $("li#inventory_sort_by_high_price a").removeAttr("href");
+
+                $("li#inventory_sort_by_low_price").removeClass("active");
+                $("li#inventory_sort_by_low_price a").attr("href", "");
+            }
+            else if (USERS_INVENTORY_SORT == 1)
+            {
+                $("li#inventory_sort_by_low_price").attr("class", "active");
+                $("li#inventory_sort_by_low_price a").removeAttr("href");
+
+                $("li#inventory_sort_by_high_price").removeClass("active");
+                $("li#inventory_sort_by_high_price a").attr("href", "");
+            }
+
             $("div#steam_iventory").html(items_content);
 
             setTimeout(function () {
@@ -177,19 +200,41 @@
 
             $("div#steam_inventory_pagination").removeClass("active");
 
-            if (USERS_ITEMS_IN_INVENTORY == INVENTORY_ITEMS_FROM + INVENTORY_ITEMS_NUM) {
-                inventory_getlastpage_disabled = true;
-                $("div#steam_inventory_pagination a#next").removeAttr("href");
-                $("div#steam_inventory_pagination a#last").removeAttr("href");
-            }
-                
-            if (INVENTORY_ITEMS_FROM == 0){
+            if (INVENTORY_ITEMS_FROM <= 0)
+            {
                 inventory_getfirstpage_disabled = true;
                 $("div#steam_inventory_pagination a#first").removeAttr("href");
                 $("div#steam_inventory_pagination a#before").removeAttr("href");
+                $("div#steam_inventory_pagination a#first").addClass("diss");
+                $("div#steam_inventory_pagination a#before").addClass("diss");
+            }
+            else
+            {
+                inventory_getfirstpage_disabled = false;
+                $("div#steam_inventory_pagination a#first").attr("href", "");
+                $("div#steam_inventory_pagination a#before").attr("href", "");;
+                $("div#steam_inventory_pagination a#first").removeClass("diss");
+                $("div#steam_inventory_pagination a#before").removeClass("diss");
             }
 
-            if(USERS_ITEMS_IN_INVENTORY >= INVENTORY_ITEMS_NUM)
+            if (USERS_ITEMS_IN_INVENTORY <= (INVENTORY_ITEMS_FROM + INVENTORY_ITEMS_NUM))
+            {
+                inventory_getlastpage_disabled = true;
+                $("div#steam_inventory_pagination a#next").removeAttr("href");
+                $("div#steam_inventory_pagination a#last").removeAttr("href");
+                $("div#steam_inventory_pagination a#next").addClass("diss");
+                $("div#steam_inventory_pagination a#last").addClass("diss");
+            }
+            else
+            {
+                inventory_getlastpage_disabled = false;
+                $("div#steam_inventory_pagination a#next").attr("href", "");
+                $("div#steam_inventory_pagination a#last").attr("href", "");;
+                $("div#steam_inventory_pagination a#next").removeClass("diss");
+                $("div#steam_inventory_pagination a#last").removeClass("diss");
+            }
+
+            if(USERS_ITEMS_IN_INVENTORY > INVENTORY_ITEMS_NUM)
             {
                 $("div#steam_inventory_pagination").attr('style', "display:block;");
             }

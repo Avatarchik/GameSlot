@@ -119,15 +119,23 @@ namespace GameSlot.Pages.Includes
                             else
                             {
                                 string StrItems = "";
-                                Logger.ConsoleLog("From num: " + FromNum + " ItemsNum:" + ItemsNum);
-
                                 List<USteamItem> SteamItems = Helper.SteamItemsHelper.SearchByString(Inventory.SteamItems, wsdata[5]);
+
                                 if(SortByLowPrice == 1)
                                 {
                                     SteamItems = (from it in SteamItems orderby it.Price ascending select it).ToList();
                                 }
 
-                                for (int i = FromNum; i < FromNum + Math.Min(ItemsNum, SteamItems.Count); i++)
+                                if(FromNum < 0)
+                                {
+                                    FromNum = 0;
+                                }
+                                else if (FromNum > ItemsNum && FromNum == SteamItems.Count)
+                                {
+                                    FromNum -= ItemsNum;
+                                }
+                                Logger.ConsoleLog("From num: " + FromNum + " ItemsNum:" + ItemsNum);
+                                for (int i = FromNum; i < Math.Min(FromNum + ItemsNum, SteamItems.Count); i++)
                                 {
                                     StrItems += WebSocketPage.InventoryItemToString(SteamItems[i]);
                                 }
