@@ -240,7 +240,7 @@ namespace GameSlot.Pages.Includes
                                     Helper.UserHelper.Table.UpdateByID(user, user.ID);
                                 }
 
-                                client.SendWebsocket("UpdateTradeURL" + BaseFuncs.WSplit + "1");
+                                client.SendWebsocket("UpdateTradeURL" + BaseFuncs.WSplit + "1" + BaseFuncs.WSplit + partner + BaseFuncs.WSplit + token);
                                // Logger.ConsoleLog("upd!");
                             }
                         }

@@ -5912,12 +5912,14 @@ body.vn3 #page #header .r-head .ct-t3 span {
 }
 #content2 .bl-ov-et1 .head-bl-et1 .av-ll1 div {
   float: left;
+  width: 114px;
 }
 #content2 .bl-ov-et1 .head-bl-et1 .av-ll1 div div {
   float: none;
   height: 73px;
   display: table-cell;
   vertical-align: middle;
+  word-break: break-all;
 }
 #content2 .bl-ov-et1 .head-bl-et1 .av-ll1 div div span {
   display: block;
@@ -11620,7 +11622,7 @@ body.vn3 #page #header .r-head .ct-t3 span {
   font-size: 0.01px;
   border-bottom: 9px solid #090702;
 }
-#header3 .nohead {
+#header3.nohead {
   border: none;
 }
 #header3:before {

@@ -8,7 +8,7 @@
 {{set List<USteamItem> LocalSteamInventory = (List<USteamItem>) PageData["LocalSteamInventory"]}}
 {{set bool SteamInventoryLoaded = (bool) PageData["SteamInventoryLoaded"]}}
 {{set UsersInventory UsersInventory = (UsersInventory) PageData["UsersInventory"]}}
-
+{{set XUser user = (XUser) PageData["User"]}}
 
 <body class="vn1">
     <script>
@@ -34,6 +34,8 @@
     </div>
 
 	<div id="page">
+        {{include GameSlot UpHeader}}
+
         <div class="ft-img1"><span>
             {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
                 <img src="/cached_files/img/b2.png" alt="">
@@ -42,6 +44,7 @@
                 <img src="/cached_files/img/b3.png" alt="">
             {{end}}
         </span></div>
+
         {{include GameSlot Header}}
         <section id="content">
             <div class="ct">
@@ -61,7 +64,28 @@
                         </div>
                     </div>
                 </div>
-                <!--<div class="tit-pr-stl1">Игровые фишки</div>
+
+                <div class="search-steam" id="steam_trade_form">
+                    <span>Мой Steam Trade URL</span>
+
+                    {{if(user.TradePartner == 0 || user.TradeToken.Length == 0)}}
+                        <div class="over-ev-it1 err">
+                            <input type="text" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=139041672&token=IHERy8ya" id="steam_trade_url">
+                            <div class="error-hide1"><div class="ev-pp1"><div><i id="trade_url_error">Не введена ссылка</i></div></div></div>
+                        </div>
+                        <div class="sub-st-e1 active" id="trade_url_btn"><own>Сохранить</own><input type="submit" value="" onclick="return UpdateTradeURL();"></div>
+                    {{end}}
+                    {{else}}
+                        <div class="over-ev-it1">
+                            <input type="text" value='https://steamcommunity.com/tradeoffer/new/?partner={{=user.TradePartner}}&token={{=user.TradeToken}}' id="steam_trade_url">
+                            <div class="error-hide1"><div class="ev-pp1"><div><i id="trade_url_error">Не введена ссылка</i></div></div></div>
+                        </div>
+                        <div class="sub-st-e1 active" id="trade_url_btn"><own>Сохранено</own><input type="submit" value="" onclick="return UpdateTradeURL();"></div>
+                    {{end}}
+
+                </div>
+
+                <div class="tit-pr-stl1">Игровые фишки</div>
                 <div class="stl-vl1">
                     <div class="text-left-ll1">
                         <p>Вы можете ставить игровые фишки вместо предметов.</p>
@@ -95,7 +119,7 @@
                         </div>
                     </div>
                 </div>
-                -->
+                
                 <div class="sz1-modal1">
                     <div class="rr1 rr2">
                         <div class="sp-top-st1">
@@ -212,5 +236,45 @@
         {{include GameSlot Footer}}
     </div>
     <div class="up1"></div>
+
+    <script>
+
+        {{if(user.TradePartner == 0 || user.TradeToken.Length == 0)}}
+        var trade_ok = false;
+        {{end}}
+        {{else}}
+        var trade_ok = true;
+        {{end}}
+
+        var trade_url = "";
+
+        $("document").ready(function ()
+        {
+            trade_url = $("input#steam_trade_url").val();
+            $("input#steam_trade_url").keyup(function () {
+                if ($("input#steam_trade_url").val() == trade_url) {
+                    $("div#trade_url_btn").attr("class", "sub-st-e1 active");
+                    $("div#trade_url_btn own").text("Сохранено");
+                }
+                else {
+                    $("div#trade_url_btn").attr("class", "sub-st-e1");
+                    $("div#trade_url_btn own").text("Сохранить");
+                }
+            });
+
+            $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
+                $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
+            });
+        });
+
+        function UpdateTradeURL()
+        {
+            console.log("UpdateTradeURL{{=BaseFuncs.WSplit}}" + $("input#steam_trade_url").val());
+            if($("div#trade_url_btn").hasClass("active") == false){
+                ws.send("UpdateTradeURL{{=BaseFuncs.WSplit}}" + $("input#steam_trade_url").val());
+                console.log("UpdateTradeURL{{=BaseFuncs.WSplit}}" + " sending..");
+            }
+        }
+    </script>
 </body>
 </html>

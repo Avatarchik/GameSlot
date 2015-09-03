@@ -86,6 +86,7 @@
     <Compile Include="Pages\Images\ReturnChipsImage.cs" />
     <Compile Include="Pages\Images\ReturnSteamImage.cs" />
     <Compile Include="Pages\Includes\Footer.cs" />
+    <Compile Include="Pages\Includes\UpHeader.cs" />
     <Compile Include="Pages\Includes\Payment.cs" />
     <Compile Include="Pages\Includes\Last.cs" />
     <Compile Include="Pages\Includes\WebSocket.cs" />
@@ -178,7 +179,6 @@
     <EmbeddedResource Include="Content\Cache\css\ie8.css" />
     <EmbeddedResource Include="Content\Cache\css\jquery_mCustomScrollbar.css" />
     <EmbeddedResource Include="Content\Cache\css\owl_carousel.css" />
-    <EmbeddedResource Include="Content\Cache\css\screen.css" />
     <EmbeddedResource Include="Content\Cache\img\4-5_loading-icon.gif" />
     <EmbeddedResource Include="Content\Cache\img\4_5-load2.png" />
     <EmbeddedResource Include="Content\Cache\img\4_5-load3.png" />
@@ -558,7 +558,6 @@
     <EmbeddedResource Include="Content\Cache\img\vt11.png" />
     <EmbeddedResource Include="Content\Cache\img\vt2.png" />
     <EmbeddedResource Include="Content\Cache\img\vt22.png" />
-    <EmbeddedResource Include="Content\Cache\img\vt3.png" />
     <EmbeddedResource Include="Content\Cache\img\winner.png" />
     <EmbeddedResource Include="Content\Cache\img\winners2.png" />
     <EmbeddedResource Include="Content\Cache\img\wt1.png" />
@@ -569,7 +568,6 @@
     <EmbeddedResource Include="Content\Cache\img\wt6.png" />
     <EmbeddedResource Include="Content\Cache\js\accounting_min.js" />
     <EmbeddedResource Include="Content\Cache\js\actions.js" />
-    <EmbeddedResource Include="Content\Cache\js\common.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery-ui.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery-ui_min.js" />
     <EmbeddedResource Include="Content\Cache\js\jquery_easing_1_3.js" />
@@ -579,6 +577,18 @@
     <EmbeddedResource Include="Content\Cache\js\jquery_placeholder.js" />
     <EmbeddedResource Include="Content\Cache\js\owl_carousel_min.js" />
     <EmbeddedResource Include="Content\Cache\js\rull.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\img\vt3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\UpHeader.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\js\common.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\css\screen.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

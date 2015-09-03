@@ -46,6 +46,11 @@ $(document).ready(function() {
 		$('input[type=text]').each(function() {
 			$(this).attr('data-place',$(this).val());
 		});
+		if($('#header3').length>0) {
+			if($('#header2').length==0) {
+				$('#header3').addClass('nohead')
+			}
+		}
 		$('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function() {
 			$(this).find('.tiltp').css({'margin-left':-($(this).find('.tiltp').width()*0.5+10)})
 		});

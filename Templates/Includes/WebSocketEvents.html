@@ -254,7 +254,26 @@
 
         if(GetMyInventoryPage)
         {
-            LoadSteamInventoryData(data);        
+            LoadSteamInventoryData(data);
+
+            if (data[0] == "UpdateTradeURL")
+            {
+                if (data[1] == "0") {
+                    $("div#steam_trade_form").addClass("err");
+                    $("i#trade_url_error").text("Steam Trade URL указан неверно!");
+                    $("div#trade_url_btn").attr("class", "sub-st-e1");
+                    $("div#trade_url_btn own").text("Сохранить");
+                    trade_ok = false;
+                }
+                else if (data[1] == "1") {
+                    $("div#steam_trade_form").removeClass("err");
+                    $("div#trade_url_btn").attr("class", "sub-st-e1 active");
+                    $("div#trade_url_btn own").text("Сохранено");
+                    trade_ok = true;
+
+                    trade_url = 'https://steamcommunity.com/tradeoffer/new/?partner=' + data[2] + '&token=' + data[3];
+                }
+            }
         }
 
         else if (MyGroupPageConnect)

@@ -70,6 +70,7 @@ namespace GameSlot.Pages.UserPages
                 data.Add("LocalSteamInventory", Helper.UserHelper.GetSteamLocalInventory(User.ID, SteamGameID));
                 data.Add("LocalTotalPrice", total_local_price);
                 data.Add("Title", "Мой инвентарь");
+                data.Add("User", User);
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }
