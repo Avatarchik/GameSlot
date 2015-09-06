@@ -510,7 +510,7 @@
                 var random_hash = "j_" + data[17] + "_" + data[14];
                 html_block = html_block.replace("[RANDOM_HASH]", random_hash);
 
-                var otherbets = data[13].split('↓');
+                /*var otherbets = data[13].split('↓');
                 var addition_bets = "";
 
                 if (otherbets.length > 1)
@@ -533,6 +533,8 @@
                 {
                     html_block = html_block.replace("[diss_btn]", '<a href="" class="sp-tt1 diss1" dt="2"></a>');
                 }
+                html_block = html_block.replace("[diss_btn]", '<a href="" class="sp-tt1 diss1" dt="2" style="display:none;"></a>');
+                */
 
                 var bet_items = data[19].split("↓");
                 var addition_items = "";
@@ -560,7 +562,7 @@
                     addition_items += items_html;
                 }
 
-                html_block = html_block.replace("[OTHER_BETS]", addition_bets);
+                /*html_block = html_block.replace("[OTHER_BETS]", addition_bets);*/
                 html_block = html_block.replace("[BETS_ITEMS]", addition_items);
                 $("span#first_position").after(html_block);
 

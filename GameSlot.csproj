@@ -64,6 +64,7 @@
     <Compile Include="Database\XChipCustomer.cs" />
     <Compile Include="Database\XChipUsersInventory.cs" />
     <Compile Include="Database\XLotteryPercentage.cs" />
+    <Compile Include="Database\XLotteryUsersBetsPrice.cs" />
     <Compile Include="Database\XLotteryUsersMemory.cs" />
     <Compile Include="Database\XOrder.cs" />
     <Compile Include="Database\XSteamBot.cs" />
@@ -594,6 +595,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\css\screen.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\wm\wm_enemy.png" />
+    <EmbeddedResource Include="Content\Cache\wm\wm_our.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

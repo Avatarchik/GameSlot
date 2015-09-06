@@ -63,11 +63,11 @@ namespace GameSlot.Pages.Lotteries
                 data.Add("User", user);
             }
 
-            Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID);
+            Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID, client);
             data.Add("Lottery", Lottery);
 
-            data.Add("TopItems", Helper.LotteryHelper.GetTopItems(Lottery.ID, 7));
-            data.Add("Bets", Helper.LotteryHelper.GetBets(Lottery.ID));
+            data.Add("TopItems", Helper.LotteryHelper.GetTopItems(Lottery.ID, 7, client));
+            data.Add("Bets", Helper.LotteryHelper.GetBets(Lottery.ID, client));
 
             int items;
             data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items).ToString("###,##0.00"));

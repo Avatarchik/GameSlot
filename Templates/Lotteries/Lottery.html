@@ -119,7 +119,7 @@
                         </div>
                         <div class="dj2">
                             <div><span></span></div>
-                            <i class="baks">0.00</i>
+                            <i class="">0</i>
                         </div>
                         <div class="action-chet1">
                             <div class="tit-chet1">Ожидание первой ставки</div>
@@ -170,7 +170,7 @@
                         </div>
                         <div class="dj2">
                             <div><span></span></div>
-                            <i class="baks" id="jackpot_price">{{=Lottery.JackpotPrice_Str}}</i>
+                            <i class="" id="jackpot_price">{{=Lottery.JackpotPrice_Str}}</i>
                             <b class="eft-pl1 price_jackpot_alert"></b>
                         </div>
                         <div class="action-chet1">
@@ -218,7 +218,7 @@
                             <div class="item">
                                 <div class="item-ic-t1">
                                     <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
-                                    <span class="baks">{{=Item.Price_Str}}</span>
+                                    <span class="">{{=Item.Price_Str}}</span>
                                     <a href=""></a>
                                     <div class="tiltp">{{=Item.Name}}</div>
                                 </div>
@@ -326,7 +326,7 @@
                         </div>
                         <div class="dj2">
                             <div><span></span></div>
-                            <i class="baks" id="jackpot_price">0</i>
+                            <i class="" id="jackpot_price">0</i>
                             <b class="eft-pl1 price_jackpot_alert"></b>
                         </div>
                         <div class="action-chet1">
@@ -372,7 +372,7 @@
             <div class="item">
                 <div class="item-ic-t1">
                     [image]
-                    <span class="baks">[price]</span>
+                    <span class="">[price]</span>
                     <a href=""></a>
                     <div class="tiltp">[name]</div>
                 </div>
@@ -482,14 +482,6 @@
             </div>
         </div>
 
-        <div style="display:none" id="new_bet_mini">
-            <div class="item1">
-                <a href="" class="j1">[ITEMS_NUM]</a>
-                <a href="" class="j2 baks">[TOTAL_PRICE]</a>
-                <a href="" class="j3">[FIRST_TOKEN]-[LAST_TOKEN]</a>
-            </div>
-        </div> 
-
         <div id="new_bet" style="display:none;">
             <div class="bl-ov-et1 ya2" id="user_id_[USER_ID]">
                 <div class="bg-bl-ov1">
@@ -510,17 +502,9 @@
 
                     <div class="bl-st2">
                         <div class="evr1">
-                            <a href="" class="j1">[BET_ITEMS_NUM]</a>
-                            <a href="" class="j2 baks">[BET_PRICE]</a>
-                            <a href="" class="j3">[FIRST_TOKEN]-[LAST_TOKEN]</a>
-                        </div>
-                        <div class="gt1">Предметы</div>
-                        <div class="gt1 gt11">Жетоны</div>
-                        [diss_btn]
-                        <div class="ovr-cont1">
-                            <div class="content3 [RANDOM_HASH]">
-                                [OTHER_BETS]
-                            </div>
+                            <a class="j1" style="margin-left:30px;">[BET_ITEMS_NUM]</a>
+                            <a class="j2 ">[BET_PRICE]</a>
+                            <a class="j3">[FIRST_TOKEN]-[LAST_TOKEN]</a>
                         </div>
                     </div>
 
@@ -532,7 +516,7 @@
                             </div>
                             <div class="rt1">
                                 <p><span>Шанс победы:</span><i class="j3" id="winrate">[WINRATE]%</i></p>
-                                <p><i class="j4 baks" id="total_price">[TOTAL_PRICE]</i></p>
+                                <p><i class="j4" id="total_price">[TOTAL_PRICE]</i></p>
                             </div>
                         </div>
                     </div>
@@ -544,7 +528,7 @@
         <div id="new_bets_items" style="display:none;">
             <div class="item1">
                 <img src="/[items_image]" alt="[items_name]">
-                <span class="baks">[items_price]</span>
+                <span class="">[items_price]</span>
                 <div class="tiltp">[items_name]</div>
             </div>
         </div>
@@ -572,31 +556,10 @@
 
                             <div class="bl-st2">
                                 <div class="evr1">
-                                    <a href="" class="j1">{{=bet.ItemsNum}}</a>
-                                    <a href="" class="j2 baks">{{=bet.Price_Str}}</a>
-                                    <a href="" class="j3">{{=bet.FirstToken.ToString("D8")}}-{{=bet.LastToken.ToString("D8")}}</a>
+                                    <a class="j1" style="margin-left:30px;">{{=bet.ItemsNum}}</a>
+                                    <a class="j2">{{=bet.Price_Str}}</a>
+                                    <a class="j3">{{=bet.FirstToken.ToString("D8")}}-{{=bet.LastToken.ToString("D8")}}</a>
                                 </div>
-                                <div class="gt1">Предметы</div>
-                                <div class="gt1 gt11">Жетоны</div>
-                                {{if(bet.UserBets.Count > 1)}}
-                                    <a href="" class="sp-tt1" dt="0"></a>
-                                    <div class="ovr-cont1">
-                                        <div class="content3">
-                                            {{for(int i = 0; i < Math.Min(15, bet.UserBets.Count); i++)}}
-                                                {{if(bet.UserBets[i].ID != bet.ID)}}
-                                                <div class="item1">
-                                                    <a href="" class="j1">{{=bet.UserBets[i].ItemsNum}}</a>
-                                                    <a href="" class="j2 baks">{{=bet.UserBets[i].TotalPrice_Str}}</a>
-                                                    <a href="" class="j3">{{=bet.UserBets[i].FirstToken.ToString("D8")}}-{{=bet.UserBets[i].LastToken.ToString("D8")}}</a>
-                                                </div>
-                                                {{end}}
-                                            {{end}}
-                                        </div>
-                                    </div>
-                                {{end}}
-                                {{else}}
-                                    <a href="" class="sp-tt1 diss1" dt="2"></a>
-                                {{end}}
                             </div>
 
                             <div class="ov-rr1">
@@ -607,7 +570,7 @@
                                     </div>
                                     <div class="rt1">
                                         <p><span>Шанс победы:</span><i class="j3" id="winrate">{{=bet.Winrate}}%</i></p>
-                                        <p><i class="j4 baks" id="total_price">{{=bet.TotalPrice_Str}}</i></p>
+                                        <p><i class="j4" id="total_price">{{=bet.TotalPrice_Str}}</i></p>
                                     </div>
                                 </div>
                             </div>
@@ -617,7 +580,7 @@
                             {{foreach(Chip chip in bet.Chips)}}
                                 <div class="item1">
                                     <img src="/chip-image/{{=chip.ID}}">
-                                    <span class="baks">{{=chip.Cost_Str}}</span>
+                                    <span class="">{{=chip.Cost_Str}}</span>
                                 </div>
                             {{end}}
 
@@ -625,7 +588,7 @@
                                 <div class="item1">
                                     <!--<img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">-->
                                     <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
-                                    <span class="baks">{{=Item.Price_Str}}</span>
+                                    <span class="">{{=Item.Price_Str}}</span>
                                     <div class="tiltp">{{=Item.Name}}</div>
                                 </div>
                             {{end}}
@@ -674,7 +637,7 @@
             <span style="display:none;" id="item_id">[item_id]</span>
 
             [item_steam_image]
-            <span class="baks">[item_price]</span>
+            <span class="">[item_price]</span>
 
             <a href="" onclick="return hh([item_assert_id]);"></a>
             <div class="tiltp">[item_name]</div>  
@@ -837,7 +800,7 @@
                                     <div class="tit-bl1">
                                         <div class="ef1" id="local_steam_inventory_items_num">0</div>
                                         <div class="ef2">Суммарная<br>стоимость:</div>
-                                        <div class="ef3 baks" id="local_steam_inventory_total_price">0</div>
+                                        <div class="ef3" id="local_steam_inventory_total_price">0</div>
                                         <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
                                     </div>
                                     <div class="search1">
@@ -899,7 +862,7 @@
                                                 <span style="display:none;" id="item_id">{{=Item.ID}}</span>
 
                                                 <img src="/chip-image/{{=Item.ID}}" alt="{{=Item.Cost_Str}}">
-                                                <span class="baks">{{=Item.Cost_Str}}</span>
+                                                <span class="">{{=Item.Cost_Str}}</span>
                                                 <a href="" onclick="return hh({{=Item.AssertID}});"></a>
                                                 <div class="tiltp">{{=Item.Cost_Str}}</div>
                                             </div>                                           

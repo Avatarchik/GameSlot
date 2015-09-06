@@ -73,7 +73,7 @@ namespace GameSlot.Helpers
 
         public bool GetCurrentUser(Client client, out XUser user)
         {
-            if (client.Session["User"] != null && this.Table.SelectByID((uint)client.Session["User"], out user))
+            if (client.Session.Contains("User") && client.Session["User"] != null && this.Table.SelectByID((uint)client.Session["User"], out user))
             {
                 return true;
             }
@@ -576,15 +576,20 @@ namespace GameSlot.Helpers
         public ushort GetCurrency(Client client)
         {
             XUser user;
-            if(this.GetCurrentUser(client, out user))
+            if (client != null && client.Session != null)
             {
-                return user.Currency;
+                if (this.GetCurrentUser(client, out user))
+                {
+                    //Logger.ConsoleLog("USER" + user.Currency);
+                    return user.Currency;
+                }
+                else if (client.Session.Contains("Currency") && ((int)client.Session["Currency"] == 1))
+                {
+                    //Logger.ConsoleLog("USER" + client.Session["Currency"]);
+                    return 1;
+                }
             }
-            else if (client.Session["Currency"] != null && client.Session["Currency"].Equals("1"))
-            {
-                return 1;
-            }
-
+            //Logger.ConsoleLog("STANDART 0");
             return 0;
         }
     }

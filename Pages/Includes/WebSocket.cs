@@ -447,38 +447,25 @@ namespace GameSlot.Pages.Includes
             Logger.ConsoleLog("Send WS TO USER!! status: " + status, ConsoleColor.Yellow);
         }*/
 
-        public static void AddNewLotteryBet(XLotteryBet XBet, double Bank, int BankItemsNum, int ExtraTime, int LotteryLeftTime)
+        public static void AddNewLotteryBet(XLotteryBet XBet, int ExtraTime, int LotteryLeftTime)
         {
             if (WebSocketPage.ClientsLotteryPage.ContainsKey(XBet.LotteryID))
             {
-                double TotalPrice = 0d;
-                int TotalItemsNum = 0;
-
                 XUser user;
                 Helper.UserHelper.Table.SelectByID(XBet.UserID, out user);
+
+                XLotteryUsersBetsPrice XLotteryUsersBetsPrice;
+                Helper.LotteryHelper.TableUsersBetsPrice.SelectOne(data => data.UserID == XBet.UserID && data.LotteryID == XBet.LotteryID, out XLotteryUsersBetsPrice);
+
+                double TotalPrice = XLotteryUsersBetsPrice.TotalBetsPrice;
+                int TotalItemsNum = XLotteryUsersBetsPrice.TotalBetsItemsNum;
+                int BetsCount = XLotteryUsersBetsPrice.BetsCount;
+
                 // first_token : last_token : bet_items_num : bet_price ↓
                 string OtherBets = "";
+                XLottery lottery = Helper.LotteryHelper.Table.SelectByID(XBet.LotteryID);
 
-                uint count = 0;
-                XLotteryBet[] XUsersBets;
-                if (Helper.LotteryHelper.TableBet.SelectArrFromEnd(data => data.LotteryID == XBet.LotteryID && data.UserID == XBet.UserID, out XUsersBets))
-                {
-                    int ItemsNum;
-                    double price;
-                    for (int i = 0; i < XUsersBets.Length; i++)
-                    {
-                        TotalItemsNum += ItemsNum = XUsersBets[i].SteamItemsNum + XUsersBets[i].ChipsNum;
-                        TotalPrice += price = XUsersBets[i].TotalPrice;
-
-                        if (count < 15 && XUsersBets[i].ID != XBet.ID)
-                        {
-                            OtherBets += XUsersBets[i].FisrtToken.ToString("D8") + "::" + XUsersBets[i].LastToken.ToString("D8") + "::" + ItemsNum + "::" + price.ToString("###,##0.00") + "↓";
-                            count++;
-                        }
-                    }
-                }
-
-                int Winrate = (int)Math.Round(TotalPrice / (Bank / 100));
+                int Winrate = (int)Math.Round(TotalPrice / (lottery.JackpotPrice / 100));
                 if (Winrate > 100)
                 {
                     Winrate = 100;
@@ -490,104 +477,135 @@ namespace GameSlot.Pages.Includes
 
                 List<USteamItem> BankSteamItems;
                 List<Chip> BankChips;
-                Helper.LotteryHelper.GetBetItems(XBet.LotteryID, out BankSteamItems, out BankChips);
+                Helper.LotteryHelper.GetBetItems(XBet.LotteryID, null, out BankSteamItems, out BankChips);
 
-                List<TopPriceItem> TopPriceItems = new List<TopPriceItem>();
-
-                for (int i = 0; i < Math.Min(7, BankSteamItems.Count); i++)
-                {
-                    TopPriceItem TopPriceItem = new TopPriceItem();
-                    TopPriceItem.Type = 0;
-                    TopPriceItem.Price = BankSteamItems[i].Price;
-                    TopPriceItem.Position = i;
-
-                    TopPriceItems.Add(TopPriceItem);
-                }
-
-                for (int i = 0; i < Math.Min(7, BankChips.Count); i++)
-                {
-                    TopPriceItem TopPriceItem = new TopPriceItem();
-                    TopPriceItem.Type = 1;
-                    TopPriceItem.Price = BankChips[i].Cost;
-                    TopPriceItem.Position = i;
-
-                    TopPriceItems.Add(TopPriceItem);
-                }
-
-                TopPriceItems = (from it in TopPriceItems orderby it.Price descending select it).ToList();
-
-                string top_items = "";
-                for(int i = 0; i < Math.Min(7, TopPriceItems.Count); i++)
-                {
-                    TopPriceItem CurTopPriceItem = TopPriceItems[i];
-
-                    // name↓image↓price ; 
-                    if(TopPriceItems[i].Type == 0)
-                    {
-                        top_items += BankSteamItems[CurTopPriceItem.Position].Name + "↓";
-                        top_items += "/steam-image/" + BankSteamItems[CurTopPriceItem.Position].SteamGameID + BankSteamItems[CurTopPriceItem.Position].ID + "↓";
-                        top_items += BankSteamItems[CurTopPriceItem.Position].Price_Str + ";";
-                    }
-                    else
-                    {
-                        top_items += BankChips[CurTopPriceItem.Position].Cost_Str + "↓";
-                        top_items += "/chip-image/" + BankChips[CurTopPriceItem.Position].ID + "↓";
-                        top_items += BankChips[CurTopPriceItem.Position].Cost_Str + ";";
-                    }
-                }
-
-                string GamersStats = "";
-                List<Bet> AllBets = Helper.LotteryHelper.GetBets(XBet.LotteryID, true);
-
-                foreach(Bet UsersBet in AllBets)
-                {
-                    GamersStats += UsersBet.XUser.ID + "↓";
-                    GamersStats += UsersBet.Winrate + "↓";
-                    GamersStats += UsersBet.BetsNum + "↓";
-                    GamersStats += UsersBet.TotalItemsNum + "↓";
-                    GamersStats += UsersBet.TotalPrice_Str + ";";
-                }
+                List<Bet> AllBets = Helper.LotteryHelper.GetBets(XBet.LotteryID, null, true);
 
                 // Logger.ConsoleLog(Winrate + ":" + TotalPrice + "::" + Bank);
-                string ws = "";
-                // 4: ExtraTime
-                ws += Bank.ToString("###,##0.00") + BaseFuncs.WSplit + XBet.TotalPrice + BaseFuncs.WSplit + BankItemsNum + BaseFuncs.WSplit + ExtraTime + BaseFuncs.WSplit;
-                // 5: items_num; 6: totalprice; 7: first_token; 8: last_token
-                ws += XBet.SteamItemsNum + XBet.ChipsNum + BaseFuncs.WSplit + XBet.TotalPrice.ToString("###,##0.00") + BaseFuncs.WSplit + XBet.FisrtToken.ToString("D8") + BaseFuncs.WSplit + XBet.LastToken.ToString("D8") + BaseFuncs.WSplit;
-                // 9: bets_num; 10: TotalPrice (bets); 11: TotalItems (bets); 12: WINRATE 
-                ws += XUsersBets.Length + BaseFuncs.WSplit + TotalPrice.ToString("###,##0.00") + BaseFuncs.WSplit + TotalItemsNum + BaseFuncs.WSplit + Winrate + BaseFuncs.WSplit;
-                // 13: OtherBets; 14: UserID; 15: UserName; 16: UsersAvatar 17: BetID 18: LotteryLeftTime
-                ws += OtherBets + BaseFuncs.WSplit + user.ID + BaseFuncs.WSplit + user.Name + BaseFuncs.WSplit + user.Avatar + BaseFuncs.WSplit + XBet.ID + BaseFuncs.WSplit + LotteryLeftTime + BaseFuncs.WSplit;
-                // 19 (steam_items): ITEM_ID :: GAME_ID, ITEM_NAME, ITEM_PRICE ↓ (REPEAT); 20 (chips): ID :: Price ↓ 
-
-                XLottery lottery = Helper.LotteryHelper.Table.SelectByID(XBet.LotteryID);
-                for (uint i = 0; i < XBet.SteamItemsNum; i++)
-                {
-                    XSteamItem SteamItem;
-                    Helper.SteamItemsHelper.SelectByID(XBet.SteamItemIDs[i], lottery.SteamGameID, out SteamItem);
-                    ws += SteamItem.ID + "::" + lottery.SteamGameID + "::" + SteamItem.Name + "::" + XBet.SteamItemsPrice[i].ToString("###,##0.00") + "↓";
-                }
-
-                ws += BaseFuncs.WSplit;
-                for (uint i = 0; i < XBet.ChipsNum; i++)
-                {
-                    Chip chip;
-                    Helper.ChipHelper.SelectByID(XBet.ChipIDs[i], out chip);
-                    ws += chip.ID + "::" + chip.Cost_Str + "↓";
-                }
-
-                // 21: top_items
-                ws += BaseFuncs.WSplit + top_items;
-                //22: all bets
-                ws += BaseFuncs.WSplit + GamersStats;
 
                 for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XBet.LotteryID].Count; i++)
                 {
-                    /*if (WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i].Closed)
+                    ushort currency = Helper.UserHelper.GetCurrency(ClientsLotteryPage[XBet.LotteryID][i]);
+
+                    List<TopPriceItem> TopPriceItems = new List<TopPriceItem>();
+
+                    for (int g = 0; g < Math.Min(7, BankSteamItems.Count); g++)
                     {
-                        WebSocketPage.ClientsLotteryPage[XBet.LotteryID].Remove(WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i]);
-                        continue;
-                    }*/
+                        TopPriceItem TopPriceItem = new TopPriceItem();
+                        TopPriceItem.Type = 0;
+                        TopPriceItem.Price = BankSteamItems[g].Price;
+                        TopPriceItem.Position = g;
+
+                        TopPriceItems.Add(TopPriceItem);
+                    }
+
+                    for (int g = 0; g < Math.Min(7, BankChips.Count); g++)
+                    {
+                        TopPriceItem TopPriceItem = new TopPriceItem();
+                        TopPriceItem.Type = 1;
+                        TopPriceItem.Price = BankChips[g].Cost;
+                        TopPriceItem.Position = g;
+
+                        TopPriceItems.Add(TopPriceItem);
+                    }
+
+                    TopPriceItems = (from it in TopPriceItems orderby it.Price descending select it).ToList();
+
+                    string top_items = "";
+                    for (int g = 0; g < Math.Min(7, TopPriceItems.Count); g++)
+                    {
+                        TopPriceItem CurTopPriceItem = TopPriceItems[i];
+
+                        // name↓image↓price ; 
+                        if (TopPriceItems[g].Type == 0)
+                        {
+                            top_items += BankSteamItems[CurTopPriceItem.Position].Name + "↓";
+                            top_items += "/steam-image/" + BankSteamItems[CurTopPriceItem.Position].SteamGameID + BankSteamItems[CurTopPriceItem.Position].ID + "↓";
+
+                            if (currency == 1)
+                            {
+                                double price = BankSteamItems[CurTopPriceItem.Position].Price * lottery.RubCurrency;
+                                top_items += price.ToString("###,###,###") + ";";
+                            }
+                            else
+                            {
+                                top_items += BankSteamItems[CurTopPriceItem.Position].Price_Str + ";";
+                            }
+                        }
+                        else
+                        {
+                            top_items += BankChips[CurTopPriceItem.Position].Cost_Str + "$↓";
+                            top_items += "/chip-image/" + BankChips[CurTopPriceItem.Position].ID + "↓";
+                            if (currency == 1)
+                            {
+                                double price = BankChips[CurTopPriceItem.Position].Cost * lottery.RubCurrency;
+                                top_items += price.ToString("###,###,###") + ";";
+                            }
+                            else
+                            {
+                                top_items += BankChips[CurTopPriceItem.Position].Cost + ";";
+                            }
+                        }
+                    }
+
+                    string ws = "";
+                    string TotalPrice_Str;
+                    // 1: bank
+                    if (currency == 1)
+                    {
+                        ws = (lottery.JackpotPrice * lottery.RubCurrency).ToString("###,###,###");
+                        TotalPrice_Str = (TotalPrice * lottery.RubCurrency).ToString("###,###,###");
+                    }
+                    else
+                    {
+                        ws = lottery.JackpotPrice.ToString("###,##0.00");
+                        TotalPrice_Str = TotalPrice.ToString("###,##0.00");
+                    }
+
+                    // 4: ExtraTime
+                    ws += BaseFuncs.WSplit + XBet.TotalPrice + BaseFuncs.WSplit + lottery.JackpotItemsNum + BaseFuncs.WSplit + ExtraTime + BaseFuncs.WSplit;
+                    // 5: items_num; 6: totalprice; 7: first_token; 8: last_token
+                    ws += XBet.SteamItemsNum + XBet.ChipsNum + BaseFuncs.WSplit + TotalPrice_Str + BaseFuncs.WSplit + XBet.FisrtToken.ToString("D8") + BaseFuncs.WSplit + XBet.LastToken.ToString("D8") + BaseFuncs.WSplit;
+                    // 9: bets_num; 10: TotalPrice (bets); 11: TotalItems (bets); 12: WINRATE 
+                    ws += BetsCount + BaseFuncs.WSplit + BaseFuncs.WSplit + TotalItemsNum + BaseFuncs.WSplit + Winrate + BaseFuncs.WSplit;
+                    // 13: OtherBets; 14: UserID; 15: UserName; 16: UsersAvatar 17: BetID 18: LotteryLeftTime
+                    ws += OtherBets + BaseFuncs.WSplit + user.ID + BaseFuncs.WSplit + user.Name + BaseFuncs.WSplit + user.Avatar + BaseFuncs.WSplit + XBet.ID + BaseFuncs.WSplit + LotteryLeftTime + BaseFuncs.WSplit;
+                    // 19 (steam_items): ITEM_ID :: GAME_ID, ITEM_NAME, ITEM_PRICE ↓ (REPEAT); 20 (chips): ID :: Price ↓ 
+
+                    for (uint g = 0; g < XBet.SteamItemsNum; g++)
+                    {
+                        XSteamItem SteamItem;
+                        Helper.SteamItemsHelper.SelectByID(XBet.SteamItemIDs[g], lottery.SteamGameID, out SteamItem);
+                        ws += SteamItem.ID + "::" + lottery.SteamGameID + "::" + SteamItem.Name + "::" + XBet.SteamItemsPrice[g].ToString("###,##0.00") + "↓";
+                    }
+
+                    ws += BaseFuncs.WSplit;
+                    for (uint g = 0; g < XBet.ChipsNum; g++)
+                    {
+                        Chip chip;
+                        Helper.ChipHelper.SelectByID(XBet.ChipIDs[g], out chip);
+                        ws += chip.ID + "::" + chip.Cost_Str + "↓";
+                    }
+
+                    // 21: top_items
+                    ws += BaseFuncs.WSplit + top_items;
+
+                    string GamersStats = "";
+                    foreach (Bet UsersBet in AllBets)
+                    {
+                        GamersStats += UsersBet.XUser.ID + "↓";
+                        GamersStats += UsersBet.Winrate + "↓";
+                        GamersStats += UsersBet.BetsNum + "↓";
+                        GamersStats += UsersBet.TotalItemsNum + "↓";
+
+                        if(currency == 1)
+                            GamersStats += (UsersBet.TotalPrice * lottery.RubCurrency).ToString("###,###,###") + ";";
+                        else
+                            GamersStats += UsersBet.TotalPrice_Str + ";";
+                    }
+
+                    //22: all bets
+                    ws += BaseFuncs.WSplit + GamersStats;
 
                     WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i].SendWebsocket("AddedNewLotteryBet" + BaseFuncs.WSplit + ws);
                 }

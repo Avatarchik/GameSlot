@@ -105,7 +105,7 @@ namespace GameSlot.Pages
                         for (int x = 0; x < 1; x++)
                         {
                             //Stopwatch sw = Stopwatch.StartNew();
-                            Helper.LotteryHelper.SetBet(Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID).ID, user.ID, usi, Chips, client);
+                            Helper.LotteryHelper.SetBet(Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID, client).ID, user.ID, usi, Chips, client);
  
 
                         }

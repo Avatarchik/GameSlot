@@ -23,8 +23,6 @@ namespace GameSlot.Types
         public int FirstToken;
         public int LastToken;
 
-        public List<Bet> UserBets;
-
         public XUser XUser;
 
         public int Winrate;

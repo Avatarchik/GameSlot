@@ -23,8 +23,8 @@ namespace GameSlot.Pages
         {
 
             Hashtable data = new Hashtable();
-            data.Add("Lottery_CSGO", Helper.LotteryHelper.GetCurrent(Configs.CSGO_STEAM_GAME_ID));
-            data.Add("Lottery_DOTA", Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID));
+            data.Add("Lottery_CSGO", Helper.LotteryHelper.GetCurrent(Configs.CSGO_STEAM_GAME_ID, client));
+            data.Add("Lottery_DOTA", Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID, client));
 
             int today_i_d2, today_i_cs;
             double today_p_d2, today_p_cs;
