@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 1004, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 1006, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XUser
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -124,5 +124,10 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.R8)]
         [FieldOffset(996)]
         public double GotPriceFromGroup;
+
+        // 0: usd; 1: rub
+        [MarshalAs(UnmanagedType.U2)]
+        [FieldOffset(1004)]
+        public ushort Currency;
     }
 }

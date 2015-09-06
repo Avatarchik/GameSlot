@@ -17,14 +17,8 @@ namespace GameSlot.Types
         public double Price = 0d;
         public double TotalPrice = 0d;
 
-        public double RUB_Price = 0d;
-        public double RUB_TotalPrice = 0d;
-
         public string Price_Str;
         public string TotalPrice_Str;
-
-        public string RUB_Price_Str;
-        public string RUB_TotalPrice_Str;
 
         public int FirstToken;
         public int LastToken;

@@ -15,9 +15,6 @@ namespace GameSlot.Types
         public double JackpotPrice;
         public string JackpotPrice_Str;
 
-        public double RUB_JackpotPrice;
-        public string RUB_JackpotPrice_Str;
-
         public int JackpotItems;
 
         public double RaundNumber;
@@ -34,8 +31,6 @@ namespace GameSlot.Types
         public int WinnersBetItemsNum;
         public double WinnersBetPrice;
         public string WinnersBetPrice_Str;
-
-        public string RUB_WinnersBetPrice_Str;
 
         public int StartTimeNextGame;
         public int LeftTimeNextGame;

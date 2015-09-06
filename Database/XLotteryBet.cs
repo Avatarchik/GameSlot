@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 912, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 904, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XLotteryBet
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -70,9 +70,5 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.R8)]
         [FieldOffset(896)]
         public double TotalPrice;
-
-        [MarshalAs(UnmanagedType.R8)]
-        [FieldOffset(904)]
-        public double Rub_ExchangeRate;
     }
 }
