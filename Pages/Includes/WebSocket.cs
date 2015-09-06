@@ -537,7 +537,7 @@ namespace GameSlot.Pages.Includes
                 }
 
                 string GamersStats = "";
-                List<Bet> AllBets = Helper.LotteryHelper.GetBets(XBet.LotteryID);
+                List<Bet> AllBets = Helper.LotteryHelper.GetBets(XBet.LotteryID, true);
 
                 foreach(Bet UsersBet in AllBets)
                 {
