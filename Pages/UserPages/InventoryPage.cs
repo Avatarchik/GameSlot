@@ -48,27 +48,9 @@ namespace GameSlot.Pages.UserPages
                     return false;
                 }
 
-                string total_local_price;
-                //List<USteamItem> LocalItems = Helper.UserHelper.GetSteamLocalInventory(User.ID, SteamGameID);
-                Helper.UserHelper.GetLocalSteamInventoryTotalPrice(User.ID, SteamGameID, out total_local_price);
-                UsersInventory UsersInventory;
-
                 Hashtable data = new Hashtable();
-                if(Helper.UserHelper.GetSteamInventory(User, SteamGameID, out UsersInventory))
-                {
-                    data.Add("SteamInventoryLoaded", true);
-                    data.Add("UsersInventory", UsersInventory);
-                }
-                else
-                {
-                    data.Add("SteamInventoryLoaded", false);
-                    data.Add("UsersInventory", null);
-                }
-
                 data.Add("SteamGameID", SteamGameID);
                 data.Add("Chips", Helper.UserHelper.GetChipInventory(User.ID));
-                data.Add("LocalSteamInventory", Helper.UserHelper.GetSteamLocalInventory(User.ID, SteamGameID));
-                data.Add("LocalTotalPrice", total_local_price);
                 data.Add("Title", "Мой инвентарь");
                 data.Add("User", User);
                 client.HttpSend(TemplateActivator.Activate(this, client, data));

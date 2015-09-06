@@ -1,7 +1,7 @@
 var sp=108;
 var sp2;
 var sp3;
-var time1=450;
+var time1=350;
 var flags1=0
 $('.bg-stl1').click(function() {
 	if(flags1==0) {
@@ -43,7 +43,7 @@ function rull() {
 			$('.rr-chet1').text($('.ov-elem1.j1 .item1.win1').attr('dt'));
 			rrch();
 			$('.ov-elem1.j2').stop();
-			$('.ov-elem1.j2').animate({right:-(sp3*sp+40-54)}, 600, 'linear');
+			$('.ov-elem1.j2').animate({right:-(sp3*sp+40-54)}, 900, 'linear');
 			$('.ov-elem1.j2 .item1.win1').animate({marginLeft:'58px',marginRight:'58px'}, 600, 'linear');
 			setTimeout(function() {
 				$('.ov-elem1.j1').stop();

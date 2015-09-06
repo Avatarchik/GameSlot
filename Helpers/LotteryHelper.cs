@@ -222,7 +222,7 @@ namespace GameSlot.Helpers
 
 
                         int WinnerBetPercentage = Convert.ToInt32(Math.Round((100 * WinnersBetsPrice) / LastLottery.JackpotPrice));
-                        if (WinnersBetsPrice > 80)
+                        if (WinnersBetsPrice <= 80)
                         {
                             XLotteryPercentage[] XLotteryPercentages;
                             if (this.TablePercentage.SelectArr(data => data.LotteryID == LastLottery.ID, out XLotteryPercentages))
@@ -233,49 +233,49 @@ namespace GameSlot.Helpers
                                     double GroupGetItemPrice = XLotteryPercentages[i].SteamItemsPrice;
                                     double GroupGetChipPrice = XLotteryPercentages[i].ChipPrice;
 
-                                    foreach (USteamItem SteamItem in SteamItems)
+                                    for (int st = 0; st < SteamItems.Count; st++ )
                                     {
                                         if (GroupGetItemPrice < Configs.MIN_ITEMS_PRICE)
                                         {
                                             break;
                                         }
 
-                                        if(SteamItem.Price <= GroupGetItemPrice)
+                                        if (SteamItems[st].Price <= GroupGetItemPrice)
                                         {
                                             GroupOwner.GotItemsFromGroup++;
-                                            GroupOwner.GotPriceFromGroup += SteamItem.Price;
+                                            GroupOwner.GotPriceFromGroup += SteamItems[st].Price;
 
                                             XSItemUsersInventory XSItemUsersInventory = new XSItemUsersInventory();
                                             XSItemUsersInventory.UserID = GroupOwner.ID;
-                                            XSItemUsersInventory.SteamItemID = SteamItem.ID;
-                                            XSItemUsersInventory.AssertID = SteamItem.AssertID;
-                                            XSItemUsersInventory.SteamGameID = SteamItem.SteamGameID;
-                                            XSItemUsersInventory.SteamBotID = SteamItem.SteamBotID;
+                                            XSItemUsersInventory.SteamItemID = SteamItems[st].ID;
+                                            XSItemUsersInventory.AssertID = SteamItems[st].AssertID;
+                                            XSItemUsersInventory.SteamGameID = SteamItems[st].SteamGameID;
+                                            XSItemUsersInventory.SteamBotID = SteamItems[st].SteamBotID;
 
                                             Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
-                                            SteamItems.Remove(SteamItem);
+                                            SteamItems.Remove(SteamItems[st--]);
                                         }
                                     }
 
-                                    foreach (Chip chip in Chips)
+                                    for (int ch = 0; ch < Chips.Count; ch++)
                                     {
                                         if (GroupGetItemPrice < Configs.MIN_ITEMS_PRICE)
                                         {
                                             break;
                                         }
 
-                                        if (chip.Cost <= GroupGetItemPrice)
+                                        if (Chips[ch].Cost <= GroupGetItemPrice)
                                         {
                                             GroupOwner.GotItemsFromGroup++;
-                                            GroupOwner.GotPriceFromGroup += chip.Cost;
+                                            GroupOwner.GotPriceFromGroup += Chips[ch].Cost;
 
                                             XChipUsersInventory XChipUsersInventory = new XChipUsersInventory();
-                                            XChipUsersInventory.UserID = WinnerUserID;
-                                            XChipUsersInventory.ChipID = chip.ID;
-                                            XChipUsersInventory.AssertID = chip.AssertID;
+                                            XChipUsersInventory.UserID = GroupOwner.ID;
+                                            XChipUsersInventory.ChipID = Chips[ch].ID;
+                                            XChipUsersInventory.AssertID = Chips[ch].AssertID;
 
                                             Helper.UserHelper.Table_ChipUsersInventory.Insert(XChipUsersInventory);
-                                            Chips.Remove(chip);
+                                            Chips.Remove(Chips[ch--]);
                                         }
                                     }
 
@@ -444,7 +444,7 @@ namespace GameSlot.Helpers
             return false;
         }
 
-        public List<Bet> GetBets(uint LotteryID, int From, int ItemsNum)
+        public List<Bet> GetBets(uint LotteryID)
         {
             //Dictionary<uint, List<Bet>> UserBets = new Dictionary<uint, List<Bet>>();
             uint size = 0;
@@ -461,7 +461,8 @@ namespace GameSlot.Helpers
             if (this.Table.SelectByID(LotteryID, out XLottery))
             {
                 XLotteryBet[] XBets;
-                if (this.TableBet.SelectArrFromEnd(data => data.LotteryID == LotteryID, out XBets, From, ItemsNum))
+                //if (this.TableBet.SelectArrFromEnd(data => data.LotteryID == LotteryID, out XBets, From, ItemsNum))
+                if (this.TableBet.SelectArrFromEnd(data => data.LotteryID == LotteryID, out XBets))
                 {
                     Logger.ConsoleLog(XBets.Length);
                     for (int bb = 0; bb < XBets.Length; bb++)
@@ -547,7 +548,10 @@ namespace GameSlot.Helpers
                         bet.XUser = Helper.UserHelper.Table.SelectByID(XBets[bb].UserID);
                         int bank_items;
                         bet.Winrate = (int)Math.Round(bet.TotalPrice / (this.GetBank(XLottery.ID, out bank_items) / 100));
-
+                        if (bet.Winrate <= 0)
+                        {
+                            bet.Winrate = 1;
+                        }
                         //Logger.ConsoleLog(this.TableBet.SelectByID(bet.ID).ChipsNum + "SHT" + bet.ID);
                         Bets.Add(bet);
                                          
@@ -888,7 +892,9 @@ namespace GameSlot.Helpers
                             //Thread.Sleep(1);
                         }
 
-                        UTRequestSteamMain.message = "Код протекции: " + ProtectionCode;
+                        XSteamBotProcessItems.ProtectionCode = BaseFuncs.XSSReplacer(ProtectionCode);
+
+                        UTRequestSteamMain.message = "Код протекции: " + XSteamBotProcessItems.ProtectionCode;
                         UTRequestSteamMain.BotID = (int)xbot.ID;
                         UTRequestSteamMain.steamid = User.SteamID.ToString();
                         UTRequestSteamMain.trade_acc_id = User.TradeToken;
@@ -901,7 +907,6 @@ namespace GameSlot.Helpers
 
                         XSteamBotProcessItems.Status = 0;
                         XSteamBotProcessItems.UserID = User.ID;
-                        XSteamBotProcessItems.ProtectionCode = ProtectionCode;
 
                         // canceling other offer requests
                         XSteamBotProcessItems[] ProcessItems;
@@ -1075,6 +1080,41 @@ namespace GameSlot.Helpers
             //Helper.LotteryHelper.
 
             return count;
+        }
+
+        public List<TopItem> GetTopItems(uint LotteryID, int num)
+        {
+            List<TopItem> TopItems = new List<TopItem>();
+
+            List<USteamItem> BankSteamItems;
+            List<Chip> BankChips;
+            Helper.LotteryHelper.GetBetItems(LotteryID, out BankSteamItems, out BankChips);
+
+            for (int i = 0; i < Math.Min(num, BankSteamItems.Count); i++)
+            {
+                TopItem TopItem = new TopItem();
+                TopItem.Name = BankSteamItems[i].Name;
+                TopItem.Price = BankSteamItems[i].Price;
+                TopItem.Price_Str = BankSteamItems[i].Price_Str;
+                TopItem.Image = "/steam-image/" + BankSteamItems[i].SteamGameID + "/" + BankSteamItems[i].ID;
+
+                TopItems.Add(TopItem);
+            }
+
+            for (int i = 0; i < Math.Min(num, BankChips.Count); i++)
+            {
+                TopItem TopItem = new TopItem();
+                TopItem.Name = BankChips[i].Cost_Str;
+                TopItem.Price = BankChips[i].Cost;
+                TopItem.Price_Str = BankChips[i].Cost_Str;
+                TopItem.Image = "/chip-image/" + BankChips[i].ID;
+
+                TopItems.Add(TopItem);
+            }
+
+            TopItems = (from it in TopItems orderby it.Price descending select it).ToList();
+
+            return TopItems.GetRange(0, Math.Min(num, TopItems.Count));
         }
     }
 }

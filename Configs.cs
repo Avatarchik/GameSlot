@@ -17,7 +17,7 @@ namespace GameSlot
         public static double MIN_ITEMS_PRICE = 0.1;
 
         // secs:
-        public static int LOTTERY_GAME_TIME = 300;
+        public static int LOTTERY_GAME_TIME = 30;
         public static int LOTTERY_EXTRA_TIME = 180;
         public static int INVENTORY_UPDATE_TIME = 5;
 

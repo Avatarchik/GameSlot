@@ -8367,6 +8367,7 @@ body.vn3 #page #header .r-head .ct-t3 span {
   color: #a7958b;
   background-position: bottom;
   cursor: default;
+  text-indent: 18px;
   text-align: left;
 }
 .sz1-modal1 .ov-bl1 .tit-bl1 .link-steam-tt1.active i {
@@ -8374,7 +8375,6 @@ body.vn3 #page #header .r-head .ct-t3 span {
 }
 .sz1-modal1 .ov-bl1 .tit-bl1 .link-steam-tt1.active span {
   display: block;
-  text-indent: 18px;
 }
 .sz1-modal1 .ov-bl1 .tit-bl1 .link-steam-tt1.active:before {
   display: block;

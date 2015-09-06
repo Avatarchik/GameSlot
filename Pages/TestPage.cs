@@ -75,6 +75,19 @@ namespace GameSlot.Pages
                     Logger.ConsoleLog("Added chip!!!");
                     //Thread.Sleep(10);
                 }
+                else if(client.GetParam("make_local") != null)
+                {
+                    for(int i = 0; i < 300; i++)
+                    {
+                        XSItemUsersInventory XSItemUsersInventory = new XSItemUsersInventory();
+                        XSItemUsersInventory.UserID = user.ID;
+                        XSItemUsersInventory.SteamItemID = 0;
+                        XSItemUsersInventory.AssertID = 10;
+                        XSItemUsersInventory.SteamGameID = 570;
+                        XSItemUsersInventory.SteamBotID = 0;
+                        Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
+                    }
+                }
                 else
                 {
                     if (client.GetParam("item_id") != null && client.GetParam("asert_id") != null)
@@ -117,7 +130,7 @@ namespace GameSlot.Pages
 
             XLottery last_lot;
             Logger.ConsoleLog((Helper.LotteryHelper.Table.SelectOne(data => data.SteamGameID == 570, out last_lot)));
-            uint i = 10000;
+            uint xx = 10000;
             Random rnd = new Random();
             client.HttpSend(rnd.Next(0,2).ToString());
             return true;

@@ -59,8 +59,15 @@ namespace GameSlot
         {
             get { return 0; }
         }
+        public override bool MaintenanceAffect
+        {
+            get { return true; }
+        }
         public static void OnLoad()
         {
+            ServerData.LogLevel = LogLevel.Debug;
+            Helper.Rub_Rate();
+
             Helper.LotteryHelper = new LotteryHelper();
             Helper.SteamItemsHelper = new SteamItemsHelper();
             Helper.UserHelper = new UserHelper();

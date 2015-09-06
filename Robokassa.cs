@@ -22,6 +22,10 @@ namespace GameSlot
         {
             get { return false; }
         }
+        public override bool MaintenanceAffect
+        {
+            get { return false; }
+        }
         public override bool Init(Client client)
         {
             string Action = BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0];

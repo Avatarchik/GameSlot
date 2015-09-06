@@ -1,10 +1,12 @@
 ﻿using GameSlot.Database;
 using GameSlot.Types;
+using SteamBotUTRequest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using UpServer;
 
@@ -28,7 +30,10 @@ namespace GameSlot.Pages.Includes
         {
             get { return false; }
         }
-
+        public override bool MaintenanceAffect
+        {
+            get { return false; }
+        }
         private static Dictionary<uint, List<Client>> ClientsGroupPage = new Dictionary<uint, List<Client>>();
         private static Dictionary<uint, List<Client>> ClientsLotteryPage = new Dictionary<uint,List<Client>>();
 
@@ -149,6 +154,41 @@ namespace GameSlot.Pages.Includes
                         }
                     }
                 }
+                else if (wsdata[0].Equals("GetLocalInventory"))
+                {
+                    XUser User;
+                    uint SteamGameID;
+                    int ItemsNum;
+                    int FromNum;
+                    ushort SortByLowPrice;
+                    if (Helper.UserHelper.GetCurrentUser(client, out User) && uint.TryParse(wsdata[1], out SteamGameID) && int.TryParse(wsdata[2], out FromNum) && int.TryParse(wsdata[3], out ItemsNum) && ushort.TryParse(wsdata[4], out SortByLowPrice))
+                    {
+                        Logger.ConsoleLog("Local:" + ItemsNum);
+                        string StrItems = "";
+                        List<USteamItem> SteamItems = Helper.SteamItemsHelper.SearchByString(Helper.UserHelper.GetSteamLocalInventory(User.ID, SteamGameID), wsdata[5]);
+
+                        if (SortByLowPrice == 1)
+                        {
+                            SteamItems = (from it in SteamItems orderby it.Price ascending select it).ToList();
+                        }
+
+                        if (FromNum < 0)
+                        {
+                            FromNum = 0;
+                        }
+                        else if (FromNum > ItemsNum && FromNum == SteamItems.Count)
+                        {
+                            FromNum -= ItemsNum;
+                        }
+
+                        for (int i = FromNum; i < Math.Min(FromNum + ItemsNum, SteamItems.Count); i++)
+                        {
+                            StrItems += WebSocketPage.InventoryItemToString(SteamItems[i]);
+                        }
+                        string total_price_str;
+                        WebSocketPage.UpdateLocalInventory(StrItems, Helper.UserHelper.GetLocalSteamInventoryTotalPrice(User.ID, SteamGameID, out total_price_str), SteamItems.Count, client);
+                    }
+                }
                 else if (wsdata[0].Equals("LotteryPage"))
                 {
                     XLottery x_lot;
@@ -252,6 +292,99 @@ namespace GameSlot.Pages.Includes
                     }
                     //Logger.ConsoleLog("!!!!");
                 }
+
+                else if(wsdata[0].Equals("SendLocalItemsToSteam"))
+                {
+                    XUser user;
+                    uint SteamGameID;
+                    if (Helper.UserHelper.GetCurrentUser(client, out user) && uint.TryParse(wsdata[1], out SteamGameID))
+                    {
+                        List<USteamItem> SteamItems = Helper.UserHelper.GetSteamLocalInventory(user.ID, SteamGameID);
+                        if(SteamItems.Count > 0)
+                        {
+                            Dictionary<uint, List<UTRequestSteamItem>> BotsRequests = new Dictionary<uint, List<UTRequestSteamItem>>();
+                            Dictionary<long, uint> AssertItems = new Dictionary<long, uint>();
+
+                            foreach(USteamItem SteamItem in SteamItems)
+                            {
+                                XSItemUsersInventory XSItemUsersInventory;
+                                if(Helper.UserHelper.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == SteamItem.AssertID && !data.Deleted, out XSItemUsersInventory))
+                                {
+                                    XSItemUsersInventory.Deleted = true;
+                                    Helper.UserHelper.Table_SteamItemUsersInventory.UpdateByID(XSItemUsersInventory, XSItemUsersInventory.ID);
+
+                                    UTRequestSteamItem UTRequestSteamItem = new UTRequestSteamItem();
+                                    UTRequestSteamItem.appid = (int)SteamItem.SteamGameID;
+                                    UTRequestSteamItem.contextid = 2;
+
+                                    UTRequestSteamItem.assertid = (long)SteamItem.AssertID;
+
+                                    AssertItems.Add(UTRequestSteamItem.assertid, SteamItem.ID);
+
+                                    if (BotsRequests.ContainsKey(SteamItem.SteamBotID))
+                                    {
+                                        BotsRequests[SteamItem.SteamBotID].Add(UTRequestSteamItem);
+                                    }
+                                    else
+                                    {
+                                        List<UTRequestSteamItem> item_rq = new List<UTRequestSteamItem>();
+                                        item_rq.Add(UTRequestSteamItem);
+                                        BotsRequests.Add(SteamItem.SteamBotID, item_rq);
+
+                                    }
+                                }
+                            }
+
+                            foreach (uint key in BotsRequests.Keys)
+                            {
+                                XBotsOffer XBotsOffer;
+                                while (!Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.SteamUserID == user.SteamID && bt.Status == 0, out XBotsOffer))
+                                {
+                                    XBotsOffer = new XBotsOffer();
+                                    XBotsOffer.BotID = key;
+                                    XBotsOffer.SteamUserID = user.SteamID;
+                                    XBotsOffer.SentTime = Helper.GetCurrentTime();
+                                    uint bots_offerid = Helper.SteamBotHelper.Table_BotsOffer.Insert(XBotsOffer);
+
+                                    UTRequestSteamMain UTRequestSteamMain = new UTRequestSteamMain();
+
+                                    foreach (UTRequestSteamItem URequest in BotsRequests[key])
+                                    {
+                                        XBotOffersItem XBotOffersItem = new XBotOffersItem();
+                                        XBotOffersItem.AssertID = (ulong) URequest.assertid;
+                                        XBotOffersItem.BotsOfferID = bots_offerid;
+                                        XBotOffersItem.SteamItemID = AssertItems[(long)XBotOffersItem.AssertID];
+
+                                        Helper.SteamBotHelper.Table_BotOffersItem.Insert(XBotOffersItem);
+
+                                        XSteamItemsClassID XSteamItemsClassID;
+                                        Helper.SteamItemsHelper.Table_ClassID.SelectOne(dt => dt.AssertID == XBotOffersItem.AssertID, out XSteamItemsClassID);
+                                        URequest.assertid = (long)XSteamItemsClassID.ClassID;
+
+                                        UTRequestSteamMain.Items.Add(URequest);
+
+                                        Logger.ConsoleLog("-----------------------------");
+                                        Logger.ConsoleLog("Item class id: " + URequest.assertid);
+                                        Logger.ConsoleLog("Item contex id: " + URequest.contextid);
+                                        Logger.ConsoleLog("Item app id: " + URequest.appid);
+                                        Logger.ConsoleLog("Steam item id: " + XBotOffersItem.SteamItemID);
+                                    }
+
+                                    UTRequestSteamMain.message = "Передача вещей из временного инвентаря GAMESLOT. Данное предложение будет автоматически удалено спустя час.";
+                                    UTRequestSteamMain.BotID = (int)key;
+                                    UTRequestSteamMain.steamid = user.SteamID.ToString();
+                                    UTRequestSteamMain.trade_acc_id = user.TradeToken;
+                                    UTRequestSteamMain.SendItems = true;
+
+                                    Logger.ConsoleLog("Sending offer from local inventory... [" + UTRequestSteamMain.Items.Count + "] Bot ID:" + UTRequestSteamMain.BotID);
+                                    UpTunnel.Sender.Send(UTSteam.sk, UTRequestSteamMain);
+
+                                    Thread.Sleep(1000);
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             return false;
@@ -267,7 +400,7 @@ namespace GameSlot.Pages.Includes
                 {
                     if (WebSocketPage.ClientsGroupPage[group.ID][i].Closed)
                     {
-                        WebSocketPage.ClientsGroupPage[group.ID].Remove(WebSocketPage.ClientsGroupPage[group.ID][i]);
+                        WebSocketPage.ClientsGroupPage[group.ID].Remove(WebSocketPage.ClientsGroupPage[group.ID][i--]);
                         continue;
                     }
 
@@ -290,7 +423,13 @@ namespace GameSlot.Pages.Includes
                 //Logger.ConsoleLog(TotalPrice, ConsoleColor.Red);
                 return;
             }
+
             client.SendWebsocket("SteamInventoryClosed" + BaseFuncs.WSplit);
+        }
+
+        public static void UpdateLocalInventory(string StrItems, double TotalPrice, int ItemsNum, Client client)
+        {
+            client.SendWebsocket("LocalInventory" + BaseFuncs.WSplit + TotalPrice.ToString("###,##0.00") + BaseFuncs.WSplit + StrItems + BaseFuncs.WSplit + ItemsNum);
         }
 
         public static string InventoryItemToString(USteamItem SteamItem)
@@ -344,6 +483,71 @@ namespace GameSlot.Pages.Includes
                 {
                     Winrate = 100;
                 }
+                else if(Winrate <= 0)
+                {
+                    Winrate = 1;
+                }
+
+                List<USteamItem> BankSteamItems;
+                List<Chip> BankChips;
+                Helper.LotteryHelper.GetBetItems(XBet.LotteryID, out BankSteamItems, out BankChips);
+
+                List<TopPriceItem> TopPriceItems = new List<TopPriceItem>();
+
+                for (int i = 0; i < Math.Min(7, BankSteamItems.Count); i++)
+                {
+                    TopPriceItem TopPriceItem = new TopPriceItem();
+                    TopPriceItem.Type = 0;
+                    TopPriceItem.Price = BankSteamItems[i].Price;
+                    TopPriceItem.Position = i;
+
+                    TopPriceItems.Add(TopPriceItem);
+                }
+
+                for (int i = 0; i < Math.Min(7, BankChips.Count); i++)
+                {
+                    TopPriceItem TopPriceItem = new TopPriceItem();
+                    TopPriceItem.Type = 1;
+                    TopPriceItem.Price = BankChips[i].Cost;
+                    TopPriceItem.Position = i;
+
+                    TopPriceItems.Add(TopPriceItem);
+                }
+
+                TopPriceItems = (from it in TopPriceItems orderby it.Price descending select it).ToList();
+
+                string top_items = "";
+                for(int i = 0; i < Math.Min(7, TopPriceItems.Count); i++)
+                {
+                    TopPriceItem CurTopPriceItem = TopPriceItems[i];
+
+                    // name↓image↓price ; 
+                    if(TopPriceItems[i].Type == 0)
+                    {
+                        top_items += BankSteamItems[CurTopPriceItem.Position].Name + "↓";
+                        top_items += "/steam-image/" + BankSteamItems[CurTopPriceItem.Position].SteamGameID + BankSteamItems[CurTopPriceItem.Position].ID + "↓";
+                        top_items += BankSteamItems[CurTopPriceItem.Position].Price_Str + ";";
+                    }
+                    else
+                    {
+                        top_items += BankChips[CurTopPriceItem.Position].Cost_Str + "↓";
+                        top_items += "/chip-image/" + BankChips[CurTopPriceItem.Position].ID + "↓";
+                        top_items += BankChips[CurTopPriceItem.Position].Cost_Str + ";";
+                    }
+                }
+
+                string GamersStats = "";
+                List<Bet> AllBets = Helper.LotteryHelper.GetBets(XBet.LotteryID);
+
+                foreach(Bet UsersBet in AllBets)
+                {
+                    GamersStats += UsersBet.XUser.ID + "↓";
+                    GamersStats += UsersBet.Winrate + "↓";
+                    GamersStats += UsersBet.BetsNum + "↓";
+                    GamersStats += UsersBet.TotalItemsNum + "↓";
+                    GamersStats += UsersBet.TotalPrice_Str + ";";
+                }
+
                 // Logger.ConsoleLog(Winrate + ":" + TotalPrice + "::" + Bank);
                 string ws = "";
                 // 4: ExtraTime
@@ -354,7 +558,7 @@ namespace GameSlot.Pages.Includes
                 ws += XUsersBets.Length + BaseFuncs.WSplit + TotalPrice.ToString("###,##0.00") + BaseFuncs.WSplit + TotalItemsNum + BaseFuncs.WSplit + Winrate + BaseFuncs.WSplit;
                 // 13: OtherBets; 14: UserID; 15: UserName; 16: UsersAvatar 17: BetID 18: LotteryLeftTime
                 ws += OtherBets + BaseFuncs.WSplit + user.ID + BaseFuncs.WSplit + user.Name + BaseFuncs.WSplit + user.Avatar + BaseFuncs.WSplit + XBet.ID + BaseFuncs.WSplit + LotteryLeftTime + BaseFuncs.WSplit;
-                // 19 (steam_items): ITEM_ID :: GAME_ID, ITEM_NAME, ITEM_PRICE ↓ (REPEAT); 20 (chips): ID :: Price ↓ 21:
+                // 19 (steam_items): ITEM_ID :: GAME_ID, ITEM_NAME, ITEM_PRICE ↓ (REPEAT); 20 (chips): ID :: Price ↓ 
 
                 XLottery lottery = Helper.LotteryHelper.Table.SelectByID(XBet.LotteryID);
                 for (uint i = 0; i < XBet.SteamItemsNum; i++)
@@ -369,8 +573,13 @@ namespace GameSlot.Pages.Includes
                 {
                     Chip chip;
                     Helper.ChipHelper.SelectByID(XBet.ChipIDs[i], out chip);
-                    ws += chip.ID + "::" + chip.Cost.ToString("###,##0.00") + "↓";
+                    ws += chip.ID + "::" + chip.Cost_Str + "↓";
                 }
+
+                // 21: top_items
+                ws += BaseFuncs.WSplit + top_items;
+                //22: all bets
+                ws += BaseFuncs.WSplit + GamersStats;
 
                 for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XBet.LotteryID].Count; i++)
                 {

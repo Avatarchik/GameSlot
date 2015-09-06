@@ -59,6 +59,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configs.cs" />
+    <Compile Include="Database\XBotOffersItem.cs" />
+    <Compile Include="Database\XBotsOffer.cs" />
     <Compile Include="Database\XChipCustomer.cs" />
     <Compile Include="Database\XChipUsersInventory.cs" />
     <Compile Include="Database\XLotteryPercentage.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Database\XLottery.cs" />
     <Compile Include="Database\XLotteryBet.cs" />
     <Compile Include="Database\XSItemUsersInventory.cs" />
+    <Compile Include="Database\XSteamItemsClassID.cs" />
     <Compile Include="Database\XUser.cs" />
     <Compile Include="Helpers\ChipHelper.cs" />
     <Compile Include="Helpers\GroupHelper.cs" />
@@ -111,6 +114,8 @@
     <Compile Include="Types\ProcessingBet.cs" />
     <Compile Include="Types\LotteryRoulette.cs" />
     <Compile Include="Types\Tokens.cs" />
+    <Compile Include="Types\TopItem.cs" />
+    <Compile Include="Types\TopPriceItem.cs" />
     <Compile Include="Types\UsersInventory.cs" />
     <Compile Include="UTSteam.cs" />
     <EmbeddedResource Include="Templates\Lottery.html" />

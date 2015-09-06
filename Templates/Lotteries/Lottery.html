@@ -7,6 +7,8 @@
     {{using GameSlot.Database}}
     {{set Lottery Lottery = (Lottery) PageData["Lottery"]}}
     {{set List<Bet> Bets = (List<Bet>) PageData["Bets"]}}
+    {{set List<TopItem> TopItems = (List<TopItem>) PageData["TopItems"]}}
+
     <script>
         LotteryPageConnect = true;
         LotteryPage_LotteryID = "{{=Lottery.ID}}";
@@ -14,6 +16,7 @@
         {{if(Helper.UserHelper.Authorized(client))}}
             LotteryPage_GetInventory = true;
             LotteryPage_GetInventory_SteamGameID = "{{=Lottery.SteamGameID}}";
+            LOCAL_INVENTORY_ITEMS_NUM = 36;
         {{end}}
 
         var left_secs = "{{=Lottery.LeftTime}}";
@@ -208,16 +211,20 @@
 
                     <div class="bl-sld-bi1">
                         <div class="tt1">Самые крутые предметы розыгрыша:</div>
-                        <div class="tt2">Топ 1</div>
-                        <div class="owl1 owl-carousel owl-theme">
+                        <div class="tt2">Топ</div>
+                        <div class="owl1 owl-carousel owl-theme" id="best_items_list">
+
+                            {{foreach(TopItem Item in TopItems)}}
                             <div class="item">
                                 <div class="item-ic-t1">
-                                    <img src="/cached_files/img/sld-img1.jpg" alt="">
-                                    <span>200,260</span>
+                                    <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
+                                    <span class="baks">{{=Item.Price_Str}}</span>
                                     <a href=""></a>
-                                    <div class="tiltp">Nakuls Sword</div>
+                                    <div class="tiltp">{{=Item.Name}}</div>
                                 </div>
                             </div>
+                            {{end}}
+
                         </div>
                     </div>
                 </div>
@@ -351,19 +358,23 @@
 
                     <div class="bl-sld-bi1">
                         <div class="tt1">Самые крутые предметы розыгрыша:</div>
-                        <div class="tt2">Топ 1</div>
-                        <div class="owl1 owl-carousel owl-theme">
-                            <div class="item">
-                                <div class="item-ic-t1">
-                                    <img src="/cached_files/img/sld-img1.jpg" alt="">
-                                    <span>200,260</span>
-                                    <a href=""></a>
-                                    <div class="tiltp">Nakuls Sword</div>
-                                </div>
-                            </div>
+                        <div class="tt2">Топ</div>
+                        <div class="owl1 owl-carousel owl-theme" id="best_items_list">
+
                         </div>
                     </div>
 
+                </div>
+            </div>
+        </div>
+
+        <div id="best_items_html" style="display:none;">
+            <div class="item">
+                <div class="item-ic-t1">
+                    [image]
+                    <span class="baks">[price]</span>
+                    <a href=""></a>
+                    <div class="tiltp">[name]</div>
                 </div>
             </div>
         </div>
@@ -480,7 +491,7 @@
         </div> 
 
         <div id="new_bet" style="display:none;">
-            <div class="bl-ov-et1 ya2">
+            <div class="bl-ov-et1 ya2" id="user_id_[USER_ID]">
                 <div class="bg-bl-ov1">
                     <div></div>
                 </div>
@@ -516,12 +527,12 @@
                     <div class="ov-rr1">
                         <div class="over-lt-rt1">
                             <div class="lt1">
-                                <p><span>Ставок:</span><i class="j1">[BETS_NUM]</i></p>
-                                <p><span>Всего:</span><i class="j2">[TOTAL_ITEMS_NUM]</i></p>
+                                <p><span>Ставок:</span><i class="j1" id="bets_num">[BETS_NUM]</i></p>
+                                <p><span>Всего:</span><i class="j2" id="total_items_num">[TOTAL_ITEMS_NUM]</i></p>
                             </div>
                             <div class="rt1">
-                                <p><span>Шанс победы:</span><i class="j3">[WINRATE]%</i></p>
-                                <p><i class="j4 baks">[TOTAL_PRICE]</i></p>
+                                <p><span>Шанс победы:</span><i class="j3" id="winrate">[WINRATE]%</i></p>
+                                <p><i class="j4 baks" id="total_price">[TOTAL_PRICE]</i></p>
                             </div>
                         </div>
                     </div>
@@ -534,6 +545,7 @@
             <div class="item1">
                 <img src="/[items_image]" alt="[items_name]">
                 <span class="baks">[items_price]</span>
+                <div class="tiltp">[items_name]</div>
             </div>
         </div>
 
@@ -541,7 +553,7 @@
             <span id="first_position" style="display:none;"></span>
             {{if(Bets.Count > 0)}}
                 {{foreach(Bet bet in Bets)}}
-                    <div class="bl-ov-et1 ya2">
+                    <div class="bl-ov-et1 ya2" id="user_id_{{=bet.XUser.ID}}">
                         <div class="bg-bl-ov1">
                             <div></div>
                         </div>
@@ -590,12 +602,12 @@
                             <div class="ov-rr1">
                                 <div class="over-lt-rt1">
                                     <div class="lt1">
-                                        <p><span>Ставок:</span><i class="j1">{{=bet.BetsNum}}</i></p>
-                                        <p><span>Всего:</span><i class="j2">{{=bet.TotalItemsNum}}</i></p>
+                                        <p><span>Ставок:</span><i class="j1" id="bets_num">{{=bet.BetsNum}}</i></p>
+                                        <p><span>Всего:</span><i class="j2" id="total_items_num">{{=bet.TotalItemsNum}}</i></p>
                                     </div>
                                     <div class="rt1">
-                                        <p><span>Шанс победы:</span><i class="j3">{{=bet.Winrate}}%</i></p>
-                                        <p><i class="j4 baks">{{=bet.TotalPrice_Str}}</i></p>
+                                        <p><span>Шанс победы:</span><i class="j3" id="winrate">{{=bet.Winrate}}%</i></p>
+                                        <p><i class="j4 baks" id="total_price">{{=bet.TotalPrice_Str}}</i></p>
                                     </div>
                                 </div>
                             </div>
@@ -653,7 +665,6 @@
 
     {{if(Helper.UserHelper.Authorized(client))}}
     {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
-    {{set List<USteamItem> LocalSteamInventory = (List<USteamItem>) PageData["LocalSteamInventory"]}}
     {{set XUser user = (XUser) PageData["User"]}}
     <div id="steam_items_html" style="display:none;">
         <div class="item1" id="item_id_[item_assert_id]">
@@ -776,6 +787,10 @@
                                         <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
                                     </div>
                                     <div class="search1">
+                                        <div class="srh1">
+                                            <input type="text" placeholder="Поиск по инвентарю" id="search_in_steam_inventory">
+                                            <input type="submit" value="">
+                                        </div>
                                         <div class="rr-sort1">
                                             <ul>
                                                 <li>Сортировка:</li>
@@ -801,10 +816,10 @@
 
                                     <div class="modal-page-s1" id="steam_inventory_pagination" style="display:none;">
                                         <ul>
-                                            <li><a href="" onclick="return Inventory_GetFirstPage(36);" id="first">В начало</a></li>
-                                            <li><a href="" onclick="return Inventory_GetBeforePage(36);" id="before">Предыдущая</a></li>
-                                            <li><a href="" onclick="return Inventory_GetNextPage(36);" id="next">Следующая</a></li>
-                                            <li><a href="" onclick="return Inventory_GetLastPage(36);" id="last">В конец</a></li>
+                                            <li><a href="" onclick="return Inventory_GetFirstPage(30);" id="first">В начало</a></li>
+                                            <li><a href="" onclick="return Inventory_GetBeforePage(30);" id="before">Предыдущая</a></li>
+                                            <li><a href="" onclick="return Inventory_GetNextPage(30);" id="next">Следующая</a></li>
+                                            <li><a href="" onclick="return Inventory_GetLastPage(30);" id="last">В конец</a></li>
                                         </ul>
                                     </div>
 
@@ -820,38 +835,39 @@
                                 <div class="ov-bl1">
                                     <div class="bg-ov-bl1"><div></div></div>
                                     <div class="tit-bl1">
-                                        <div class="ef1">{{=LocalSteamInventory.Count}}</div>
+                                        <div class="ef1" id="local_steam_inventory_items_num">0</div>
                                         <div class="ef2">Суммарная<br>стоимость:</div>
-                                        <div class="ef3 baks">{{=PageData["LocalTotalPrice"]}}</div>
+                                        <div class="ef3 baks" id="local_steam_inventory_total_price">0</div>
                                         <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
                                     </div>
                                     <div class="search1">
-                                        <div class="srh1"><input type="text" value="Поиск по инвентарю"><input type="submit" value=""></div>
+                                        <div class="srh1"><input type="text" placeholder="Поиск по инвентарю" id="search_in_local_steam_inventory"><input type="submit" value=""></div>
                                         <div class="rr-sort1">
                                             <ul>
                                                 <li>Сортировка:</li>
-                                                <li class="active"><a href="">Сперва дорогие</a></li>
-                                                <li><a>Сперва дешевые</a></li>
+                                                <li id="local_inventory_sort_by_high_price" class="active"><a onclick="return SortLocalInventoryByLowPrice(36, 0);">Сперва дорогие</a></li>
+                                                <li id="local_inventory_sort_by_low_price"><a href="" onclick="return SortLocalInventoryByLowPrice(36, 1);">Сперва дешевые</a></li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="cont-ov-items-more1 more36" id="local_iventory">
-                                    {{foreach(USteamItem Item in LocalSteamInventory.GetRange(0, Math.Min(30, LocalSteamInventory.Count)))}}
-                                        <div class="item1" id="item_id_{{=Item.AssertID}}">
-                                            <span style="display:none;" id="iventory_id">2</span>
-                                            <span style="display:none;" id="current_iventory_id">2</span>
-                                            <span style="display:none;" id="item_assert_id">{{=Item.AssertID}}</span>
 
-                                            <span style="display:none;" id="item_id">{{=Item.ID}}</span>
-                                            <a href="" onclick="return hh({{=Item.AssertID}});"></a>
-                                            <!--<img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">-->
-                                            <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
-                                            <span class="baks">{{=Item.Price_Str}}</span>
+                                    <div class="cont-ov-items-more1 jcheck more36" id="local_steam_inventory" style="min-height: 444px;" dt="0"></div>
 
-                                            <div class="tiltp">{{=Item.Name}}</div>  
-                                        </div>  
-                                    {{end}}
+                                    <div class="modal-page-s1" id="local_steam_inventory_pagination" style="display:none;">
+                                        <ul>
+                                            <li><a href="" onclick="return LocalInventory_GetFirstPage(36);" id="first">В начало</a></li>
+                                            <li><a href="" onclick="return LocalInventory_GetBeforePage(36);" id="before">Предыдущая</a></li>
+                                            <li><a href="" onclick="return LocalInventory_GetNextPage(36);" id="next">Следующая</a></li>
+                                            <li><a href="" onclick="return LocalInventory_GetLastPage(36);" id="last">В конец</a></li>
+                                        </ul>
                                     </div>
+
+                                    <div class="ready-pp1" id="local_steam_inventory_loading">
+                                        <div class="df-pp2 df-pp22">
+                                            <img src="/cached_files/img/9-6_2_obrabotka-stavki_loading_icon.gif" alt=""><span class="j1">Идёт загрузка<br>инвентаря</span>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <div class="over-tt-item1">
@@ -909,7 +925,7 @@
         {{end}}
 
         var handler = false;
-
+        var remove_from_cur_page = false;
         function hh(item_id)
         {
             if(handler == false)
@@ -934,13 +950,19 @@
                 {
                     $("#item_id_" + item_id + " span#current_iventory_id").text(iventory_id);
 
-                    if(iventory_id == 1)
-                        $("#item_id_" + item_id).appendTo("div#steam_iventory");
-                    else if(iventory_id == 2)
-                        $("#item_id_" + item_id).appendTo("div#local_iventory");
-                    else if(iventory_id == 3)
-                        $("#item_id_" + item_id).appendTo("div#chips_iventory");
-
+                    if(!remove_from_cur_page)
+                    {
+                        if(iventory_id == 1)
+                            $("#item_id_" + item_id).appendTo("div#steam_iventory");
+                        else if(iventory_id == 2)
+                            $("#item_id_" + item_id).appendTo("div#local_steam_inventory");
+                        else if(iventory_id == 3)
+                            $("#item_id_" + item_id).appendTo("div#chips_iventory");
+                    }
+                    else
+                    {
+                        $("#item_id_" + item_id).remove();
+                    }
                     bet_count = bet_count -1;
                 }
             }
@@ -974,6 +996,7 @@
 
                 $("div#bet_ready").attr("style", "display:block;");
                 ws.send(bet);
+                console.log("ws bet sent");
                 bet_count = 0;
             }
 

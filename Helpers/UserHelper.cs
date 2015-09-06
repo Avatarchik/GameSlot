@@ -341,6 +341,16 @@ namespace GameSlot.Helpers
                                 if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
                                 {
                                     SteamItem.AssertID = Convert.ToUInt64(Item[i].Split('"')[0]);
+
+                                    XSteamItemsClassID XSteamItemsClassID;
+                                    if (!Helper.SteamItemsHelper.Table_ClassID.SelectOne(dt => dt.AssertID == SteamItem.AssertID, out XSteamItemsClassID))
+                                    {
+                                        XSteamItemsClassID = new XSteamItemsClassID();
+                                        XSteamItemsClassID.AssertID = SteamItem.AssertID;
+                                        XSteamItemsClassID.ClassID = Convert.ToUInt64(classid);
+                                        Helper.SteamItemsHelper.Table_ClassID.Insert(XSteamItemsClassID);
+                                    }
+
                                     SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
                                     SteamItems.Add(SteamItem);
 

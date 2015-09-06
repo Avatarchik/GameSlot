@@ -50,17 +50,12 @@ namespace GameSlot.Pages.Lotteries
                 BaseFuncs.Show404(client);
                 return false;
             }
+
             Hashtable data = new Hashtable();
 
             XUser user;
             if (Helper.UserHelper.GetCurrentUser(client, out user))
             {
-                string total_local_price;
-                Helper.UserHelper.GetLocalSteamInventoryTotalPrice(user.ID, SteamGameID, out total_local_price);
-
-                data.Add("LocalSteamInventory", Helper.UserHelper.GetSteamLocalInventory(user.ID, SteamGameID));
-                data.Add("LocalTotalPrice", total_local_price);
-
                 double ChipsTotalPrice;
                 data.Add("Chips", Helper.UserHelper.GetChipInventory(user.ID, out ChipsTotalPrice));
                 data.Add("ChipsTotalPrice", ChipsTotalPrice.ToString("###,##0.00"));
@@ -71,7 +66,8 @@ namespace GameSlot.Pages.Lotteries
             Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID);
             data.Add("Lottery", Lottery);
 
-            data.Add("Bets", Helper.LotteryHelper.GetBets(Lottery.ID, 0, 10));
+            data.Add("TopItems", Helper.LotteryHelper.GetTopItems(Lottery.ID, 7));
+            data.Add("Bets", Helper.LotteryHelper.GetBets(Lottery.ID));
 
             int items;
             data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items).ToString("###,##0.00"));
@@ -83,7 +79,7 @@ namespace GameSlot.Pages.Lotteries
             data.Add("TodaysJackpotItems", TodaysJackpotItems);
             data.Add("TodaysJackpotPrice", TodaysJackpotPrice.ToString("###,##0.00"));
 
-            data.Add("Title", "Лотерея " + title + " - Выигрывай на ставках!");
+            data.Add("Title", "Лотерея " + title);
             client.HttpSend(TemplateActivator.Activate(this, client, data));
             return true;
         }

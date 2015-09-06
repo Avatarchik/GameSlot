@@ -10,19 +10,27 @@
 
     var INVENTORY_ITEMS_NUM = 30;
     var INVENTORY_ITEMS_FROM = 0;
+    var LOCAL_INVENTORY_ITEMS_NUM = 30;
+    var LOCAL_INVENTORY_ITEMS_FROM = 0;
 
     var USERS_ITEMS_IN_INVENTORY = 0;
+    var USERS_ITEMS_IN_LOCAL_INVENTORY = 0;
 
     var USERS_INVENTORY_SORT = 0;
+    var USERS_LOCAL_INVENTORY_SORT = 0;
+
     var SEARCH_IN_INVENTORY = "";
+    var SEARCH_IN_LOCAL_INVENTORY = "";
 
     var inventory_getlastpage_disabled = false;
     var inventory_getfirstpage_disabled = false;
+    
+    var local_inventory_getlastpage_disabled = false;
+    var local_inventory_getfirstpage_disabled = false;
 
     $("document").ready(function () {
         $("input#search_in_steam_inventory").keyup(function ()
         {
-            var text = $("input#search_in_steam_inventory").val();
             SEARCH_IN_INVENTORY = $("input#search_in_steam_inventory").val();
             INVENTORY_ITEMS_FROM = 0;
 
@@ -31,6 +39,18 @@
 
             GetSteamInventory(INVENTORY_ITEMS_NUM);
         });
+
+        $("input#search_in_local_steam_inventory").keyup(function ()
+        {
+            console.log("searching in local...");
+            SEARCH_IN_LOCAL_INVENTORY = $("input#search_in_local_steam_inventory").val();
+            LOCAL_INVENTORY_ITEMS_FROM = 0;
+
+            local_inventory_getlastpage_disabled = false;
+            local_inventory_getfirstpage_disabled = false;
+
+            GetLocalSteamInventory(LOCAL_INVENTORY_ITEMS_NUM);
+        });
     });
 
     ws.onopen = function ()
@@ -38,6 +58,7 @@
         if(GetMyInventoryPage)
         {
             GetSteamInventory(INVENTORY_ITEMS_NUM);
+            GetLocalSteamInventory(LOCAL_INVENTORY_ITEMS_NUM);
         }
         else if (MyGroupPageConnect)
         {
@@ -56,6 +77,7 @@
                 console.log("GetInventory{{=BaseFuncs.WSplit}}" + LotteryPage_GetInventory_SteamGameID);
                 MyInventoryPage_SteamGameID = LotteryPage_GetInventory_SteamGameID;
                 GetSteamInventory(INVENTORY_ITEMS_NUM);
+                GetLocalSteamInventory(LOCAL_INVENTORY_ITEMS_NUM);
             }
         }
     };
@@ -120,10 +142,68 @@
         return false;
     }
 
+    function SortLocalInventoryByLowPrice(num, sort_bool) {
+        var local_go = true;
+
+        if (sort_bool == 0 && $("li#local_inventory_sort_by_high_price").hasClass("active") == true) {
+            local_go = false;
+        }
+        else if (sort_bool == 1 && $("li#local_inventory_sort_by_low_price").hasClass("active") == true) {
+            local_go = false;
+        }
+
+        if (local_go) {
+            USERS_LOCAL_INVENTORY_SORT = sort_bool;
+            LOCAL_INVENTORY_ITEMS_FROM = 0;
+            GetLocalSteamInventory(num);
+        }
+        return false;
+    }
+
+    function LocalInventory_GetNextPage(num) {
+        if (!local_inventory_getlastpage_disabled) {
+            LOCAL_INVENTORY_ITEMS_FROM = LOCAL_INVENTORY_ITEMS_FROM + num;
+            GetLocalSteamInventory(num);
+        }
+
+        return false;
+    }
+
+    function LocalInventory_GetBeforePage(num) {
+
+        if (!local_inventory_getfirstpage_disabled) {
+            LOCAL_INVENTORY_ITEMS_FROM = LOCAL_INVENTORY_ITEMS_FROM - num;
+            GetLocalSteamInventory(num);
+        }
+        return false;
+    }
+
+    function LocalInventory_GetFirstPage(num) {
+
+        if (!inventory_getfirstpage_disabled) {
+            LOCAL_INVENTORY_ITEMS_FROM = 0;
+            GetLocalSteamInventory(num);
+        }
+        return false;
+    }
+
+    function LocalInventory_GetLastPage(num) {
+        if (!local_inventory_getlastpage_disabled) {
+            LOCAL_INVENTORY_ITEMS_FROM = USERS_ITEMS_IN_LOCAL_INVENTORY - num;
+            GetLocalSteamInventory(num);
+        }
+        return false;
+    }
+
     function GetSteamInventory(num)
     {
         ws.send("GetInventory{{=BaseFuncs.WSplit}}" + MyInventoryPage_SteamGameID + "{{=BaseFuncs.WSplit}}" + INVENTORY_ITEMS_FROM + "{{=BaseFuncs.WSplit}}" + num + "{{=BaseFuncs.WSplit}}" + USERS_INVENTORY_SORT + "{{=BaseFuncs.WSplit}}" + SEARCH_IN_INVENTORY);
         $("div#steam_inventory_pagination").addClass("active");
+    }
+
+    function GetLocalSteamInventory(num) {
+        ws.send("GetLocalInventory{{=BaseFuncs.WSplit}}" + MyInventoryPage_SteamGameID + "{{=BaseFuncs.WSplit}}" + LOCAL_INVENTORY_ITEMS_FROM + "{{=BaseFuncs.WSplit}}" + num + "{{=BaseFuncs.WSplit}}" + USERS_LOCAL_INVENTORY_SORT + "{{=BaseFuncs.WSplit}}" + SEARCH_IN_LOCAL_INVENTORY);
+        $("div#local_steam_inventory_pagination").addClass("active");
     }
 
     function LoadSteamInventoryData(data)
@@ -248,6 +328,112 @@
         }
     }
 
+    function LoadLocalSteamInventory(data)
+    {
+        if (data[0] == "LocalInventory") {
+            USERS_ITEMS_IN_LOCAL_INVENTORY = data[3];
+
+            console.log("LocalInventory");
+            var items = data[2].split(';');
+            var items_content = "";
+            for (var i = 0; i < (items.length - 1) ; i++) {
+                var items_html = $("div#steam_items_html").html();
+                var item = items[i].split('↓');
+
+                items_html = items_html.replace("[item_name]", item[0]);
+                items_html = items_html.replace("[item_name]", item[0]);
+
+                items_html = items_html.replace("[item_id]", item[3]);
+                items_html = items_html.replace("[item_id]", item[3]);
+
+                items_html = items_html.replace("[item_price]", item[1]);
+                /*items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");*/
+                items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");
+
+                items_html = items_html.replace("[item_assert_id]", item[4]);
+                items_html = items_html.replace("[item_assert_id]", item[4]);
+                items_html = items_html.replace("[item_assert_id]", item[4]);
+
+                items_html = items_html.replace("[iventory_id]", "2");
+                items_html = items_html.replace("[current_iventory_id]", "2");
+
+                items_content += items_html;
+            }
+
+            if (USERS_LOCAL_INVENTORY_SORT == 0) {
+                $("li#local_inventory_sort_by_high_price").attr("class", "active");
+                $("li#local_inventory_sort_by_high_price a").removeAttr("href");
+
+                $("li#local_inventory_sort_by_low_price").removeClass("active");
+                $("li#local_inventory_sort_by_low_price a").attr("href", "");
+            }
+            else if (USERS_LOCAL_INVENTORY_SORT == 1) {
+                $("li#local_inventory_sort_by_low_price").attr("class", "active");
+                $("li#local_inventory_sort_by_low_price a").removeAttr("href");
+
+                $("li#local_inventory_sort_by_high_price").removeClass("active");
+                $("li#local_inventory_sort_by_high_price a").attr("href", "");
+            }
+
+            $("div#local_steam_inventory").html(items_content);
+
+            setTimeout(function () {
+                $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
+                    $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
+                });
+            }, 1000);
+
+
+            $("div#local_steam_inventory_loading").attr("style", "display:none;");
+            $("div#local_steam_inventory_items_num").text(data[3]);
+            $("div#local_steam_inventory_total_price").text(data[1]);
+
+            $("div#local_steam_inventory_pagination").removeClass("active");
+
+            if (LOCAL_INVENTORY_ITEMS_FROM <= 0) {
+                local_inventory_getfirstpage_disabled = true;
+                $("div#local_steam_inventory_pagination a#first").removeAttr("href");
+                $("div#local_steam_inventory_pagination a#before").removeAttr("href");
+                $("div#local_steam_inventory_pagination a#first").addClass("diss");
+                $("div#local_steam_inventory_pagination a#before").addClass("diss");
+            }
+            else {
+                local_inventory_getfirstpage_disabled = false;
+                $("div#local_steam_inventory_pagination a#first").attr("href", "");
+                $("div#local_steam_inventory_pagination a#before").attr("href", "");;
+                $("div#local_steam_inventory_pagination a#first").removeClass("diss");
+                $("div#local_steam_inventory_pagination a#before").removeClass("diss");
+            }
+
+            if (USERS_ITEMS_IN_LOCAL_INVENTORY <= (LOCAL_INVENTORY_ITEMS_FROM + LOCAL_INVENTORY_ITEMS_NUM)) {
+                local_inventory_getlastpage_disabled = true;
+                $("div#local_steam_inventory_pagination a#next").removeAttr("href");
+                $("div#local_steam_inventory_pagination a#last").removeAttr("href");
+                $("div#local_steam_inventory_pagination a#next").addClass("diss");
+                $("div#local_steam_inventory_pagination a#last").addClass("diss");
+            }
+            else {
+                local_inventory_getlastpage_disabled = false;
+                $("div#local_steam_inventory_pagination a#next").attr("href", "");
+                $("div#local_steam_inventory_pagination a#last").attr("href", "");;
+                $("div#local_steam_inventory_pagination a#next").removeClass("diss");
+                $("div#local_steam_inventory_pagination a#last").removeClass("diss");
+            }
+
+            if (USERS_ITEMS_IN_LOCAL_INVENTORY > LOCAL_INVENTORY_ITEMS_NUM) {
+                $("div#local_steam_inventory_pagination").attr('style', "display:block;");
+            }
+            else {
+                $("div#local_steam_inventory_pagination").attr('style', "display:none;");
+            }
+
+            if (GetMyInventoryPage && USERS_ITEMS_IN_LOCAL_INVENTORY > 0)
+            {
+                $("#send_local_items_to_steam").removeAttr("style", "display:block;");
+            }
+        }
+    }
+
     ws.onmessage = function (evt)
     {
         var data = evt.data.split("{{=BaseFuncs.WSplit}}");
@@ -255,6 +441,7 @@
         if(GetMyInventoryPage)
         {
             LoadSteamInventoryData(data);
+            LoadLocalSteamInventory(data);
 
             if (data[0] == "UpdateTradeURL")
             {
@@ -302,6 +489,7 @@
         else if(LotteryPageConnect)
         {
             LoadSteamInventoryData(data);
+            LoadLocalSteamInventory(data);
 
             if (data[0] == "AddedNewLotteryBet")
             {
@@ -317,6 +505,7 @@
                 html_block = html_block.replace("[user_avatar]", "src='" + data[16] + "'");
                 html_block = html_block.replace("[USER_NAME]", data[15]);
                 html_block = html_block.replace("[USER_NAME_2]", data[15]);
+                html_block = html_block.replace("[USER_ID]", data[14]);
 
                 var random_hash = "j_" + data[17] + "_" + data[14];
                 html_block = html_block.replace("[RANDOM_HASH]", random_hash);
@@ -352,7 +541,8 @@
                     var spl = bet_items[i].split('::');
 
                     var items_html = $("div#new_bets_items").html();
-                    items_html = items_html.replace("/[items_image]", "/steam-image/" + spl[0] + "/" + spl[1]);
+                    items_html = items_html.replace("/[items_image]", "/steam-image/" + spl[1] + "/" + spl[0]);
+                    items_html = items_html.replace("[items_name]", spl[2]);
                     items_html = items_html.replace("[items_name]", spl[2]);
                     items_html = items_html.replace("[items_price]", spl[3]);
                     addition_items += items_html;
@@ -365,6 +555,7 @@
                     var items_html = $("div#new_bets_items").html();
                     items_html = items_html.replace("/[items_image]", "/chip-image/" + spl[0]);
                     items_html = items_html.replace("[items_name]", spl[1]);
+                    items_html = items_html.replace("[items_name]", spl[1]);
                     items_html = items_html.replace("[items_price]", spl[1]);
                     addition_items += items_html;
                 }
@@ -372,6 +563,38 @@
                 html_block = html_block.replace("[OTHER_BETS]", addition_bets);
                 html_block = html_block.replace("[BETS_ITEMS]", addition_items);
                 $("span#first_position").after(html_block);
+
+                var all_users_bets = data[22].split(";");
+                for (var i = 0; i < all_users_bets.length - 1; i++)
+                {
+                    var spl = all_users_bets[i].split('↓');
+                    $("div#user_id_" + spl[0] + " #bets_num").text(spl[2]);
+                    $("div#user_id_" + spl[0] + " #total_items_num").text(spl[3]);
+                    $("div#user_id_" + spl[0] + " #winrate").text(spl[1] + "%");
+                    $("div#user_id_" + spl[0] + " #total_price").text(spl[4]);
+                }
+
+
+
+                var bets_items_block = "";
+                var best_items = data[21].split(";");
+
+                for (var i = 0; i < best_items.length -1; i++)
+                {
+                    var spl = best_items[i].split('↓');
+
+                    var items_html = $("div#best_items_html").html();
+                    items_html = items_html.replace("[image]", "<img src='" + spl[1] + "'/>");
+                    items_html = items_html.replace("[name]", spl[0]);
+                    items_html = items_html.replace("[price]", spl[2]);
+                    bets_items_block += items_html;
+                }
+
+                $("div#best_items_list").html(bets_items_block);
+
+                $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
+                    $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
+                });
 
                 $(".content3." + random_hash).mCustomScrollbar({
                     horizontalScroll: false,
@@ -408,6 +631,8 @@
 
                 $("#jackpot_price").text(data[1]);
                 $("#jackpot_items_num").text(data[3]);
+
+
             }
 
             else if(data[0] == "LotteryRouletteStarted")
@@ -476,6 +701,9 @@
                         $(this).remove();
                     });
 
+                    GetSteamInventory(INVENTORY_ITEMS_NUM);
+                    GetLocalSteamInventory(LOCAL_INVENTORY_ITEMS_NUM);
+
                     $("div#bet_sys").attr('style', 'display:none;');
                     $("div#bet_ready").attr("style", "display:none;");
                     $("div#bet_done").attr("style", "display:none;");
@@ -503,6 +731,7 @@
                 else if (data[1] == "3")
                 {
                     $("div#bet_ready").attr("style", "display:none;");
+                    $("div#bet_wtf_error").attr("style", "display:none;");
                     $("div#bet_item_not_found").attr("style", "display:block;");
 
                     console.log("Item not found!");

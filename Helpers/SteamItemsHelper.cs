@@ -18,6 +18,7 @@ namespace GameSlot.Helpers
     public class SteamItemsHelper
     {
         public XTable<XSteamItem> Table = new XTable<XSteamItem>();
+        public XTable<XSteamItemsClassID> Table_ClassID = new XTable<XSteamItemsClassID>();
 
         private static Dictionary<uint, Dictionary<uint, string>> SteamItemImages = new Dictionary<uint, Dictionary<uint, string>>();
 

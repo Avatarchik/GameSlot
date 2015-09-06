@@ -5,9 +5,6 @@
 {{using GameSlot.Types}}
 {{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
 {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
-{{set List<USteamItem> LocalSteamInventory = (List<USteamItem>) PageData["LocalSteamInventory"]}}
-{{set bool SteamInventoryLoaded = (bool) PageData["SteamInventoryLoaded"]}}
-{{set UsersInventory UsersInventory = (UsersInventory) PageData["UsersInventory"]}}
 {{set XUser user = (XUser) PageData["User"]}}
 
 <body class="vn1">
@@ -15,7 +12,7 @@
         GetMyInventoryPage = true;
         MyInventoryPage_SteamGameID = MyInventoryPage_SteamGameID = "{{=SteamGameID}}";
         INVENTORY_ITEMS_NUM = 36;
-        INVENTORY_ITEMS_FROM = 0;
+        LOCAL_INVENTORY_ITEMS_NUM = 36;
     </script>
 
     <div id="steam_items_html" style="display:none;">
@@ -65,25 +62,25 @@
                     </div>
                 </div>
 
+                {{if(user.TradePartner == 0 || user.TradeToken.Length == 0)}}
                 <div class="search-steam" id="steam_trade_form">
                     <span>Мой Steam Trade URL</span>
-
-                    {{if(user.TradePartner == 0 || user.TradeToken.Length == 0)}}
-                        <div class="over-ev-it1 err">
-                            <input type="text" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=139041672&token=IHERy8ya" id="steam_trade_url">
-                            <div class="error-hide1"><div class="ev-pp1"><div><i id="trade_url_error">Не введена ссылка</i></div></div></div>
-                        </div>
-                        <div class="sub-st-e1 active" id="trade_url_btn"><own>Сохранить</own><input type="submit" value="" onclick="return UpdateTradeURL();"></div>
-                    {{end}}
-                    {{else}}
-                        <div class="over-ev-it1">
-                            <input type="text" value='https://steamcommunity.com/tradeoffer/new/?partner={{=user.TradePartner}}&token={{=user.TradeToken}}' id="steam_trade_url">
-                            <div class="error-hide1"><div class="ev-pp1"><div><i id="trade_url_error">Не введена ссылка</i></div></div></div>
-                        </div>
-                        <div class="sub-st-e1 active" id="trade_url_btn"><own>Сохранено</own><input type="submit" value="" onclick="return UpdateTradeURL();"></div>
-                    {{end}}
-
+                    <div class="over-ev-it1 err">
+                        <input type="text" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=139041672&token=IHERy8ya" id="steam_trade_url">
+                        <div class="error-hide1"><div class="ev-pp1"><div><i id="trade_url_error">Не введена ссылка</i></div></div></div>
+                    </div>
+                    <div class="sub-st-e1 active" id="trade_url_btn"><own>Сохранить</own><input type="submit" value="" onclick="return UpdateTradeURL();"></div>
                 </div>
+                {{end}}
+                {{else}}
+                <div class="search-steam" id="steam_trade_form">
+                    <div class="over-ev-it1">
+                        <input type="text" value='https://steamcommunity.com/tradeoffer/new/?partner={{=user.TradePartner}}&token={{=user.TradeToken}}' id="steam_trade_url">
+                        <div class="error-hide1"><div class="ev-pp1"><div><i id="trade_url_error">Не введена ссылка</i></div></div></div>
+                    </div>
+                    <div class="sub-st-e1 active" id="trade_url_btn"><own>Сохранено</own><input type="submit" value="" onclick="return UpdateTradeURL();"></div>
+                </div>   
+                {{end}}
 
                 <div class="tit-pr-stl1">Игровые фишки</div>
                 <div class="stl-vl1">
@@ -115,7 +112,8 @@
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t5.png" alt=""></span></div>
-                            <div class="sp-tt1">x0</div>                          
+                            <div class="sp-tt1">x0</div>    
+                            <a href="/comming-soon" class="bt-now1">Купить за 2800</a>                             
                         </div>
                     </div>
                 </div>
@@ -124,49 +122,42 @@
                     <div class="rr1 rr2">
                         <div class="sp-top-st1">
                             <div class="ev-tit-ll1">Временный инвентарь</div>
-                            <div class="srh1"><input type="text" value="Поиск по инвентарю"><input type="submit" value=""></div>
+                            <div class="srh1"><input type="text" placeholder="Поиск по инвентарю" id="search_in_local_steam_inventory"><input type="submit" value=""></div>
                         </div>
                         <div class="ov-bl1">
                             <div class="bg-ov-bl1"><div></div></div>
                             <div class="tit-bl1">
-                                <div class="ef1">{{=LocalSteamInventory.Count}}</div>
+                                <div class="ef1" id="local_steam_inventory_items_num">0</div>
                                 <div class="ef2">Суммарная<br>стоимость:</div>
-                                <div class="ef3 baks">{{=PageData["LocalTotalPrice"]}}</div>
-                                <a href="" class="link-steam-tt1">Передать в инвентарь Steam</a>
+                                <div class="ef3 baks" id="local_steam_inventory_total_price">0</div>
+                                <a href="" class="link-steam-tt1" id="send_local_items_to_steam" style="display:none;" onclick="return SendLocalItemsToSteam();">Передать в инвентарь Steam</a>
                             </div>
                             <div class="search1">
-                                <div class="sort-chk1">
-                                    <label><input type="checkbox" value=""><span class="sep-text-lb1">Выбрать всё</span></label>
-                                    <label><input type="checkbox" value=""><span class="sep-text-lb1">Отменить всё</span></label>
-                                </div>
                                 <div class="rr-sort1">
                                     <ul>
                                         <li>Сортировка:</li>
-                                        <li><a href="">Сперва дорогие</a></li>
-                                        <li class="active"><a href="">Сперва дешевые</a></li>
+                                        <li id="local_inventory_sort_by_high_price" class="active"><a onclick="return SortLocalInventoryByLowPrice(36, 0);">Сперва дорогие</a></li>
+                                        <li id="local_inventory_sort_by_low_price"><a href="" onclick="return SortLocalInventoryByLowPrice(36, 1);">Сперва дешевые</a></li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="cont-ov-items-more1 jcheck more36" dt="0" style="min-height: 444px;">
-                                {{foreach(USteamItem Item in LocalSteamInventory.GetRange(0, Math.Min(60, LocalSteamInventory.Count)))}}
-                                    <div class="item1">
-                                        <img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">
-                                        <span class="baks">{{=Item.Price_Str}}</span>
-                                        <a href="" onclick="return false;"></a>
-                                        <div class="tiltp" style="margin-left: -50px;">{{=Item.Name}}</div>  
-                                    </div>
-                                {{end}}
+
+                            <div class="cont-ov-items-more1 jcheck more36" id="local_steam_inventory" style="min-height: 444px;" dt="0"></div>
+
+                            <div class="modal-page-s1" id="local_steam_inventory_pagination" style="display:none;">
+                                <ul>
+                                    <li><a href="" onclick="return LocalInventory_GetFirstPage(36);" id="first">В начало</a></li>
+                                    <li><a href="" onclick="return LocalInventory_GetBeforePage(36);" id="before">Предыдущая</a></li>
+                                    <li><a href="" onclick="return LocalInventory_GetNextPage(36);" id="next">Следующая</a></li>
+                                    <li><a href="" onclick="return LocalInventory_GetLastPage(36);" id="last">В конец</a></li>
+                                </ul>
                             </div>
-                            {{if(LocalSteamInventory.Count / 60 > 0)}}
-                                <div class="modal-page-s1">
-                                    <ul>
-                                        <li><a href="">В начало</a></li>
-                                        <li><a href="">Предыдущая</a></li>
-                                        <li><a href="">Следующая</a></li>
-                                        <li><a href="">В конец</a></li>
-                                    </ul>
+
+                            <div class="ready-pp1" id="local_steam_inventory_loading">
+                                <div class="df-pp2 df-pp22">
+                                    <img src="/cached_files/img/9-6_2_obrabotka-stavki_loading_icon.gif" alt=""><span class="j1">Идёт загрузка<br>инвентаря</span>
                                 </div>
-                            {{end}}
+                            </div>
                         </div>
                     </div>
 
@@ -274,6 +265,17 @@
                 ws.send("UpdateTradeURL{{=BaseFuncs.WSplit}}" + $("input#steam_trade_url").val());
                 console.log("UpdateTradeURL{{=BaseFuncs.WSplit}}" + " sending..");
             }
+        }
+
+        function SendLocalItemsToSteam()
+        {
+            if(USERS_ITEMS_IN_LOCAL_INVENTORY > 0 && trade_ok)
+            {
+                ws.send("SendLocalItemsToSteam{{=BaseFuncs.WSplit}}{{=SteamGameID}}");
+                $("#send_local_items_to_steam").attr("class", "link-steam-tt1 active")
+            }
+
+            return false;
         }
     </script>
 </body>

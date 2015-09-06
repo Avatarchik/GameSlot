@@ -2,7 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using UpServer;
 
@@ -28,6 +31,18 @@ namespace GameSlot
         public static string GetReferer(Client client)
         {
             return client.Session["Referer"] != null ? (string)client.Session["Referer"] : "/";
+        }
+
+        public static void Rub_Rate()
+        {
+            new Thread(delegate()
+            {
+                using (WebClient wc = new WebClient())
+                {
+                    Rub_ExchangeRate = double.Parse(Regex.Split(wc.DownloadString("http://www.cbr.ru/scripts/XML_daily.asp"), "R01235")[1].Split('>')[10].Split('<')[0].Replace(',', '.'));
+                }
+                Thread.Sleep(TimeSpan.FromHours(12));
+            }).Start();
         }
     }
 }
