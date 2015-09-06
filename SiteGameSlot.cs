@@ -90,20 +90,11 @@ namespace GameSlot
         }
         public override bool PreInit(Client client)
         {
-            //List<SteamItem> Items;
-            //Helper.UserHelper.GetSteamInventory_Dota2(76561198134764617, out Items);
-            //XItemsShemaDOTA ii;
-           // Logger.ConsoleLog(Helper.ItemsSchemaHelper.TableShemaDOTA.SelectOne(data => data.DefIndex == 6299, out ii));
-            //Logger.ConsoleLog(ii.Name);
 
-           /* if(Helper.UserHelper.Authorized(client))
+            if (client.Session["Currency"] == null)
             {
-                if ((ulong)client.Session["SteamID"] == 76561198063550415 || (ulong)client.Session["SteamID"] == 76561198050218246)
-                {
-                    client.Head.GetParams.Add("whoathea", "1");
-                    Logger.ConsoleLog("Ваня на странице: " + client.URL + " at " + DateTime.Now.ToLongTimeString());
-                }
-            }*/
+                client.Session["Currency"] = 1;
+            }
 
             return true;
         }

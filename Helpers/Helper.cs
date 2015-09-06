@@ -44,15 +44,5 @@ namespace GameSlot
                 Thread.Sleep(TimeSpan.FromHours(12));
             }).Start();
         }
-
-        public static ushort GetStandartCurrency(Client client)
-        {
-            if (client.Session["Currency"] != null && client.Session["Currency"].Equals("1"))
-            {
-                return 1;
-            }
-
-            return 0;
-        }
     }
 }

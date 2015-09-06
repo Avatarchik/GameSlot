@@ -126,6 +126,7 @@ namespace GameSlot.Helpers
                     user.SteamID = SteamID;
                     // -1 (default, no group).
                     user.GroupOwnerID = -1;
+                    user.Currency = this.GetCurrency(client);
                     user = this.Table.SelectByID(this.Table.Insert(user));
                 }
 
@@ -134,6 +135,7 @@ namespace GameSlot.Helpers
                 client.Session["ProfileURL"] = user.ProfileURL;
                 client.Session["Name"] = user.Name;
                 client.Session["SteamID"] = user.SteamID;
+                client.Session["Currency"] = user.Currency;
 
                 //localhost/group/79384474774 -- URL
                 client.Session["GroupOwnerID"] = user.GroupOwnerID;
@@ -569,6 +571,21 @@ namespace GameSlot.Helpers
 
             TotalPrice_Str = price.ToString("###,##0.00");
             return price;
+        }
+
+        public ushort GetCurrency(Client client)
+        {
+            XUser user;
+            if(this.GetCurrentUser(client, out user))
+            {
+                return user.Currency;
+            }
+            else if (client.Session["Currency"] != null && client.Session["Currency"].Equals("1"))
+            {
+                return 1;
+            }
+
+            return 0;
         }
     }
 }
