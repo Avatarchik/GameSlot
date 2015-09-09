@@ -36,6 +36,7 @@ namespace GameSlot.Helpers
         private static Dictionary<uint, List<Client>> InventoryClients_DOTA = new Dictionary<uint, List<Client>>();
         private static Dictionary<uint, List<Client>> InventoryClients_CSGO = new Dictionary<uint, List<Client>>();
 
+        private static List<uint> EnterUser = new List<uint>();
         public UserHelper()
         {
             UsersInventories.Add(Configs.CSGO_STEAM_GAME_ID, UsersInventories_CSGO);
@@ -143,15 +144,20 @@ namespace GameSlot.Helpers
                 UsersInventory dota, csgo;
 
                 XUser th_user = user;
-                new Thread(delegate()
+                if (!EnterUser.Contains(user.ID))
                 {
-                    while (client.Closed)
+                    new Thread(delegate()
                     {
-                        this.GetSteamInventory(th_user, Configs.DOTA2_STEAM_GAME_ID, out dota, true);
-                        this.GetSteamInventory(th_user, Configs.CSGO_STEAM_GAME_ID, out csgo, true);
-                        Thread.Sleep(Configs.INVENTORY_UPDATE_TIME);
-                    }
-                }).Start();
+                        while (true)
+                        {
+                            this.GetSteamInventory(th_user.ID, Configs.DOTA2_STEAM_GAME_ID, out dota, true);
+                            this.GetSteamInventory(th_user.ID, Configs.CSGO_STEAM_GAME_ID, out csgo, true);
+                            Thread.Sleep(Configs.INVENTORY_UPDATE_TIME);
+                        }
+                    }).Start();
+
+                    EnterUser.Add(user.ID);
+                }
 
                 return true;
             }
@@ -170,7 +176,7 @@ namespace GameSlot.Helpers
             if(Convert.ToInt32(client.Session["GroupOwnerID"]) >= 0)
             {
                 XUser user;
-                return Helper.GroupHelper.SelectByID(Convert.ToUInt32(client.Session["GroupOwnerID"]), out group, out user);
+                return Helper.GroupHelper.SelectByID(Convert.ToUInt32(client.Session["GroupOwnerID"]), out group, out user, client);
             }
 
             group = null;
@@ -219,15 +225,35 @@ namespace GameSlot.Helpers
             }
         }
 
-        public bool GetSteamInventory(XUser User, uint SteamGameID, out UsersInventory UsersInventory, bool wait = false)
+        public bool GetSteamInventory(uint UserID, uint SteamGameID, out UsersInventory UsersInventory, bool wait = false)
         {
-            if (UsersInventories.ContainsKey(SteamGameID) && UsersInventories[SteamGameID].ContainsKey(User.ID))
+            XUser User;
+            if (this.Table.SelectByID(UserID, out User))
             {
-                UsersInventory = UsersInventories[SteamGameID][User.ID];
-                //Logger.ConsoleLog(UsersInventory.Opened + "CERCE");
-                if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID) && UsersInventory.LastUpdate + Configs.INVENTORY_UPDATE_TIME < Helper.GetCurrentTime())
+                if (UsersInventories.ContainsKey(SteamGameID) && UsersInventories[SteamGameID].ContainsKey(User.ID))
                 {
-                    //Logger.ConsoleLog("again update!");
+                    UsersInventory = UsersInventories[SteamGameID][User.ID];
+                    //Logger.ConsoleLog(UsersInventory.Opened + "CERCE");
+                    if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID) && UsersInventory.LastUpdate + Configs.INVENTORY_UPDATE_TIME < Helper.GetCurrentTime())
+                    {
+                        //Logger.ConsoleLog("again update!");
+                        if (wait)
+                        {
+                            this.UpdateSteamInventory(User, SteamGameID);
+                        }
+                        else
+                        {
+                            new Thread(delegate() { this.UpdateSteamInventory(User, SteamGameID); }).Start();
+                            //return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID))
+                {
+                    //Logger.ConsoleLog("update!");
                     if (wait)
                     {
                         this.UpdateSteamInventory(User, SteamGameID);
@@ -235,26 +261,9 @@ namespace GameSlot.Helpers
                     else
                     {
                         new Thread(delegate() { this.UpdateSteamInventory(User, SteamGameID); }).Start();
-                        //return false;
                     }
                 }
-
-                return true;
             }
-
-            if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID))
-            {
-                //Logger.ConsoleLog("update!");
-                if (wait)
-                {
-                    this.UpdateSteamInventory(User, SteamGameID);
-                }
-                else
-                {
-                    new Thread(delegate() { this.UpdateSteamInventory(User, SteamGameID); }).Start();
-                }
-            }
-
             UsersInventory = null;
             return false;
         }
@@ -332,12 +341,16 @@ namespace GameSlot.Helpers
                                         SteamItem.Type = XSteamItem.Type = Regex.Split(Regex.Split(ItemContent, "\"background_color\":\"")[1], ",\"type\":\"")[1].Split(',')[1].Split('"')[0];
                                     }
 
-                                    XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url\":\"")[1].Split('"')[0];
-                                    XSteamItem.SteamGameID = SteamGameID;
+                                    SteamItem.Image = XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url\":\"")[1].Split('"')[0];
+                                    SteamItem.SteamGameID = XSteamItem.SteamGameID = SteamGameID;
 
-                                    uint NewSteamItemID = Helper.SteamItemsHelper.Table.Insert(XSteamItem);
-                                    Helper.SteamItemsHelper.DownloadItemsImage(NewSteamItemID, SteamGameID);
-                                    Helper.SteamItemsHelper.AddSteamImageToCache(NewSteamItemID, SteamGameID);
+                                    Helper.SteamItemsHelper.Table.Insert(XSteamItem);
+                                    SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
+                                    SteamItem.ID = SteamItemImageQueue.ID = Helper.SteamItemsHelper.Table.Insert(XSteamItem);
+                                    SteamItemImageQueue.SteamGameID = XSteamItem.SteamGameID;
+                                    SteamItemImageQueue.ImageURL = XSteamItem.Image;
+
+                                    Helper.SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
                                 }
 
                                 if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
@@ -353,7 +366,15 @@ namespace GameSlot.Helpers
                                         Helper.SteamItemsHelper.Table_ClassID.Insert(XSteamItemsClassID);
                                     }
 
-                                    SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
+                                    if (User.Currency == 1)
+                                    {
+                                        SteamItem.Price = SteamItem.Price * Helper.Rub_ExchangeRate;
+                                        SteamItem.Price_Str = SteamItem.Price.ToString("###,###,##0");
+                                    }
+                                    else
+                                    {
+                                        SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
+                                    }
                                     SteamItems.Add(SteamItem);
 
                                     TotalPrice += SteamItem.Price;
@@ -366,23 +387,26 @@ namespace GameSlot.Helpers
                                }                               
                             }
 
-                            //Logger.ConsoleLog(SteamItems.Count, ConsoleColor.Green);
                             UsersInventory.SteamItems = (from it in SteamItems orderby it.Price descending select it).ToList();
                             UsersInventory.TotalPrice = TotalPrice;
-                            UsersInventory.TotalPrice_Str = TotalPrice.ToString("###,##0.00");
+                            if (User.Currency == 1)
+                            {
+                                UsersInventory.TotalPrice_Str = TotalPrice.ToString("###,###,##0");
+                            }
+                            else
+                            {
+                                UsersInventory.TotalPrice_Str = TotalPrice.ToString("###,##0.00");
+                            }
+
                             UsersInventory.Opened = true;
 
-                            User.SteamInventoryHash = BaseFuncs.MD5(data);
-                            this.Table.UpdateByID(User, User.ID);
+                            XUser cur_usr = this.Table.SelectByID(User.ID);
+                            cur_usr.SteamInventoryHash = BaseFuncs.MD5(data);
+                            this.Table.UpdateByID(cur_usr, User.ID);
                         }
                     }
                 }
                 catch { }
-
-               /* if (UsersInventories[SteamGameID].ContainsKey(User.ID))
-                {
-                    UsersInventories[SteamGameID].Remove(User.ID);
-                }*/
 
                 UsersInventory.LastUpdate = Helper.GetCurrentTime();
                 UsersInventories[SteamGameID][User.ID] = UsersInventory;
@@ -392,12 +416,11 @@ namespace GameSlot.Helpers
 
                 if (InventoryClients[SteamGameID].ContainsKey(User.ID))
                 {
-                    //Logger.ConsoleLog("size: " + InventoryClients[User.ID].Count);
                     for (int i = 0; i < InventoryClients[SteamGameID][User.ID].Count; i++)
                     {
                         if (!InventoryClients[SteamGameID][User.ID][i].Closed)
                         {
-                            WebSocketPage.UpdateInventory(StrItems, TotalPrice, ItemsNum, InventoryClients[SteamGameID][User.ID][i], (UsersInventory == null) ? false : true);
+                            WebSocketPage.UpdateInventory(StrItems, UsersInventory.TotalPrice_Str, ItemsNum, InventoryClients[SteamGameID][User.ID][i], (UsersInventory == null) ? false : true);
                         }
                     }
 
@@ -410,8 +433,9 @@ namespace GameSlot.Helpers
         public List<Chip> GetChipInventory(uint UserID, out double TotalPrice)
         {
             double price = 0;
+            XUser user;
             List<Chip> chips = new List<Chip>();
-            if (this.UserExist(UserID))
+            if (Helper.UserHelper.Table.SelectByID(UserID, out user))
             {
                 List<XChipUsersInventory> UChips;
                 if (this.Table_ChipUsersInventory.Select(data => data.UserID == UserID && !data.Deleted, out UChips))
@@ -424,9 +448,14 @@ namespace GameSlot.Helpers
                         {
                             Chip chip = ch.Clone();
                             chip.AssertID = xchip.AssertID;
+                            if(user.Currency == 1)
+                            {
+                                chip.Cost *= Helper.Rub_ExchangeRate;
+                                chip.Cost_Str = chip.Cost.ToString("###,###,##0");
+                            }
                             //Logger.ConsoleLog(chip.AssertID);
 
-                            price += ch.Cost;
+                            price += chip.Cost;
                             chips.Add(chip);
                         }
                     }
@@ -443,25 +472,50 @@ namespace GameSlot.Helpers
             return this.GetChipInventory(UserID, out TotalPrice);
         }
 
-        public List<USteamItem> GetSteamLocalInventory(uint UserID, uint SteamGameID)
+        public List<USteamItem> GetSteamLocalInventory(uint UserID, uint SteamGameID, bool tradable=true)
         {
             List<USteamItem> Items = new List<USteamItem>();
-
-            List<XSItemUsersInventory> x_inventory;
-            if(this.Table_SteamItemUsersInventory.Select(data => data.UserID == UserID && !data.Deleted && data.SteamGameID == SteamGameID, out x_inventory))
+            XUser user;
+            if (this.Table.SelectByID(UserID, out user))
             {
-                foreach (XSItemUsersInventory inventory in x_inventory)
+                List<XSItemUsersInventory> x_inventory;
+                if (this.Table_SteamItemUsersInventory.Select(data => data.UserID == UserID && !data.Deleted && data.SteamGameID == SteamGameID, out x_inventory))
                 {
-                    USteamItem USteamItem;
-                    if (Helper.SteamItemsHelper.SelectByID(inventory.SteamItemID, inventory.SteamGameID, out USteamItem))
+                    foreach (XSItemUsersInventory inventory in x_inventory)
                     {
-                        USteamItem.AssertID = inventory.AssertID;
-                        Items.Add(USteamItem);
-                    }
+                        USteamItem USteamItem;
+                        if (Helper.SteamItemsHelper.SelectByID(inventory.SteamItemID, inventory.SteamGameID, out USteamItem))
+                        {
+                            if (tradable)
+                            {
+                                if (USteamItem.Price >= Configs.MIN_ITEMS_PRICE)
+                                {
+                                    USteamItem.AssertID = inventory.AssertID;
 
+                                    if (user.Currency == 1)
+                                    {
+                                        USteamItem.Price *= Helper.Rub_ExchangeRate;
+                                        USteamItem.Price_Str = USteamItem.Price.ToString("###,###,##0");
+                                    }
+                                    Items.Add(USteamItem);
+                                }
+                            }
+                            else
+                            {
+                                USteamItem.AssertID = inventory.AssertID;
+
+                                if (user.Currency == 1)
+                                {
+                                    USteamItem.Price *= Helper.Rub_ExchangeRate;
+                                    USteamItem.Price_Str = USteamItem.Price.ToString("###,###,##0");
+                                }
+                                Items.Add(USteamItem);
+                            }
+                        }
+
+                    }
                 }
             }
-            
 
             Items = (from it in Items orderby it.Price descending select it).ToList();
             return Items;
@@ -510,7 +564,7 @@ namespace GameSlot.Helpers
         public bool IsUserHaveSteamItem_SteamInventory(ulong AssertID, uint ItemID, XUser User, uint SteamGameID, string UsersInventoryString)
         {
             UsersInventory UsersInventory;
-            if (User.SteamInventoryHash.Equals(BaseFuncs.MD5(UsersInventoryString)) && this.GetSteamInventory(User, SteamGameID, out UsersInventory))
+            if (User.SteamInventoryHash.Equals(BaseFuncs.MD5(UsersInventoryString)) && this.GetSteamInventory(User.ID, SteamGameID, out UsersInventory))
             {
                 foreach(USteamItem Item in UsersInventory.SteamItems)
                 {
@@ -564,12 +618,27 @@ namespace GameSlot.Helpers
         public double GetLocalSteamInventoryTotalPrice(uint UserID, uint SteamGameID, out string TotalPrice_Str)
         {
             double price = 0D;
-            foreach(USteamItem Item in Helper.UserHelper.GetSteamLocalInventory(UserID, SteamGameID))
+            XUser User;
+            if (this.Table.SelectByID(UserID, out User))
             {
-                price += Item.Price;
-            }
+                foreach (USteamItem Item in Helper.UserHelper.GetSteamLocalInventory(UserID, SteamGameID))
+                {
+                    price += Item.Price;
+                }
 
-            TotalPrice_Str = price.ToString("###,##0.00");
+                if (User.Currency == 1)
+                {
+                    TotalPrice_Str = price.ToString("###,###,##0");
+                }
+                else
+                {
+                    TotalPrice_Str = price.ToString("###,##0.00");
+                }
+            }
+            else
+            {
+                TotalPrice_Str = "0";
+            }
             return price;
         }
 

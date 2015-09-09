@@ -28,7 +28,7 @@ namespace GameSlot.Pages.UserPages
             if (Helper.UserHelper.GetCurrentUser(client, out User))
             {
                 UGroup group;
-                Helper.GroupHelper.SelectByID(User.ID, out group, out User);
+                Helper.GroupHelper.SelectByID(User.ID, out group, out User, client);
 
                 Hashtable data = new Hashtable();
                 data.Add("Group", group);

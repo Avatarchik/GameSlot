@@ -84,8 +84,14 @@ namespace GameSlot.Pages
 
             from = Math.Min(from, ((Lots.Length - ShowNum < 0) ? 0 : Lots.Length - ShowNum));
 
+            ushort currency = Helper.UserHelper.GetCurrency(client);
             for (int i = from; i < Math.Min(from + ShowNum, Lots.Length); i++)
             {
+                if(currency == 1)
+                {
+                    Lots[i].JackpotPrice *= Lots[i].RubCurrency;
+                }              
+
                 LotteryList.Add(Lots[i]);
             }
 
@@ -98,7 +104,8 @@ namespace GameSlot.Pages
             page_data.Add("GameURL", (SteamGameID == 570) ? "dota2" : "csgo");
             page_data.Add("From", from);
             page_data.Add("ShowNum", ShowNum);
-            
+            page_data.Add("Currency", currency);
+
             page_data.Add("GamesNum", Lots.Length);
             client.HttpSend(TemplateActivator.Activate(this, client, page_data));
             return true;

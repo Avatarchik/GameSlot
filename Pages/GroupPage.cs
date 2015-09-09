@@ -31,7 +31,7 @@ namespace GameSlot.Pages
             uint id;
             UGroup Group;
             XUser User;
-            if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out id) && Helper.GroupHelper.SelectByID(id, out Group, out User))
+            if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out id) && Helper.GroupHelper.SelectByID(id, out Group, out User, client))
             {
                 Hashtable data = new Hashtable();
                 data.Add("Owner", User);

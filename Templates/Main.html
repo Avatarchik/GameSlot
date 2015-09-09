@@ -4,13 +4,13 @@
     {{set Lottery Lottery_CSGO = (Lottery) PageData["Lottery_CSGO"]}}
     {{set Lottery Lottery_DOTA = (Lottery) PageData["Lottery_DOTA"]}}
 <body>
+    {{include GameSlot UpHeader}}
 	<div id="page">
-        {{include GameSlot UpHeader}}
         {{include GameSlot Header}}
         <div class="b1">
             <div>
                 <span>Привет, искатель удачи!<br>Ну что, погремим костями?</span>
-                <p>Интеренет ресурс «The GameSlot»  - это не только реальная возможность выиграть  огромное количество уникальных вещей из ваших любимых игр Dota 2, CS:GO и др, но и просто веселое времяпрепровождение с друзьями! Уникальность нашего сервиса в том, что механизм игры предельно прост и понятен, а расчёты победителя ведуться по честной и кристально-прозрачной схеме!<br>Вы сами можете проверить правильность всех расчётов!</p>
+                <p>Интернет-ресурс «The GameSlot» — это не только реальная возможность выиграть  огромное количество уникальных вещей из ваших любимых игр Dota 2, CS:GO и др, но и просто веселое времяпрепровождение с друзьями! Уникальность нашего сервиса в том, что механизм игры предельно прост и понятен, а расчёты победителя ведутся по честной и кристально-прозрачной схеме!<br>Вы сами можете проверить правильность всех расчётов!</p>
             </div>
         </div>
         <div class="sld-big-fake1">
@@ -22,10 +22,10 @@
                 <div class="ov-inf1">
                     <div class="sp1">
                         <span>Банк</span>
-                        <div class="j1 baks"><b>{{=Lottery_DOTA.JackpotPrice_Str}}</b></div>
+                        <div class="j1"><b>{{=Lottery_DOTA.JackpotPrice_Str}}</b></div>
                         <div class="j2"><b>{{=Lottery_DOTA.JackpotItems}}</b> Предметов</div>
                     </div>
-                    <div class="sp2">
+                    <!--<div class="sp2">
                         <span>До старта<br>лотереи:</span>
                         {{if(Lottery_DOTA.LeftTime < 0)}}
                             <div><i>05</i>:<i>00</i></div>
@@ -46,6 +46,9 @@
                         {{else}}
                             <div><i>00</i>:<i>00</i></div>
                         {{end}}
+                    </div>-->
+                    <div class="sp2 sp23">
+                        <b>Игра доступна</b>
                     </div>
                     <div class="sp3"><span>Игроков</span><b>{{=PageData["Gamers_DOTA"]}}</b></div>
                     <div class="sp4">
@@ -55,7 +58,7 @@
                         </div>
                         <div class="rr1">
                             <span>Максимальный джекпот</span>
-                            <div class="baks">{{=PageData["MaxJackpot_DOTA"]}}</div>
+                            <div class="">{{=PageData["MaxJackpot_DOTA"]}}</div>
                         </div>
                     </div>
                 </div>
@@ -66,10 +69,10 @@
                 <div class="ov-inf1">
                     <div class="sp1">
                         <span>Банк</span>
-                        <div class="j1 baks"><b>{{=Lottery_CSGO.JackpotPrice_Str}}</b></div>
+                        <div class="j1"><b>{{=Lottery_CSGO.JackpotPrice_Str}}</b></div>
                         <div class="j2"><b>{{=Lottery_CSGO.JackpotItems}}</b> Предметов</div>
                     </div>
-                    <div class="sp2">
+                    <!--<div class="sp2">
                         <span>До старта<br>лотереи:</span>
                         {{if(Lottery_CSGO.LeftTime < 0)}}
                             <div><i>05</i>:<i>00</i></div>
@@ -90,7 +93,11 @@
                         {{else}}
                             <div><i>00</i>:<i>00</i></div>
                         {{end}}
+                    </div>-->
+                    <div class="sp2 sp23">
+                        <b>Игра доступна</b>
                     </div>
+
                     <div class="sp3"><span>Игроков</span><b>{{=PageData["Gamers_CSGO"]}}</b></div>
                     <div class="sp4">
                         <div class="ll1">
@@ -99,7 +106,7 @@
                         </div>
                         <div class="rr1">
                             <span>Максимальный джекпот</span>
-                            <div class="baks">{{=PageData["MaxJackpot_CSGO"]}}</div>
+                            <div class="">{{=PageData["MaxJackpot_CSGO"]}}</div>
                         </div>
                     </div>
                 </div>

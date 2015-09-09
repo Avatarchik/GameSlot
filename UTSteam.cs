@@ -1,4 +1,5 @@
 ﻿using GameSlot.Database;
+using GameSlot.Pages.Includes;
 using GameSlot.Types;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace GameSlot
         public static Socket sk = null;
 
         public static Dictionary<ulong, Client> ClientsOffer = new Dictionary<ulong, Client>();
+        public static Dictionary<ulong, Client> SendClientOffer = new Dictionary<ulong, Client>();
 
         public UTSteam()
         {
@@ -103,6 +105,8 @@ namespace GameSlot
                                 XBotsOffer.Status = 2;
                                 Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer, XBotsOffer.ID);
                                 Helper.SteamBotHelper.DeclinedLocalItemOffer(XBotsOffer.OfferID);
+
+                                WebSocketPage.SendItemsOffer(XBotsOffer.SteamUserID, 2, XBotsOffer.OfferID);
                             }
 
                             Logger.ConsoleLog("User with steamid: '" + args[1] + "' declined tradeoffer with ID: " + args[2]);
@@ -185,6 +189,8 @@ namespace GameSlot
                                 XBotsOffer.Status = 5;
                                 Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer, XBotsOffer.ID);
                                 Helper.SteamBotHelper.ErrorToSendLocalItem(XBotsOffer.SteamUserID);
+
+                                WebSocketPage.SendItemsOffer(XBotsOffer.SteamUserID, 0);
                             }
 
                             Logger.ConsoleLog("Cant send offer to steamid: '" + args[1] + "'; error occured ");
@@ -198,6 +204,8 @@ namespace GameSlot
                                 XBotsOffer.Status = 1;
                                 XBotsOffer.OfferID = Convert.ToUInt64(args[2]);
                                 Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer, XBotsOffer.ID);
+
+                                WebSocketPage.SendItemsOffer(XBotsOffer.SteamUserID, 1, XBotsOffer.OfferID);
                                 Logger.ConsoleLog("Updated XBotsOffer status to " + XBotsOffer.Status);
                             }
 

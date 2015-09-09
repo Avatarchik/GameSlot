@@ -66,7 +66,13 @@ namespace GameSlot
         public static void OnLoad()
         {
             ServerData.LogLevel = LogLevel.Debug;
+
+            Logger.ConsoleLog("Getting rub currency...");
             Helper.Rub_Rate();
+            while(Helper.Rub_ExchangeRate <= 0)
+            {
+                Thread.Sleep(100);
+            }
 
             Helper.LotteryHelper = new LotteryHelper();
             Helper.SteamItemsHelper = new SteamItemsHelper();

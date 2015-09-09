@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameSlot.Helpers;
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,12 @@ namespace GameSlot.Pages.Images
                     //FileSender.SendUserFile(client, image);
                     return false;
                 }
+            }
+
+            if (SteamItemsHelper.NoneImage != null)
+            {
+                FileSender.SendCachedFile(client, (CachedFile)UpCacher.files[SteamItemsHelper.NoneImage]);
+                return false;
             }
 
             BaseFuncs.Show404(client);

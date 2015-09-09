@@ -2068,11 +2068,14 @@ body.vn3 #page #header .r-head .ct-t3 span {
   -webkit-border-radius: 100px;
   -moz-border-radius: 100px;
   border-radius: 100px;
+  float: left;
 }
 #content .ov-sp1.ov-sp11 .item1 .et .dc1 .ov-text-avt1 {
   display: inline-block;
   text-align: left;
   vertical-align: middle;
+  width: 149px;
+  word-break: break-all;
 }
 #content .ov-sp1.ov-sp11 .item1 .et .dc1 .ov-text-avt1 span {
   font-size: 21px;
@@ -5878,6 +5881,14 @@ body.vn3 #page #header .r-head .ct-t3 span {
   width: 17px;
   height: 18px;
 }
+#content2 .bl-ov-et1 .head-bl-et1 .bl-st2 div.evr1 a.j2:after {
+  background: url('../img/icons-se98ce02356.png') 0 -4397px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: inline-block;
+  margin-left: 3px;
+  content: "";
+}
 #content2 .bl-ov-et1 .head-bl-et1 .bl-st2 div.evr1 a.j3 {
   padding-left: 25px;
   width: 221px;
@@ -9020,6 +9031,13 @@ body.vn3 #page #header .r-head .ct-t3 span {
   width: 13px;
   height: 13px;
 }
+.double-st-tb-head1 .ll-head1.ll-head11 div a {
+  padding-left: 0;
+  cursor: default;
+}
+.double-st-tb-head1 .ll-head1.ll-head11 div a:before {
+  display: none;
+}
 
 .game-over-s1 {
   margin-left: 158px;
@@ -9191,6 +9209,9 @@ body.vn3 #page #header .r-head .ct-t3 span {
 }
 .game-over-s1 .ct-game-over1 .tit-game-over1.tit-game-over11 {
   left: 8px;
+}
+.game-over-s1 .ct-game-over1 .tit-game-over1.tit-game-over12 {
+  left: 16px;
 }
 .game-over-s1 .rr1 {
   float: right;

@@ -114,12 +114,12 @@ namespace GameSlot.Pages.Includes
                     if (Helper.UserHelper.GetCurrentUser(client, out User) && uint.TryParse(wsdata[1], out SteamGameID) && int.TryParse(wsdata[2], out FromNum) && int.TryParse(wsdata[3], out ItemsNum) && ushort.TryParse(wsdata[4], out SortByLowPrice))
                     {
                         UsersInventory Inventory = null;
-                        bool InList = Helper.UserHelper.GetSteamInventory(User, SteamGameID, out Inventory);
+                        bool InList = Helper.UserHelper.GetSteamInventory(User.ID, SteamGameID, out Inventory);
                         if (InList)
                         {
                             if (!Inventory.Opened)
                             {
-                                WebSocketPage.UpdateInventory("", 0d, 0, client, false);
+                                WebSocketPage.UpdateInventory("", 0.ToString(), 0, client, false);
                             }
                             else
                             {
@@ -145,7 +145,8 @@ namespace GameSlot.Pages.Includes
                                     StrItems += WebSocketPage.InventoryItemToString(SteamItems[i]);
                                 }
 
-                                WebSocketPage.UpdateInventory(StrItems, Inventory.TotalPrice, SteamItems.Count, client, true);
+                                Logger.ConsoleLog("Total price of steam inventory: " + Inventory.TotalPrice + "|" + Inventory.TotalPrice_Str);
+                                WebSocketPage.UpdateInventory(StrItems, Inventory.TotalPrice_Str, SteamItems.Count, client, true);
                             }
                         }
                         else
@@ -186,7 +187,8 @@ namespace GameSlot.Pages.Includes
                             StrItems += WebSocketPage.InventoryItemToString(SteamItems[i]);
                         }
                         string total_price_str;
-                        WebSocketPage.UpdateLocalInventory(StrItems, Helper.UserHelper.GetLocalSteamInventoryTotalPrice(User.ID, SteamGameID, out total_price_str), SteamItems.Count, client);
+                        Helper.UserHelper.GetLocalSteamInventoryTotalPrice(User.ID, SteamGameID, out total_price_str);
+                        WebSocketPage.UpdateLocalInventory(StrItems, total_price_str, SteamItems.Count, client);
                     }
                 }
                 else if (wsdata[0].Equals("LotteryPage"))
@@ -267,30 +269,27 @@ namespace GameSlot.Pages.Includes
                     {
                         string token;
                         ulong partner;
-                        //Logger.ConsoleLog((Regex.Split(wsdata[1], "partner=")[1].Split('&')[0] + "||"));
                         if (wsdata[1].Contains("partner=") && wsdata[1].Contains("token=") && ulong.TryParse(Regex.Split(wsdata[1], "partner=")[1].Split('&')[0], out partner))
                         {
                             token = Regex.Split(wsdata[1], "token=")[1];
-                            if (token.Length > 0)
+                            if (token.Length > 0 && partner > 0)
                             {
                                 if (token != user.TradeToken || partner != user.TradePartner)
                                 {
                                     user.TradeToken = token;
                                     user.TradePartner = partner;
                                     Helper.UserHelper.Table.UpdateByID(user, user.ID);
+                                    Logger.ConsoleLog("Updated trade url (" + user.ID + "):" + user.TradeToken);
                                 }
 
                                 client.SendWebsocket("UpdateTradeURL" + BaseFuncs.WSplit + "1" + BaseFuncs.WSplit + partner + BaseFuncs.WSplit + token);
-                               // Logger.ConsoleLog("upd!");
                             }
                         }
                         else
                         {
                             client.SendWebsocket("UpdateTradeURL" + BaseFuncs.WSplit + "0");
-                            //Logger.ConsoleLog("no upd!");
                         }
                     }
-                    //Logger.ConsoleLog("!!!!");
                 }
 
                 else if(wsdata[0].Equals("SendLocalItemsToSteam"))
@@ -303,7 +302,7 @@ namespace GameSlot.Pages.Includes
                         if(SteamItems.Count > 0)
                         {
                             Dictionary<uint, List<UTRequestSteamItem>> BotsRequests = new Dictionary<uint, List<UTRequestSteamItem>>();
-                            Dictionary<long, uint> AssertItems = new Dictionary<long, uint>();
+                            Dictionary<long, uint> AssertItemsIDs = new Dictionary<long, uint>();
 
                             foreach(USteamItem SteamItem in SteamItems)
                             {
@@ -319,7 +318,7 @@ namespace GameSlot.Pages.Includes
 
                                     UTRequestSteamItem.assertid = (long)SteamItem.AssertID;
 
-                                    AssertItems.Add(UTRequestSteamItem.assertid, SteamItem.ID);
+                                    AssertItemsIDs.Add((long)SteamItem.AssertID, SteamItem.ID);
 
                                     if (BotsRequests.ContainsKey(SteamItem.SteamBotID))
                                     {
@@ -330,13 +329,21 @@ namespace GameSlot.Pages.Includes
                                         List<UTRequestSteamItem> item_rq = new List<UTRequestSteamItem>();
                                         item_rq.Add(UTRequestSteamItem);
                                         BotsRequests.Add(SteamItem.SteamBotID, item_rq);
-
                                     }
                                 }
                             }
 
                             foreach (uint key in BotsRequests.Keys)
                             {
+                                if (!UTSteam.SendClientOffer.ContainsKey(user.SteamID))
+                                {
+                                    UTSteam.SendClientOffer.Add(user.SteamID, client);
+                                }
+                                else if (UTSteam.SendClientOffer[user.SteamID] != client)
+                                {
+                                    UTSteam.SendClientOffer[user.SteamID] = client;
+                                }
+
                                 XBotsOffer XBotsOffer;
                                 while (!Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.SteamUserID == user.SteamID && bt.Status == 0, out XBotsOffer))
                                 {
@@ -351,9 +358,13 @@ namespace GameSlot.Pages.Includes
                                     foreach (UTRequestSteamItem URequest in BotsRequests[key])
                                     {
                                         XBotOffersItem XBotOffersItem = new XBotOffersItem();
-                                        XBotOffersItem.AssertID = (ulong) URequest.assertid;
                                         XBotOffersItem.BotsOfferID = bots_offerid;
-                                        XBotOffersItem.SteamItemID = AssertItems[(long)XBotOffersItem.AssertID];
+                                        XBotOffersItem.AssertID = (ulong)URequest.assertid;
+
+                                        Logger.ConsoleLog("Sending item ID: ");
+                                        Logger.ConsoleLog(AssertItemsIDs[URequest.assertid]);
+
+                                        XBotOffersItem.SteamItemID = AssertItemsIDs[URequest.assertid];
 
                                         Helper.SteamBotHelper.Table_BotOffersItem.Insert(XBotOffersItem);
 
@@ -370,7 +381,7 @@ namespace GameSlot.Pages.Includes
                                         Logger.ConsoleLog("Steam item id: " + XBotOffersItem.SteamItemID);
                                     }
 
-                                    UTRequestSteamMain.message = "Передача вещей из временного инвентаря GAMESLOT. Данное предложение будет автоматически удалено спустя час.";
+                                    UTRequestSteamMain.message = "Peredacha veshhej iz vremennogo inventarja GAMESLOT. Dannoe predlozhenie budet avtomaticheski udaleno spustja chas.";
                                     UTRequestSteamMain.BotID = (int)key;
                                     UTRequestSteamMain.steamid = user.SteamID.ToString();
                                     UTRequestSteamMain.trade_acc_id = user.TradeToken;
@@ -378,8 +389,38 @@ namespace GameSlot.Pages.Includes
 
                                     Logger.ConsoleLog("Sending offer from local inventory... [" + UTRequestSteamMain.Items.Count + "] Bot ID:" + UTRequestSteamMain.BotID);
                                     UpTunnel.Sender.Send(UTSteam.sk, UTRequestSteamMain);
+                                    Thread.Sleep(300);
+                                }
+                            }
+                        }
+                    }
+                }
 
-                                    Thread.Sleep(1000);
+                else if (wsdata[0].Equals("BuyChip"))
+                {
+                    XUser user;
+                    uint chipID;
+                    if (Helper.UserHelper.GetCurrentUser(client, out user) && uint.TryParse(wsdata[1], out chipID))
+                    {
+                        Chip chip;
+                        if(Helper.ChipHelper.SelectByID(chipID, out chip))
+                        {
+                            double ChipPrice = chip.Cost;
+
+                            if(user.Currency == 1)
+                            {
+                                ChipPrice *= Helper.Rub_ExchangeRate;
+                                if(user.Wallet >= ChipPrice)
+                                {
+                                    user.Wallet -= ChipPrice;
+                                    Helper.UserHelper.Table.UpdateByID(user, user.ID);
+                                    Helper.ChipHelper.AddChipToUser(chip.ID, user.ID);
+
+                                    client.SendWebsocket("BuyChip" + BaseFuncs.WSplit + "1" + BaseFuncs.WSplit + chip.ID + BaseFuncs.WSplit + ChipPrice);
+                                }
+                                else
+                                {
+                                    client.SendWebsocket("BuyChip" + BaseFuncs.WSplit + "0");
                                 }
                             }
                         }
@@ -394,7 +435,7 @@ namespace GameSlot.Pages.Includes
         {
             UGroup group;
             XUser user;
-            if (Helper.GroupHelper.SelectByID(GroupID, out group, out user) && WebSocketPage.ClientsGroupPage.ContainsKey(group.ID))
+            if (Helper.GroupHelper.SelectByID(GroupID, out group, out user, null) && WebSocketPage.ClientsGroupPage.ContainsKey(group.ID))
             {
                 for (int i = 0; i < WebSocketPage.ClientsGroupPage[group.ID].Count; i++)
                 {
@@ -415,11 +456,11 @@ namespace GameSlot.Pages.Includes
             }
         }
 
-        public static void UpdateInventory(string StrItems, double TotalPrice, int ItemsNum, Client client, bool InventoryOpened)
+        public static void UpdateInventory(string StrItems, string TotalPrice_Str, int ItemsNum, Client client, bool InventoryOpened)
         {
             if (InventoryOpened)
             {
-                client.SendWebsocket("SteamInventory" + BaseFuncs.WSplit + TotalPrice.ToString("###,##0.00") + BaseFuncs.WSplit + StrItems + BaseFuncs.WSplit + ItemsNum);
+                client.SendWebsocket("SteamInventory" + BaseFuncs.WSplit + TotalPrice_Str + BaseFuncs.WSplit + StrItems + BaseFuncs.WSplit + ItemsNum);
                 //Logger.ConsoleLog(TotalPrice, ConsoleColor.Red);
                 return;
             }
@@ -427,9 +468,9 @@ namespace GameSlot.Pages.Includes
             client.SendWebsocket("SteamInventoryClosed" + BaseFuncs.WSplit);
         }
 
-        public static void UpdateLocalInventory(string StrItems, double TotalPrice, int ItemsNum, Client client)
+        public static void UpdateLocalInventory(string StrItems, string TotalPrice_Str, int ItemsNum, Client client)
         {
-            client.SendWebsocket("LocalInventory" + BaseFuncs.WSplit + TotalPrice.ToString("###,##0.00") + BaseFuncs.WSplit + StrItems + BaseFuncs.WSplit + ItemsNum);
+            client.SendWebsocket("LocalInventory" + BaseFuncs.WSplit + TotalPrice_Str + BaseFuncs.WSplit + StrItems + BaseFuncs.WSplit + ItemsNum);
         }
 
         public static string InventoryItemToString(USteamItem SteamItem)
@@ -438,8 +479,8 @@ namespace GameSlot.Pages.Includes
             Helper.SteamItemsHelper.GetImageFromMemory(SteamItem.ID, SteamItem.SteamGameID, out image);
             //Logger.ConsoleLog(image + "::" + SteamItem.ID + "::" + SteamItem.SteamGameID);
             // 4- last
-            return SteamItem.Name + "↓" + SteamItem.Price.ToString("###,##0.00") + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + "↓" + SteamItem.Image + ";";
-           // return SteamItem.Name + "↓" + SteamItem.Price.ToString("###,##0.00") + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + ";";
+            //return SteamItem.Name + "↓" + SteamItem.Price_Str + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + "↓" + SteamItem.Image + ";";
+            return SteamItem.Name + "↓" + SteamItem.Price_Str + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + ";";
         }
 
         /*public static void ChangeBetProcessStatus(ulong UserSteamID, ushort status)
@@ -483,6 +524,12 @@ namespace GameSlot.Pages.Includes
 
                 // Logger.ConsoleLog(Winrate + ":" + TotalPrice + "::" + Bank);
 
+                string UsersGroupName = "";
+                if(user.GroupOwnerID >= 0)
+                {
+                    UsersGroupName = BaseFuncs.WSplit + Helper.GroupHelper.SelectByID((uint)user.GroupOwnerID).Name;
+                }
+
                 for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XBet.LotteryID].Count; i++)
                 {
                     ushort currency = Helper.UserHelper.GetCurrency(ClientsLotteryPage[XBet.LotteryID][i]);
@@ -514,18 +561,18 @@ namespace GameSlot.Pages.Includes
                     string top_items = "";
                     for (int g = 0; g < Math.Min(7, TopPriceItems.Count); g++)
                     {
-                        TopPriceItem CurTopPriceItem = TopPriceItems[i];
+                        TopPriceItem CurTopPriceItem = TopPriceItems[g];
 
                         // name↓image↓price ; 
                         if (TopPriceItems[g].Type == 0)
                         {
                             top_items += BankSteamItems[CurTopPriceItem.Position].Name + "↓";
-                            top_items += "/steam-image/" + BankSteamItems[CurTopPriceItem.Position].SteamGameID + BankSteamItems[CurTopPriceItem.Position].ID + "↓";
+                            top_items += "/steam-image/" + BankSteamItems[CurTopPriceItem.Position].SteamGameID + "/" + BankSteamItems[CurTopPriceItem.Position].ID + "↓";
 
                             if (currency == 1)
                             {
                                 double price = BankSteamItems[CurTopPriceItem.Position].Price * lottery.RubCurrency;
-                                top_items += price.ToString("###,###,###") + ";";
+                                top_items += price.ToString("###,###,##0") + ";";
                             }
                             else
                             {
@@ -539,7 +586,7 @@ namespace GameSlot.Pages.Includes
                             if (currency == 1)
                             {
                                 double price = BankChips[CurTopPriceItem.Position].Cost * lottery.RubCurrency;
-                                top_items += price.ToString("###,###,###") + ";";
+                                top_items += price.ToString("###,###,##0") + ";";
                             }
                             else
                             {
@@ -550,16 +597,20 @@ namespace GameSlot.Pages.Includes
 
                     string ws = "";
                     string TotalPrice_Str;
+                    string Current_Bet_TotalPrice;
                     // 1: bank
                     if (currency == 1)
                     {
-                        ws = (lottery.JackpotPrice * lottery.RubCurrency).ToString("###,###,###");
-                        TotalPrice_Str = (TotalPrice * lottery.RubCurrency).ToString("###,###,###");
+                        ws = (lottery.JackpotPrice * lottery.RubCurrency).ToString("###,###,##0");
+                        TotalPrice_Str = (TotalPrice * lottery.RubCurrency).ToString("###,###,##0");
+
+                        Current_Bet_TotalPrice = (XBet.TotalPrice * lottery.RubCurrency).ToString("###,###,##0");
                     }
                     else
                     {
                         ws = lottery.JackpotPrice.ToString("###,##0.00");
                         TotalPrice_Str = TotalPrice.ToString("###,##0.00");
+                        Current_Bet_TotalPrice = (XBet.TotalPrice).ToString("###,##0.00");
                     }
 
                     // 4: ExtraTime
@@ -567,7 +618,7 @@ namespace GameSlot.Pages.Includes
                     // 5: items_num; 6: totalprice; 7: first_token; 8: last_token
                     ws += XBet.SteamItemsNum + XBet.ChipsNum + BaseFuncs.WSplit + TotalPrice_Str + BaseFuncs.WSplit + XBet.FisrtToken.ToString("D8") + BaseFuncs.WSplit + XBet.LastToken.ToString("D8") + BaseFuncs.WSplit;
                     // 9: bets_num; 10: TotalPrice (bets); 11: TotalItems (bets); 12: WINRATE 
-                    ws += BetsCount + BaseFuncs.WSplit + BaseFuncs.WSplit + TotalItemsNum + BaseFuncs.WSplit + Winrate + BaseFuncs.WSplit;
+                    ws += BetsCount + BaseFuncs.WSplit + Current_Bet_TotalPrice + BaseFuncs.WSplit + TotalItemsNum + BaseFuncs.WSplit + Winrate + BaseFuncs.WSplit;
                     // 13: OtherBets; 14: UserID; 15: UserName; 16: UsersAvatar 17: BetID 18: LotteryLeftTime
                     ws += OtherBets + BaseFuncs.WSplit + user.ID + BaseFuncs.WSplit + user.Name + BaseFuncs.WSplit + user.Avatar + BaseFuncs.WSplit + XBet.ID + BaseFuncs.WSplit + LotteryLeftTime + BaseFuncs.WSplit;
                     // 19 (steam_items): ITEM_ID :: GAME_ID, ITEM_NAME, ITEM_PRICE ↓ (REPEAT); 20 (chips): ID :: Price ↓ 
@@ -576,7 +627,20 @@ namespace GameSlot.Pages.Includes
                     {
                         XSteamItem SteamItem;
                         Helper.SteamItemsHelper.SelectByID(XBet.SteamItemIDs[g], lottery.SteamGameID, out SteamItem);
-                        ws += SteamItem.ID + "::" + lottery.SteamGameID + "::" + SteamItem.Name + "::" + XBet.SteamItemsPrice[g].ToString("###,##0.00") + "↓";
+
+                        string ItemPrice;
+                        double Price = 0d;
+                        if(user.Currency == 1)
+                        {
+                            Price = XBet.SteamItemsPrice[g] * lottery.RubCurrency;
+                            ItemPrice = Price.ToString("###,###,##0");
+                        }
+                        else
+                        {
+                            Price = XBet.SteamItemsPrice[g];
+                            ItemPrice = Price.ToString("###,##0.00");
+                        }
+                        ws += SteamItem.ID + "::" + lottery.SteamGameID + "::" + SteamItem.Name + "::" + ItemPrice + "↓";
                     }
 
                     ws += BaseFuncs.WSplit;
@@ -584,6 +648,13 @@ namespace GameSlot.Pages.Includes
                     {
                         Chip chip;
                         Helper.ChipHelper.SelectByID(XBet.ChipIDs[g], out chip);
+
+                        if(user.Currency == 1)
+                        {
+                            chip.Cost *= lottery.RubCurrency;
+                            chip.Cost_Str = chip.Cost.ToString("###,###,##0");
+                        }
+
                         ws += chip.ID + "::" + chip.Cost_Str + "↓";
                     }
 
@@ -599,13 +670,18 @@ namespace GameSlot.Pages.Includes
                         GamersStats += UsersBet.TotalItemsNum + "↓";
 
                         if(currency == 1)
-                            GamersStats += (UsersBet.TotalPrice * lottery.RubCurrency).ToString("###,###,###") + ";";
+                            GamersStats += (UsersBet.TotalPrice * lottery.RubCurrency).ToString("###,###,##0") + ";";
                         else
                             GamersStats += UsersBet.TotalPrice_Str + ";";
                     }
 
                     //22: all bets
                     ws += BaseFuncs.WSplit + GamersStats;
+                    // 23 group
+                    ws += BaseFuncs.WSplit + user.GroupOwnerID;
+                    // 24 group name
+                    ws += UsersGroupName;
+
 
                     WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i].SendWebsocket("AddedNewLotteryBet" + BaseFuncs.WSplit + ws);
                 }
@@ -615,13 +691,9 @@ namespace GameSlot.Pages.Includes
         public static void SendLotteryRoulette(XLottery XLottery, List<LotteryRouletteData> RouletteData, XUser Winner)
         {
             if (ClientsLotteryPage.ContainsKey(XLottery.ID))
-            {
+            {                    
                 // from 1: JackpotItems 2: JackpotPrice 3:Winner.ID 4: Winner.Name 5:RaundNumber 6: WinnerToken 7:(JackpotPrice * 100) 8: Winner.Avatar
-                string ws = XLottery.JackpotItemsNum + BaseFuncs.WSplit + XLottery.JackpotPrice + BaseFuncs.WSplit + Winner.ID + BaseFuncs.WSplit + Winner.Name + BaseFuncs.WSplit;
-                ws += XLottery.RaundNumber + BaseFuncs.WSplit + XLottery.WinnersToken + BaseFuncs.WSplit + (XLottery.JackpotPrice * 100) + BaseFuncs.WSplit + Winner.Avatar + BaseFuncs.WSplit;
-                // 9: wonrate; 10: winners_items_num; 11: winners_price
-                ws += XLottery.Wonrate + BaseFuncs.WSplit + XLottery.WinnersBetItemsNum + BaseFuncs.WSplit + XLottery.WinnersBetPrice + BaseFuncs.WSplit;
-
+                string ws = "";
                 // 12: data
                 foreach (LotteryRouletteData data in RouletteData)
                 {
@@ -629,19 +701,62 @@ namespace GameSlot.Pages.Includes
                 }
 
                 ws += BaseFuncs.WSplit;
+
                 for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XLottery.ID].Count; i++)
                 {
-                    XUser CurrentUser;
-                    if (Helper.UserHelper.GetCurrentUser(WebSocketPage.ClientsLotteryPage[XLottery.ID][i], out CurrentUser))
+
+                    string extra = XLottery.JackpotItemsNum + BaseFuncs.WSplit;
+
+                    string WinnersBetPrice;
+                    if (Helper.UserHelper.GetCurrency(WebSocketPage.ClientsLotteryPage[XLottery.ID][i]) == 1)
                     {
-                        ws += 1.ToString();
+                        extra += (XLottery.JackpotPrice * XLottery.RubCurrency).ToString("###,###,##0");
+                        WinnersBetPrice = (XLottery.WinnersBetPrice * XLottery.RubCurrency).ToString("###,###,##0");
                     }
                     else
                     {
-                        ws += 0.ToString();
+                        extra += XLottery.JackpotPrice.ToString("###,##0.00");
+                        WinnersBetPrice = XLottery.WinnersBetPrice.ToString("###.##0.00");
                     }
 
-                    WebSocketPage.ClientsLotteryPage[XLottery.ID][i].SendWebsocket("LotteryRouletteStarted" + BaseFuncs.WSplit + ws);
+                    extra += BaseFuncs.WSplit + Winner.ID + BaseFuncs.WSplit + Winner.Name + BaseFuncs.WSplit;
+                    extra += XLottery.RaundNumber + BaseFuncs.WSplit + XLottery.WinnersToken + BaseFuncs.WSplit + (XLottery.JackpotPrice * 100) + BaseFuncs.WSplit + Winner.Avatar + BaseFuncs.WSplit;
+                    // 9: wonrate; 10: winners_items_num; 11: winners_price
+                    extra += XLottery.Wonrate + BaseFuncs.WSplit + XLottery.WinnersBetItemsNum + BaseFuncs.WSplit + WinnersBetPrice + BaseFuncs.WSplit;
+                    extra += ws + BaseFuncs.WSplit;
+
+                    XUser CurrentUser;
+                    if (Helper.UserHelper.GetCurrentUser(WebSocketPage.ClientsLotteryPage[XLottery.ID][i], out CurrentUser) && CurrentUser.ID == Winner.ID)
+                    {
+                        extra += 1.ToString();
+                        Logger.ConsoleLog("Winner detected!", ConsoleColor.Yellow);
+                    }
+                    else
+                    {
+                        extra += 0.ToString();
+                    }
+                    Logger.ConsoleLog("User:" + CurrentUser.ID, ConsoleColor.Yellow);
+                    WebSocketPage.ClientsLotteryPage[XLottery.ID][i].SendWebsocket("LotteryRouletteStarted" + BaseFuncs.WSplit + extra);
+                }
+            }
+        }
+
+        public static void SendItemsOffer(ulong UserSteamID, ushort status, ulong offerID = 0)
+        {
+            if(UTSteam.SendClientOffer.ContainsKey(UserSteamID))
+            {
+                Client client = UTSteam.SendClientOffer[UserSteamID];
+                if (status == 1)
+                {
+                    client.SendWebsocket("SendLocalItemsToSteam" + BaseFuncs.WSplit + "1" + BaseFuncs.WSplit + offerID);
+                }
+                else if(status==0)
+                {
+                    client.SendWebsocket("SendLocalItemsToSteam" + BaseFuncs.WSplit + "0");
+                }
+                else if (status == 2)
+                {
+                    client.SendWebsocket("SendLocalItemsToSteam" + BaseFuncs.WSplit + "2" + BaseFuncs.WSplit + offerID);
                 }
             }
         }

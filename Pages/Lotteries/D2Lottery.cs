@@ -52,34 +52,64 @@ namespace GameSlot.Pages.Lotteries
             }
 
             Hashtable data = new Hashtable();
+            ushort currency = Helper.UserHelper.GetCurrency(client);
+
+            Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID, client);
 
             XUser user;
-            if (Helper.UserHelper.GetCurrentUser(client, out user))
+            bool auth = Helper.UserHelper.GetCurrentUser(client, out user);
+            if (auth)
             {
                 double ChipsTotalPrice;
                 data.Add("Chips", Helper.UserHelper.GetChipInventory(user.ID, out ChipsTotalPrice));
-                data.Add("ChipsTotalPrice", ChipsTotalPrice.ToString("###,##0.00"));
+
+                if (user.Currency == 1)
+                {
+                    data.Add("ChipsTotalPrice", ChipsTotalPrice.ToString("###,###,##0"));
+                }
+                else
+                {
+                    data.Add("ChipsTotalPrice", ChipsTotalPrice.ToString("###,##0.00"));
+                }
 
                 data.Add("User", user);
             }
 
-            Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID, client);
+            if (auth && Lottery.LeftTime == 0 && user.ID == Lottery.Winner.ID)
+            {
+                data.Add("ItsWinner", true);
+            }
+            else
+            {
+                data.Add("ItsWinner", false);
+            }
+
             data.Add("Lottery", Lottery);
 
             data.Add("TopItems", Helper.LotteryHelper.GetTopItems(Lottery.ID, 7, client));
             data.Add("Bets", Helper.LotteryHelper.GetBets(Lottery.ID, client));
 
-            int items;
-            data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items).ToString("###,##0.00"));
-            data.Add("MaxJackpotItems", items);
-
             double TodaysJackpotPrice;
             int TodaysJackpotItems;
-            data.Add("TodaysGames", Helper.LotteryHelper.TodaysGames(SteamGameID, out TodaysJackpotPrice, out TodaysJackpotItems).Length);
-            data.Add("TodaysJackpotItems", TodaysJackpotItems);
-            data.Add("TodaysJackpotPrice", TodaysJackpotPrice.ToString("###,##0.00"));
+            data.Add("TodaysGames", Helper.LotteryHelper.TodaysGames(SteamGameID, out TodaysJackpotPrice, out TodaysJackpotItems, currency).Length);
 
+            int items;
+            if (currency == 1)
+            {
+                data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items, 1).ToString("###,###,##0"));
+                data.Add("TodaysJackpotPrice", TodaysJackpotPrice.ToString("###,###,##0"));
+            }
+            else
+            {
+                data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items, 0).ToString("###,##0.00"));
+                data.Add("TodaysJackpotPrice", TodaysJackpotPrice.ToString("###,##0.00"));
+            }
+
+            data.Add("MaxJackpotItems", items);
+            data.Add("TodaysJackpotItems", TodaysJackpotItems);
+            
             data.Add("Title", "Лотерея " + title);
+            data.Add("Game", Game);
             client.HttpSend(TemplateActivator.Activate(this, client, data));
             return true;
         }

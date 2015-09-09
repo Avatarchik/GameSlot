@@ -238,10 +238,11 @@
                 /*items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");*/
                 items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");
 
-                items_html = items_html.replace("[item_assert_id]", item[4]);
+                items_html = items_html.replace("[item_unique_id]", item[4] + "_1");
                 items_html = items_html.replace("[item_assert_id]", item[4]);
                 items_html = items_html.replace("[item_assert_id]", item[4]);
 
+                items_html = items_html.replace("[iventory_id]", "1");
                 items_html = items_html.replace("[iventory_id]", "1");
                 items_html = items_html.replace("[current_iventory_id]", "1");
 
@@ -341,19 +342,18 @@
                 var item = items[i].split('↓');
 
                 items_html = items_html.replace("[item_name]", item[0]);
-                items_html = items_html.replace("[item_name]", item[0]);
 
-                items_html = items_html.replace("[item_id]", item[3]);
                 items_html = items_html.replace("[item_id]", item[3]);
 
                 items_html = items_html.replace("[item_price]", item[1]);
                 /*items_html = items_html.replace("[item_steam_image]", "<img src='" + item[5] + "' alt='" + item[0] + "'>");*/
                 items_html = items_html.replace("[item_steam_image]", "<img src='/steam-image/" + item[2] + "/" + item[3] + "' alt='" + item[0] + "'>");
 
-                items_html = items_html.replace("[item_assert_id]", item[4]);
+                items_html = items_html.replace("[item_unique_id]", item[4] + "_2");
                 items_html = items_html.replace("[item_assert_id]", item[4]);
                 items_html = items_html.replace("[item_assert_id]", item[4]);
 
+                items_html = items_html.replace("[iventory_id]", "2");
                 items_html = items_html.replace("[iventory_id]", "2");
                 items_html = items_html.replace("[current_iventory_id]", "2");
 
@@ -461,6 +461,44 @@
                     trade_url = 'https://steamcommunity.com/tradeoffer/new/?partner=' + data[2] + '&token=' + data[3];
                 }
             }
+
+            else if(data[0] == "SendLocalItemsToSteam")
+            {
+                if(data[1] == "0")
+                {
+                    alert("Предложение не дошло, повторите попытку.");
+                }
+                else if(data[1] == "1")
+                {
+                    alert("Предложение успешно отправлено, offer id: " + data[2] +"\nПредложение необходимо принять в течении часа, иначе оно будет удалено.");
+                }
+                else if(data[2] == "2")
+                {
+                    alert("Вы отменили предложение, offer id: " + data[2]);
+                }
+                $("#send_local_items_to_steam").attr("class", "link-steam-tt1");
+                LOCAL_INVENTORY_ITEMS_FROM = 0;
+                GetLocalSteamInventory(36);
+            }
+
+            else if (data[0] == "BuyChip")
+            {
+                if(data[1] == "0")
+                {
+                    alert("У вас недостаточно средств.\nДля покупки фишек сначала необходимо пополнить баланс.")
+                }
+
+                else if(data[1] == "1")
+                {
+                    var cur = $("#count_f_" + data[2]).text();
+                    cur = cur.replace("x", "");
+                    var cur_num = parseInt(cur);
+                    cur_num++;
+                    $("#count_f_" + data[2]).text("x" + cur_num);
+                    alert("Вы успешно приобрели фишку на сумму " + data[3] + " рублей.");
+                }
+            }
+
         }
 
         else if (MyGroupPageConnect)
@@ -495,7 +533,7 @@
             {
                 var html_block = $("div#new_bet").html();
                 html_block = html_block.replace("[BET_ITEMS_NUM]", data[5]);
-                html_block = html_block.replace("[BET_PRICE]", data[6]);
+                html_block = html_block.replace("[BET_PRICE]", data[10]);
                 html_block = html_block.replace("[FIRST_TOKEN]", data[7]);
                 html_block = html_block.replace("[LAST_TOKEN]", data[8]);
                 html_block = html_block.replace("[BETS_NUM]", data[9]);
@@ -545,7 +583,7 @@
                     var items_html = $("div#new_bets_items").html();
                     items_html = items_html.replace("/[items_image]", "/steam-image/" + spl[1] + "/" + spl[0]);
                     items_html = items_html.replace("[items_name]", spl[2]);
-                    items_html = items_html.replace("[items_name]", spl[2]);
+                    items_html = items_html.replace("[items_name]", spl[1]);
                     items_html = items_html.replace("[items_price]", spl[3]);
                     addition_items += items_html;
                 }
@@ -564,6 +602,16 @@
 
                 /*html_block = html_block.replace("[OTHER_BETS]", addition_bets);*/
                 html_block = html_block.replace("[BETS_ITEMS]", addition_items);
+                if(data[23] != "-1"){
+                    html_block = html_block.replace("[hangout_user]", data[24]);
+                    html_block = html_block.replace("[hangout_text]", "Тусовка:");
+                }
+                else
+                {
+                    html_block = html_block.replace("[hangout_user]", "");
+                    html_block = html_block.replace("[hangout_text]", "");
+                }
+
                 $("span#first_position").after(html_block);
 
                 var all_users_bets = data[22].split(";");
@@ -644,7 +692,6 @@
                 for (var i = 0; i < users.length - 1; i++)
                 {
                     var user = users[i].split('↑');
-                    /*<div dt='8888881' class='item1 black1'><img src='img/av1.png' alt=''></div>*/
                     if (user[2] == "1") {
                         avatars_html += "<div dt='" + user[1] + "' class='item1 win1'><img src='" + user[0] + "' alt=''></div>";
                     }
@@ -658,6 +705,11 @@
                 $("div#lottery_started_format").attr("style", "display:none;");
 
                 $("div#lottery_roulette_format div#raund_number").html($("div#lottery_roulette_format div#raund_number").html() + data[5]);
+
+                $("div#lottery_roulette_format b#jackpot_items").text(data[1]);
+                $("div#lottery_roulette_format i#jackpot_price").text(data[2]);
+
+
                 $("div#lottery_roulette_format").attr("style", "display:block;");
                 $("div#bet_sys").attr('style', 'display:none;');
 
@@ -687,6 +739,14 @@
                 $("div#lottery_end_format b#winners_bet_price").text(data[11]);
 
                 $("div#lottery_end_format div#winners_wonrate").text(data[9] + "%");
+
+                if (data[13] == "0")
+                {
+                    $(".fk15").removeClass("fk151");
+                    $(".rr11").removeClass("rr111");
+                    $("#msg_to_winner").removeAttr("style")
+                }
+
                 /* end updating here */
 
                 rull();

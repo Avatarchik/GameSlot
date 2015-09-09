@@ -53,15 +53,7 @@ namespace GameSlot.Pages
             XUser user;
             if (Helper.UserHelper.GetCurrentUser(client, out user))
             {
-                if (client.GetParam("token") != null && client.GetParam("partner") != null)
-                {
-
-                    user.TradeToken = client.GetParam("token");
-                    user.TradePartner = Convert.ToUInt64(client.GetParam("partner"));
-                    Helper.UserHelper.Table.UpdateByID(user, user.ID);
-                    Logger.ConsoleLog("updated steam trade");
-                }
-                else if (client.GetParam("all") != null)
+                if (client.GetParam("all") != null)
                 {
                     Logger.ConsoleLog("count::" + Helper.UserHelper.Table_SteamItemUsersInventory.SelectAll().Count, ConsoleColor.Red);
                     foreach(XSItemUsersInventory x in Helper.UserHelper.Table_SteamItemUsersInventory.SelectAll())
@@ -88,6 +80,32 @@ namespace GameSlot.Pages
                         Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
                     }
                 }
+                else if(client.GetParam("game_322") != null)
+                {
+                    Logger.ConsoleLog("\nDOTA: ");
+                    Lottery dota = Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID, client);
+                    Logger.ConsoleLog("RoundNumber: " + dota.RaundNumber.ToString());
+                    Logger.ConsoleLog("WinnersToken: " + (int)(dota.JackpotPrice * 100 * dota.RaundNumber));
+                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(dota.JackpotPrice * 100 * dota.RaundNumber), dota.ID).Name);
+                    Logger.ConsoleLog("--------------------------------------------------------------------\n");
+
+                    Logger.ConsoleLog("\nCSGO: ");
+                    Lottery csgo = Helper.LotteryHelper.GetCurrent(Configs.CSGO_STEAM_GAME_ID, client);
+                    Logger.ConsoleLog("RoundNumber: " + csgo.RaundNumber.ToString());
+                    Logger.ConsoleLog("WinnersToken: " + (int)(csgo.JackpotPrice * 100 * csgo.RaundNumber));
+                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(csgo.JackpotPrice * 100 * csgo.RaundNumber), csgo.ID).Name);
+                    Logger.ConsoleLog("--------------------------------------------------------------------\n");
+                }
+
+                else if(client.GetParam("add_money") != null)
+                {
+                    double money;
+                    if(double.TryParse(client.GetParam("add_money"), out money))
+                    {
+                        user.Wallet += money;
+                        Helper.UserHelper.Table.UpdateByID(user, user.ID);
+                    }
+                }
                 else
                 {
                     if (client.GetParam("item_id") != null && client.GetParam("asert_id") != null)
@@ -106,8 +124,6 @@ namespace GameSlot.Pages
                         {
                             //Stopwatch sw = Stopwatch.StartNew();
                             Helper.LotteryHelper.SetBet(Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID, client).ID, user.ID, usi, Chips, client);
- 
-
                         }
                         
                         //Logger.ConsoleLog(sw.ElapsedMilliseconds);

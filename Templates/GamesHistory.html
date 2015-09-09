@@ -7,6 +7,7 @@
 {{set int From = (int) PageData["From"]}}
 {{set int ShowNum = (int) PageData["ShowNum"]}}
 {{set int GamesNum = (int) PageData["GamesNum"]}}
+{{set ushort Currency = (ushort) PageData["Currency"]}}
 
 <body class="vn1">
 	<div id="page">
@@ -52,11 +53,11 @@
                     </div>
                 </div>
                 <div class="double-st-tb-head1">
-                    <div class="ll-head1">
+                    <div class="ll-head1 ll-head11">
                         <div class="j1"><a href=""><span>Игра №</span></a></div>
                         <div class="j2"><a href=""><span>Победил</span></a></div>
                         <div class="j3"><a href=""><span>Выиграл<br>с шансом</span></a></div>
-                        <div class="j4"><a href=""><span>Колл-во<br>предметов</span></a></div>
+                        <div class="j4"><a href=""><span>Кол-во<br>предметов</span></a></div>
                         <div class="j5"><a href=""><span>Сумма джекпота</span></a></div>
                     </div>
                     <div class="rr1">
@@ -87,7 +88,15 @@
                                 <div class="et j2"><span class="dc1"><span class="ev-avt1"><img src="{{=User.Avatar}}" alt=""></span><span class="ov-text-avt1"><span>{{=User.Name}}</span></span></span></div>
                                 <div class="et j3"><span class="dc1">{{=Lottery.Wonrate}}%</span></div>
                                 <div class="et j4"><span class="dc1">{{=Lottery.JackpotItemsNum.ToString("##,###")}}</span></div>
-                                <div class="et j5"><span class="dc1 dc11"><span class="price-st-y1 baks">{{=Lottery.JackpotPrice.ToString("###,##0.00")}}</span></span></div>
+                                <div class="et j5"><span class="dc1 dc11">
+                                    <span class="price-st-y1">       
+                                    {{if(Currency == 1)}}             
+                                        {{=Lottery.JackpotPrice.ToString("###,###,##0")}}
+                                    {{end}}     
+                                    {{else}}
+                                        {{=Lottery.JackpotPrice.ToString("###,##0.00")}}
+                                    {{end}}
+                                    </span></span></div>
                                 <div class="et j6"><span class="dc1"><a href="/game-history/" onclick="return false;" style="opacity: 0.6;" class="bt-link1">Полная история еще недоступна</a></span></div>
                             </div>
                         </div>

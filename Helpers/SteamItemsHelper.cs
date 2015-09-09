@@ -25,12 +25,23 @@ namespace GameSlot.Helpers
         private static Dictionary<uint, string> SteamItemImages_DOTA = new Dictionary<uint, string>();
         private static Dictionary<uint, string> SteamItemImages_CSGO = new Dictionary<uint, string>();
 
+        public static string NoneImage = "";
+
+        public Queue<SteamItemImageQueue> QueueDownloadImage = new Queue<SteamItemImageQueue>();
+
         public SteamItemsHelper()
         {
             SteamItemImages.Add(Configs.DOTA2_STEAM_GAME_ID, SteamItemImages_DOTA);
             SteamItemImages.Add(Configs.CSGO_STEAM_GAME_ID, SteamItemImages_CSGO);
 
             this.AddSteamImagesToMemory();
+            this.DownloadImagesFromQueue();
+
+            string path = "FileStorage\\Upload\\322image.jpg";
+            if (File.Exists(path))
+            {
+                NoneImage = FilesProcessor.CacheFile(File.ReadAllBytes(path), ".jpg");
+            }
         }
 
         public bool SelectByName(string name, uint SteamGameID, out USteamItem SteamItem)
@@ -133,33 +144,39 @@ namespace GameSlot.Helpers
                             //this.DownloadItemsImage(XSteamItem.ID, XSteamItem.SteamGameID);
                         }
                     }
-                    Thread.Sleep(5000);
+                    Thread.Sleep(60*60*12);
                 }
             }).Start();
         }
 
-        public void DownloadItemsImage(uint ItemID, uint SteamGameID)
+        private void DownloadImagesFromQueue()
         {
             try
             {
-                XSteamItem XSteamItem;
-                if (this.Table.SelectByID(ItemID, out XSteamItem))
+                new Thread(delegate()
                 {
-                    if (!File.Exists("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + ItemID + Configs.STEAM_IMAGE_TYPE))
+                    while (true)
                     {
-                        using (WebClient WebClient = new WebClient())
+                        if (this.QueueDownloadImage.Count > 0)
                         {
-                            byte[] ImageBytes = WebClient.DownloadData(XSteamItem.Image);
-                            Image Image = Image.FromStream(new MemoryStream(ImageBytes));
-                            if (!Directory.Exists("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID))
+                            SteamItemImageQueue SteamItemImageQueue = this.QueueDownloadImage.Dequeue();
+
+                            using (WebClient WebClient = new WebClient())
                             {
-                                Directory.CreateDirectory("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID);
+                                byte[] ImageBytes = WebClient.DownloadData(SteamItemImageQueue.ImageURL);
+                                Image Image = Image.FromStream(new MemoryStream(ImageBytes));
+                                if (!Directory.Exists("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID))
+                                {
+                                    Directory.CreateDirectory("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID);
+                                }
+
+                                File.WriteAllBytes("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID + "\\" + SteamItemImageQueue.ID + Configs.STEAM_IMAGE_TYPE, ImageBytes);
                             }
 
-                            File.WriteAllBytes("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + XSteamItem.ID + Configs.STEAM_IMAGE_TYPE, ImageBytes);
+                            this.AddSteamImageToCache(SteamItemImageQueue.ID, SteamItemImageQueue.SteamGameID);
                         }
                     }
-                }
+                }).Start();
             }
             catch { }
         }
@@ -167,32 +184,31 @@ namespace GameSlot.Helpers
         public void AddSteamImageToCache(uint ItemID, uint SteamGameID)
         {
             string path = "FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamGameID + "\\" + ItemID + Configs.STEAM_IMAGE_TYPE;
-            //Console.WriteLine(path);
             if (File.Exists(path))
             {
-                /*//Console.WriteLine(ItemID);
-                CachedFile Image = new CachedFile();
-                Image.Data = File.ReadAllBytes(path);
-                Image.CacheKey = BaseFuncs.MD5(BaseFuncs.MD5(Image.Data) + BaseFuncs.MD5(ItemID.ToString()));
-                Image.Header = "HTTP/1.1 200\nCache-Control: public, max-age=60000\nETag: " + Image.CacheKey + "\nServer: UpServer\nContent-Type: " + FileSender.GetContentType(Configs.STEAM_ITEMS_TYPE) + "; charset=UTF-8|!cookie!|\nConnection: keep-alive\nContent-Length: |!btsize!|\n\n";
-
-                if (!SteamItemImages[SteamGameID].ContainsKey(ItemID))
+                if (SteamItemImages.ContainsKey(SteamGameID) && !SteamItemImages[SteamGameID].ContainsKey(ItemID))
                 {
-                    SteamItemImages[SteamGameID].Add(ItemID, Image);
-                }*/
-
-                //FilesProcessor.CreateCachedFile(File.ReadAllBytes(path), Configs.STEAM_IMAGE_TYPE);
-                string image = FilesProcessor.CacheFile(File.ReadAllBytes(path), Configs.STEAM_IMAGE_TYPE);
-                if (!SteamItemImages[SteamGameID].ContainsKey(ItemID))
-                {
+                    string image = FilesProcessor.CacheFile(File.ReadAllBytes(path), Configs.STEAM_IMAGE_TYPE);
                     SteamItemImages[SteamGameID].Add(ItemID, image);
+                }
+            }
+            else
+            {
+                XSteamItem XSteamItem;
+                if (this.Table.SelectByID(ItemID, out XSteamItem))
+                {
+                    SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
+                    SteamItemImageQueue.ID = ItemID;
+                    SteamItemImageQueue.SteamGameID = SteamGameID;
+                    SteamItemImageQueue.ImageURL = XSteamItem.Image;
+                    this.QueueDownloadImage.Enqueue(SteamItemImageQueue);
                 }
             }
         }
 
         private void AddSteamImagesToMemory()
         {
-            Console.WriteLine("Images to memory...");
+            Logger.ConsoleLog("Images to memory...", ConsoleColor.Yellow);
 
             List<XSteamItem> Items = this.Table.SelectAll();
             foreach(XSteamItem Item in Items)
@@ -200,7 +216,7 @@ namespace GameSlot.Helpers
                 this.AddSteamImageToCache(Item.ID, Item.SteamGameID);
             }
 
-            Console.WriteLine("Images to memory done!");
+            Logger.ConsoleLog("Images to memory done!", ConsoleColor.Yellow);
         }
 
         public bool GetImageFromMemory(uint ItemID, uint SteamGameID, out string image)

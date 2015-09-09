@@ -114,6 +114,7 @@
     <Compile Include="Types\Lottery.cs" />
     <Compile Include="Types\ProcessingBet.cs" />
     <Compile Include="Types\LotteryRoulette.cs" />
+    <Compile Include="Types\SteamItemImageQueue.cs" />
     <Compile Include="Types\Tokens.cs" />
     <Compile Include="Types\TopItem.cs" />
     <Compile Include="Types\TopPriceItem.cs" />
@@ -597,7 +598,6 @@
     <EmbeddedResource Include="Content\Cache\css\screen.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\wm\wm_enemy.png" />
     <EmbeddedResource Include="Content\Cache\wm\wm_our.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -16,7 +16,7 @@ namespace GameSlot.Helpers
         { 
         }
 
-        public bool SelectByID(uint id, out UGroup group, out XUser Owner)
+        public bool SelectByID(uint id, out UGroup group, out XUser Owner, Client client)
         {
             XUser user;
             if(Helper.UserHelper.Table.SelectByID(id, out user))
@@ -29,14 +29,26 @@ namespace GameSlot.Helpers
 
                 group.Winrate = this.CalcWinrate(group.ID);
                 group.BetItemsCount = user.GroupTotalBetItemsCount;
-                group.BetPrice = user.GroupTotalBetPrice;
 
-                group.BetItemsPrice_Str = group.BetPrice.ToString("###,##0.00");
+                ushort currency = Helper.UserHelper.GetCurrency(client);
+                if (currency == 1)
+                {
+                    group.BetPrice = user.RUB_GroupTotalBetPrice;
+                    group.BetItemsPrice_Str = group.BetPrice.ToString("###,###,##0");
+
+                    group.GotPriceFromGroup = user.RUB_GotPriceFromGroup;
+                    group.GotPriceFromGroup_Str = group.GotPriceFromGroup.ToString("###,###,##0");
+                }
+                else
+                {
+                    group.BetPrice = user.GroupTotalBetPrice;
+                    group.BetItemsPrice_Str = group.BetPrice.ToString("###,##0.00");
+
+                    group.GotPriceFromGroup = user.GotPriceFromGroup;
+                    group.GotPriceFromGroup_Str = group.GotPriceFromGroup.ToString("###,##0.00");
+                }
 
                 group.GotItemsFromGroup = user.GotItemsFromGroup;
-                group.GotPriceFromGroup = user.GotPriceFromGroup;
-
-                group.GotPriceFromGroup_Str = group.GotPriceFromGroup.ToString("###,##0.00");
 
                 Owner = user;
                 return true;
@@ -47,11 +59,19 @@ namespace GameSlot.Helpers
             return false;
         }
 
+        public UGroup SelectByID(uint id)
+        {
+            UGroup group;
+            XUser Owner;
+            this.SelectByID(id, out group, out Owner, null);
+            return group;
+        }
+
         public bool GroupExist(uint id)
         {
             UGroup group;
             XUser user;
-            return this.SelectByID(id, out group, out user);
+            return this.SelectByID(id, out group, out user, null);
         }
 
         public List<XUser> GetUsers(uint GroupID)

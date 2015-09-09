@@ -13,17 +13,19 @@
         MyInventoryPage_SteamGameID = MyInventoryPage_SteamGameID = "{{=SteamGameID}}";
         INVENTORY_ITEMS_NUM = 36;
         LOCAL_INVENTORY_ITEMS_NUM = 36;
+
+        var current_money = {{=user.Wallet}}
     </script>
 
     <div id="steam_items_html" style="display:none;">
-        <div class="item1" id="item_id_[item_assert_id]">
+        <div class="item1" id="item_id_[item_unique_id]">
             <span style="display:none;" id="iventory_id">[iventory_id]</span>
             <span style="display:none;" id="current_iventory_id">[current_iventory_id]</span>
             <span style="display:none;" id="item_assert_id">[item_assert_id]</span>
             <span style="display:none;" id="item_id">[item_id]</span>
 
             [item_steam_image]
-            <span class="baks">[item_price]</span>
+            <span class="">[item_price]</span>
 
             <a href="" onclick="return false;"></a>
             <div class="tiltp">[item_name]</div>  
@@ -61,12 +63,11 @@
                         </div>
                     </div>
                 </div>
-
                 {{if(user.TradePartner == 0 || user.TradeToken.Length == 0)}}
-                <div class="search-steam" id="steam_trade_form">
+                <div class="search-steam err" id="steam_trade_form">
                     <span>Мой Steam Trade URL</span>
                     <div class="over-ev-it1 err">
-                        <input type="text" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=139041672&token=IHERy8ya" id="steam_trade_url">
+                        <input type="text" placeholder="Введите свою ссылку" id="steam_trade_url">
                         <div class="error-hide1"><div class="ev-pp1"><div><i id="trade_url_error">Не введена ссылка</i></div></div></div>
                     </div>
                     <div class="sub-st-e1 active" id="trade_url_btn"><own>Сохранить</own><input type="submit" value="" onclick="return UpdateTradeURL();"></div>
@@ -74,6 +75,7 @@
                 {{end}}
                 {{else}}
                 <div class="search-steam" id="steam_trade_form">
+                    <span>Мой Steam Trade URL</span>
                     <div class="over-ev-it1">
                         <input type="text" value='https://steamcommunity.com/tradeoffer/new/?partner={{=user.TradePartner}}&token={{=user.TradeToken}}' id="steam_trade_url">
                         <div class="error-hide1"><div class="ev-pp1"><div><i id="trade_url_error">Не введена ссылка</i></div></div></div>
@@ -92,28 +94,28 @@
                     <div class="fsh1">
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t1.png" alt=""></span></div>
-                            <div class="sp-tt1">х0</div>
-                            <a href="/comming-soon" class="bt-now1">Купить за 280</a>                            
+                            <div class="sp-tt1" id="count_f_0">х{{=PageData["f5"]}}</div>
+                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 5)}}, 0);">Купить за {{=(Helper.Rub_ExchangeRate * 5)}}</a>                            
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t2.png" alt=""></span></div>
-                            <div class="sp-tt1">x0</div>
-                            <a href="/comming-soon" class="bt-now1">Купить за 560</a>
+                            <div class="sp-tt1" id="count_f_1">x{{=PageData["f10"]}}</div>
+                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 10)}}, 1);">Купить за {{=(Helper.Rub_ExchangeRate * 10)}}</a>
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t3.png" alt=""></span></div>
-                            <div class="sp-tt1">x0</div>
-                            <a href="/comming-soon" class="bt-now1">Купить за 1400</a>
+                            <div class="sp-tt1" id="count_f_2">x{{=PageData["f25"]}}</div>
+                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 25)}}, 2);">Купить за {{=(Helper.Rub_ExchangeRate * 25)}}</a>
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t4.png" alt=""></span></div>
-                            <div class="sp-tt1">x0</div>
-                            <a href="/comming-soon" class="bt-now1">Купить за 2800</a>                            
+                            <div class="sp-tt1" id="count_f_3">x{{=PageData["f50"]}}</div>
+                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 50)}}, 3);">Купить за {{=(Helper.Rub_ExchangeRate * 50)}}</a>                            
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t5.png" alt=""></span></div>
-                            <div class="sp-tt1">x0</div>    
-                            <a href="/comming-soon" class="bt-now1">Купить за 2800</a>                             
+                            <div class="sp-tt1" id="count_f_4">x{{=PageData["f100"]}}</div>    
+                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 100)}}, 4);">Купить за {{=(Helper.Rub_ExchangeRate * 100)}}</a>                             
                         </div>
                     </div>
                 </div>
@@ -129,7 +131,7 @@
                             <div class="tit-bl1">
                                 <div class="ef1" id="local_steam_inventory_items_num">0</div>
                                 <div class="ef2">Суммарная<br>стоимость:</div>
-                                <div class="ef3 baks" id="local_steam_inventory_total_price">0</div>
+                                <div class="ef3" id="local_steam_inventory_total_price">0</div>
                                 <a href="" class="link-steam-tt1" id="send_local_items_to_steam" style="display:none;" onclick="return SendLocalItemsToSteam();">Передать в инвентарь Steam</a>
                             </div>
                             <div class="search1">
@@ -172,7 +174,7 @@
                             <div class="tit-bl1">
                                 <div class="ef1" id="steam_inventory_items_num">0</div>
                                 <div class="ef2">Суммарная<br>стоимость:</div>
-                                <div class="ef3 baks" id="steam_inventory_total_price">0</div>
+                                <div class="ef3" id="steam_inventory_total_price">0</div>
 
                                 <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
                             </div>
@@ -243,7 +245,7 @@
         {
             trade_url = $("input#steam_trade_url").val();
             $("input#steam_trade_url").keyup(function () {
-                if ($("input#steam_trade_url").val() == trade_url) {
+                if ($("input#steam_trade_url").val() == trade_url && trade_ok) {
                     $("div#trade_url_btn").attr("class", "sub-st-e1 active");
                     $("div#trade_url_btn own").text("Сохранено");
                 }
@@ -269,10 +271,34 @@
 
         function SendLocalItemsToSteam()
         {
-            if(USERS_ITEMS_IN_LOCAL_INVENTORY > 0 && trade_ok)
+            if(USERS_ITEMS_IN_LOCAL_INVENTORY > 0)
             {
-                ws.send("SendLocalItemsToSteam{{=BaseFuncs.WSplit}}{{=SteamGameID}}");
-                $("#send_local_items_to_steam").attr("class", "link-steam-tt1 active")
+                if(trade_ok){
+                    ws.send("SendLocalItemsToSteam{{=BaseFuncs.WSplit}}{{=SteamGameID}}");
+                    $("#send_local_items_to_steam").attr("class", "link-steam-tt1 active")
+                }
+                else
+                {
+                    alert("Не введен Steam Trade URL!");
+                }
+            }
+            else
+            {
+                $("#send_local_items_to_steam").attr("class", "link-steam-tt1");
+            }
+
+            return false;
+        }
+
+        function buy_f(f_price, id)
+        {
+            if(current_money >= f_price)
+            {
+                ws.send("BuyChip{{=BaseFuncs.WSplit}}" + id);
+            }
+            else
+            {
+                alert("У вас недостаточно средств.\nДля покупки фишек сначала необходимо пополнить баланс.")
             }
 
             return false;

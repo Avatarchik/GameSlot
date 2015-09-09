@@ -19,7 +19,7 @@ namespace GameSlot.Pages.Errors
         }
         public override bool Init(Client client)
         {
-            client.HttpSend("404 ERROR!");
+            client.Redirect("/");
             return true;
         }
     }

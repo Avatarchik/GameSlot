@@ -48,11 +48,44 @@ namespace GameSlot.Pages.UserPages
                     return false;
                 }
 
+                List<Chip> Chips = Helper.UserHelper.GetChipInventory(User.ID);
+
+                int f5 = 0 , f10 = 0, f25=0, f50=0, f100 = 0;
+                foreach(Chip chip in Chips)
+                {
+                    switch(chip.ID)
+                    {
+                        case 0:
+                            f5++;
+                            break;
+                        case 1:
+                            f10++;
+                            break;
+                        case 2:
+                            f25++;
+                            break;
+                        case 3:
+                            f50++;
+                            break;
+                        case 4:
+                            f100++;
+                            break;
+                    }
+                        
+                }
+
                 Hashtable data = new Hashtable();
                 data.Add("SteamGameID", SteamGameID);
                 data.Add("Chips", Helper.UserHelper.GetChipInventory(User.ID));
                 data.Add("Title", "Мой инвентарь");
                 data.Add("User", User);
+
+                data.Add("f5", f5);
+                data.Add("f10", f10);
+                data.Add("f25", f25);
+                data.Add("f50", f50);
+                data.Add("f100", f100);
+
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }

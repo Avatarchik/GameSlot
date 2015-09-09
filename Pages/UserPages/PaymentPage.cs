@@ -35,7 +35,7 @@ namespace GameSlot.Pages.UserPages
                     uint order_id = Helper.OrderHelper.Table.Insert(XOrder);
 
                     client.Redirect(Robokassa.GetPaymentURL(Helper.OrderHelper.Table.SelectByID(order_id)));
-                    Logger.ConsoleLog("Payment " + price);
+                    return false;
                 }
                 else
                 {

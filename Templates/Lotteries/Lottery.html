@@ -8,7 +8,7 @@
     {{set Lottery Lottery = (Lottery) PageData["Lottery"]}}
     {{set List<Bet> Bets = (List<Bet>) PageData["Bets"]}}
     {{set List<TopItem> TopItems = (List<TopItem>) PageData["TopItems"]}}
-
+    {{set bool ItsWinner = (bool) PageData["ItsWinner"]}}
     <script>
         LotteryPageConnect = true;
         LotteryPage_LotteryID = "{{=Lottery.ID}}";
@@ -134,9 +134,9 @@
                         <div class="r-text1">
                             <div class="ep-tit1"><span>Правила:</span><a href="/bet-info" target="_blank">Подробнее</a></div>
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
-                            <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE}} $</p>
+                            <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
                             <p class="j3">Максимальная разовая ставка — 24 предметов</p>
-                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времнеи — 5 минут.</p>
+                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 4 минуты.</p>
                         </div>
                     </div>
                     <div class="nav-st1">
@@ -197,9 +197,9 @@
                         <div class="r-text1">
                             <div class="ep-tit1"><span>Правила:</span><a href="/bet-info" target="_blank">Подробнее</a></div>
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
-                            <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE}} $</p>
+                            <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
                             <p class="j3">Максимальная разовая ставка — 24 предметов</p>
-                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времнеи — 5 минут.</p>
+                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 4 минуты.</p>
                         </div>
                     </div>
 
@@ -239,7 +239,12 @@
                 <div class="fk1 fk111"></div>
                 <div class="fk5"></div>
                 <div class="fk14"></div>
-                <div class="fk15"></div>
+                {{if(ItsWinner)}}
+                    <div class="fk15"></div>
+                {{end}}
+                {{else}}
+                    <div class="fk15 fk151"></div>
+                {{end}}
                 <div class="cont-pl1">
                     <div class="game-over-s1">
                         <div class="ll1">
@@ -253,17 +258,24 @@
                                 <p><i>=</i>{{=Lottery.WinnersToken}} <span>(Победный жетон)</span></p>
                             </div>
                         </div>
+                        {{if(ItsWinner)}}
                         <div class="rr1 rr11">
+                        {{end}}
+                        {{else}}
+                        <div class="rr1 rr11 rr111">
+                        {{end}}
                             <div class="tf1 tf11">
                                 <div class="tfs1">Сорвал джекпот</div>
                                 <div class="tf2"><span>{{=Lottery.JackpotItems}}</span>предметов</div>
                                 <div class="tf3">{{=Lottery.JackpotPrice_Str}}</div>
-                                <p>Все предметы перемещены<br>в ваш временный <a href="">инвентарь</a></p>
+                                {{if(ItsWinner)}}
+                                    <p id="msg_to_winner">Все предметы перемещены<br>в ваш временный <a href="/inventory/{{=PageData["Game"]}}">инвентарь</a></p>
+                                {{end}}
                             </div>
                             <div class="td1">
                                 <div class="eo1">
                                     <span>победил<br>с шансом:</span>
-                                    <div>{{=Lottery.Wonrate}}</div>
+                                    <div>{{=Lottery.Wonrate}}%</div>
                                 </div>
                                 <div class="eo2">
                                     <span>Поставил:</span>
@@ -344,7 +356,7 @@
                         <div class="r-text1">
                             <div class="ep-tit1"><span>Правила:</span><a href="/bet-info" target="_blank">Подробнее</a></div>
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
-                            <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE}} $</p>
+                            <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
                             <p class="j3">Максимальная разовая ставка — 24 предметов</p>
                             <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времнеи — 5 минут.</p>
                         </div>
@@ -397,11 +409,11 @@
                         </div>
                         <div class="dj1">
                             <div><span>Джек<br>пот</span></div>
-                            <i class="numb2"><b>2,345</b> предметов</i>
+                            <i class="numb2"><b id="jackpot_items">0</b> предметов</i>
                         </div>
                         <div class="dj2">
                             <div><span></span></div>
-                            <i class="rub1">0</i>
+                            <i class="rub1" id="jackpot_price">0</i>
                         </div>
                     </div>
                     <div class="bg-stl1">
@@ -438,7 +450,7 @@
             <div class="fk1 fk111"></div>
             <div class="fk5"></div>
             <div class="fk14"></div>
-            <div class="fk15"></div>
+            <div class="fk15 fk151"></div>
             <div class="cont-pl1">
                 <div class="game-over-s1">
                     <div class="ll1">
@@ -452,12 +464,12 @@
                             <p><i>=</i><own id="winners_token"></own> <span>(Победный жетон)</span></p>
                         </div>
                     </div>
-                    <div class="rr1 rr11">
+                    <div class="rr1 rr11 rr111">
                         <div class="tf1 tf11">
                             <div class="tfs1">Сорвал джекпот</div>
                             <div class="tf2"><span id="jackpot_items"></span>предметов</div>
                             <div class="tf3" id="jackpot_price"></div>
-                            <p>Все предметы перемещены<br>в ваш временный <a href="">инвентарь</a></p>
+                            <p id="msg_to_winner" style="display:none;">Все предметы перемещены<br>в ваш временный <a href="/inventory/{{=PageData["Game"]}}">инвентарь</a></p>
                         </div>
                         <div class="td1">
                             <div class="eo1">
@@ -494,8 +506,8 @@
                         <div>
                             <div>
                                 <span>[USER_NAME]</span>
-                                <i>лобби:</i>
-                                <b>Blue ayes</b>
+                                <i>[hangout_text]</i>
+                                <b id="hangout_user">[hangout_user]</b>
                             </div>
                         </div>
                     </div>
@@ -548,15 +560,17 @@
                                 <div>
                                     <div>
                                         <span>{{=bet.XUser.Name}}</span>
-                                        <i>лобби:</i>
-                                        <b>Blue ayes</b>
+                                        {{if(bet.XUser.GroupOwnerID >= 0)}}
+                                            <i>Тусовка:</i>
+                                            <b>{{=Helper.GroupHelper.SelectByID((uint)bet.XUser.GroupOwnerID).Name}}</b>
+                                        {{end}}
                                     </div>
                                 </div>
                             </div>
 
                             <div class="bl-st2">
                                 <div class="evr1">
-                                    <a class="j1" style="margin-left:30px;">{{=bet.ItemsNum}}</a>
+                                    <a class="j1">{{=bet.ItemsNum}}</a>
                                     <a class="j2">{{=bet.Price_Str}}</a>
                                     <a class="j3">{{=bet.FirstToken.ToString("D8")}}-{{=bet.LastToken.ToString("D8")}}</a>
                                 </div>
@@ -599,12 +613,12 @@
             <!--<a href="" class="show-more-items1">Показать ещё</a>-->
             {{end}}
         </section>
-        <!--
+
         <div class="bt-ov-ft1">
             <div class="item1">
                 <div class="et-tt1">Максимальный джекпот за всё время:</div>
                 <div class="sp-con1">
-                    <div class="j1 baks">{{=PageData["MaxJackpot"]}}</div>
+                    <div class="j1">{{=PageData["MaxJackpot"]}}</div>
                     <div class="j2">{{=PageData["MaxJackpotItems"]}} <span>предметов</span></div>
                 </div>
             </div>
@@ -617,11 +631,12 @@
             <div class="item1">
                 <div class="et-tt1">Максимальный джекпот за Сегодня:</div>
                 <div class="sp-con1">
-                    <div class="j1 baks">{{=PageData["TodaysJackpotPrice"]}}</div>
+                    <div class="j1">{{=PageData["TodaysJackpotPrice"]}}</div>
                     <div class="j2">{{=PageData["TodaysJackpotItems"]}} <span>предметов</span></div>
                 </div>
             </div>
-        </div>-->
+        </div>
+
         <div class="ev-foot1"></div>
     </div>
     {{include GameSlot Footer}}
@@ -630,7 +645,7 @@
     {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
     {{set XUser user = (XUser) PageData["User"]}}
     <div id="steam_items_html" style="display:none;">
-        <div class="item1" id="item_id_[item_assert_id]">
+        <div class="item1" id="item_id_[item_unique_id]">
             <span style="display:none;" id="iventory_id">[iventory_id]</span>
             <span style="display:none;" id="current_iventory_id">[current_iventory_id]</span>
             <span style="display:none;" id="item_assert_id">[item_assert_id]</span>
@@ -639,7 +654,7 @@
             [item_steam_image]
             <span class="">[item_price]</span>
 
-            <a href="" onclick="return hh([item_assert_id]);"></a>
+            <a href="" onclick="return hh([item_assert_id], [iventory_id]);"></a>
             <div class="tiltp">[item_name]</div>  
         </div>    
     </div>
@@ -855,7 +870,7 @@
                                     </div>
                                     <div class="cont-ov-items-more1 more36" id="chips_iventory">
                                         {{foreach(Chip Item in Chips.GetRange(0, Math.Min(60, Chips.Count)))}}
-                                            <div class="item1" id="item_id_{{=Item.AssertID}}">
+                                            <div class="item1" id="item_id_{{=Item.AssertID}}_3">
                                                 <span style="display:none;" id="iventory_id">3</span>
                                                 <span style="display:none;" id="current_iventory_id">3</span>
                                                 <span style="display:none;" id="item_assert_id">{{=Item.AssertID}}</span>
@@ -863,7 +878,7 @@
 
                                                 <img src="/chip-image/{{=Item.ID}}" alt="{{=Item.Cost_Str}}">
                                                 <span class="">{{=Item.Cost_Str}}</span>
-                                                <a href="" onclick="return hh({{=Item.AssertID}});"></a>
+                                                <a href="" onclick="return hh({{=Item.AssertID}}, 3);"></a>
                                                 <div class="tiltp">{{=Item.Cost_Str}}</div>
                                             </div>                                           
                                         {{end}}
@@ -889,12 +904,12 @@
 
         var handler = false;
         var remove_from_cur_page = false;
-        function hh(item_id)
+        function hh(item_id, iven_id)
         {
             if(handler == false)
             {
-                var iventory_id = $("#item_id_" + item_id + " span#iventory_id").text();
-                var current_iventory_id = $("#item_id_" + item_id + " span#current_iventory_id").text();
+                var iventory_id = $("#item_id_" + item_id + "_" + iven_id + " span#iventory_id").text();
+                var current_iventory_id = $("#item_id_" + item_id + "_" + iven_id + " span#current_iventory_id").text();
                 /* 1: steam, 2: local, 0: bet, 3: fishka */
                 if(current_iventory_id > 0)
                 {
@@ -904,27 +919,27 @@
                             return false;
                         }
 
-                        $("#item_id_" + item_id + " span#current_iventory_id").text(0);
-                        $("#item_id_" + item_id).appendTo("div#bet_iventory");
+                        $("#item_id_" + item_id + "_" + iven_id + " span#current_iventory_id").text(0);
+                        $("#item_id_" + item_id + "_" + iven_id).appendTo("div#bet_iventory");
                         bet_count++;
                     }
                 }
                 else 
                 {
-                    $("#item_id_" + item_id + " span#current_iventory_id").text(iventory_id);
+                    $("#item_id_" + item_id + "_" + iven_id + " span#current_iventory_id").text(iventory_id);
 
                     if(!remove_from_cur_page)
                     {
                         if(iventory_id == 1)
-                            $("#item_id_" + item_id).appendTo("div#steam_iventory");
+                            $("#item_id_" + item_id + "_" + iven_id).appendTo("div#steam_iventory");
                         else if(iventory_id == 2)
-                            $("#item_id_" + item_id).appendTo("div#local_steam_inventory");
+                            $("#item_id_" + item_id+ "_" + iven_id).appendTo("div#local_steam_inventory");
                         else if(iventory_id == 3)
-                            $("#item_id_" + item_id).appendTo("div#chips_iventory");
+                            $("#item_id_" + item_id+ "_" + iven_id).appendTo("div#chips_iventory");
                     }
                     else
                     {
-                        $("#item_id_" + item_id).remove();
+                        $("#item_id_" + item_id+ "_" + iven_id).remove();
                     }
                     bet_count = bet_count -1;
                 }
