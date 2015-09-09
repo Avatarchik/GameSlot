@@ -47,106 +47,58 @@ namespace GameSlot.Pages
                 XSteamBot bot = new XSteamBot();
                 bot.Login = "trarara";
                 Helper.SteamBotHelper.Table.Insert(bot);
-                Logger.ConsoleLog("added bot!");
+                Logger.ConsoleLog("added bot!", ConsoleColor.Cyan, LogLevel.Info);
             }
 
             XUser user;
-            if (Helper.UserHelper.GetCurrentUser(client, out user))
+            if (Helper.UserHelper.GetCurrentUser(client, out user) && (user.ID == Configs.ADMIN_ACCOUNT || user.SteamID == 76561198083337086))
             {
                 if (client.GetParam("all") != null)
                 {
                     Logger.ConsoleLog("count::" + Helper.UserHelper.Table_SteamItemUsersInventory.SelectAll().Count, ConsoleColor.Red);
                     foreach(XSItemUsersInventory x in Helper.UserHelper.Table_SteamItemUsersInventory.SelectAll())
                     {
-                        Logger.ConsoleLog(x.ID + ":UserID:" + x.UserID + ":AssertID:" + x.AssertID + ":SteamGameID:" + x.SteamGameID + ":Deleted:" + x.Deleted + ":SteamItemID:" + x.SteamItemID + ":SteamBotID:" + x.SteamBotID + "-------------");
+                        Logger.ConsoleLog(x.ID + ":UserID:" + x.UserID + ":AssertID:" + x.AssertID + ":SteamGameID:" + x.SteamGameID + ":Deleted:" + x.Deleted + ":SteamItemID:" + x.SteamItemID + ":SteamBotID:" + x.SteamBotID + "-------------", ConsoleColor.Cyan, LogLevel.Info);
                     }
                 }
-                else if (client.GetParam("chipID") != null)
+                else if (client.GetParam("chipID") != null && client.GetParam("to") != null)
                 {
-                    Helper.ChipHelper.AddChipToUser(Convert.ToUInt32(client.GetParam("chipID")), user.ID);
-                    Logger.ConsoleLog("Added chip!!!");
+                    Helper.ChipHelper.AddChipToUser(Convert.ToUInt32(client.GetParam("chipID")), Convert.ToUInt32(client.GetParam("to")));
+                    Logger.ConsoleLog("Added chip!!!", ConsoleColor.Cyan, LogLevel.Info);
                     //Thread.Sleep(10);
                 }
-                else if(client.GetParam("make_local") != null)
-                {
-                    for(int i = 0; i < 300; i++)
-                    {
-                        XSItemUsersInventory XSItemUsersInventory = new XSItemUsersInventory();
-                        XSItemUsersInventory.UserID = user.ID;
-                        XSItemUsersInventory.SteamItemID = 0;
-                        XSItemUsersInventory.AssertID = 10;
-                        XSItemUsersInventory.SteamGameID = 570;
-                        XSItemUsersInventory.SteamBotID = 0;
-                        Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
-                    }
-                }
+
                 else if(client.GetParam("game_322") != null)
                 {
-                    Logger.ConsoleLog("\nDOTA: ");
+                    Logger.ConsoleLog("\nDOTA: ", ConsoleColor.Cyan, LogLevel.Info);
                     Lottery dota = Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID, client);
-                    Logger.ConsoleLog("RoundNumber: " + dota.RaundNumber.ToString());
-                    Logger.ConsoleLog("WinnersToken: " + (int)(dota.JackpotPrice * 100 * dota.RaundNumber));
-                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(dota.JackpotPrice * 100 * dota.RaundNumber), dota.ID).Name);
-                    Logger.ConsoleLog("--------------------------------------------------------------------\n");
+                    Logger.ConsoleLog("RoundNumber: " + dota.RaundNumber.ToString(), ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("WinnersToken: " + (int)(dota.JackpotPrice * 100 * dota.RaundNumber), ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(dota.JackpotPrice * 100 * dota.RaundNumber), dota.ID).Name, ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("--------------------------------------------------------------------\n", ConsoleColor.Cyan, LogLevel.Info);
 
-                    Logger.ConsoleLog("\nCSGO: ");
+                    Logger.ConsoleLog("\nCSGO: ", ConsoleColor.Cyan, LogLevel.Info);
                     Lottery csgo = Helper.LotteryHelper.GetCurrent(Configs.CSGO_STEAM_GAME_ID, client);
-                    Logger.ConsoleLog("RoundNumber: " + csgo.RaundNumber.ToString());
-                    Logger.ConsoleLog("WinnersToken: " + (int)(csgo.JackpotPrice * 100 * csgo.RaundNumber));
-                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(csgo.JackpotPrice * 100 * csgo.RaundNumber), csgo.ID).Name);
-                    Logger.ConsoleLog("--------------------------------------------------------------------\n");
+                    Logger.ConsoleLog("RoundNumber: " + csgo.RaundNumber.ToString(), ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("WinnersToken: " + (int)(csgo.JackpotPrice * 100 * csgo.RaundNumber), ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(csgo.JackpotPrice * 100 * csgo.RaundNumber), csgo.ID).Name, ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("--------------------------------------------------------------------\n", ConsoleColor.Cyan, LogLevel.Info);
                 }
 
-                else if(client.GetParam("add_money") != null)
+                else if (client.GetParam("add_money") != null && client.GetParam("to") != null)
                 {
                     double money;
-                    if(double.TryParse(client.GetParam("add_money"), out money))
+                    uint to;
+                    XUser us;
+                    if (double.TryParse(client.GetParam("add_money"), out money) && uint.TryParse(client.GetParam("to"), out to) && Helper.UserHelper.Table.SelectByID(to, out us))
                     {
-                        user.Wallet += money;
-                        Helper.UserHelper.Table.UpdateByID(user, user.ID);
-                    }
-                }
-                else
-                {
-                    if (client.GetParam("item_id") != null && client.GetParam("asert_id") != null)
-                    {
-                        USteamItem neww = new USteamItem();
-                        neww.ID = Convert.ToUInt32(client.GetParam("item_id"));
-                        neww.AssertID = Convert.ToUInt64(client.GetParam("asert_id"));
-                        usi.Add(neww);
-                        Logger.ConsoleLog(neww.ID + ":" + neww.AssertID);
-                       /* Chip Chip = new Chip();
-                        Chip.ID = Convert.ToUInt32(client.GetParam("item_id"));
-                        Chip.AssertID = Convert.ToUInt64(client.GetParam("asert_id"));
-                        Chips.Add(Chip);*/
-                        //Stopwatch sw = Stopwatch.StartNew();
-                        for (int x = 0; x < 1; x++)
-                        {
-                            //Stopwatch sw = Stopwatch.StartNew();
-                            Helper.LotteryHelper.SetBet(Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID, client).ID, user.ID, usi, Chips, client);
-                        }
-                        
-                        //Logger.ConsoleLog(sw.ElapsedMilliseconds);
-                    }
-                }
-            }
-            else if (client.GetParam("all_bets") != null)
-            {
-                XLotteryBet[] XBets;
-                if (Helper.LotteryHelper.TableBet.SelectArrFromEnd(data => true, out XBets))
-                {
-                    Logger.ConsoleLog("count::" + XBets.Length, ConsoleColor.Red);
-
-                    for (int x = 0; x < XBets.Length; x++)
-                    {
-                        Logger.ConsoleLog(XBets[x].ID + ":UserID:" + XBets[x].UserID + ":ChipsNum:" + XBets[x].ChipsNum + ":SteamItemsNum:" + XBets[x].SteamItemsNum + ":FisrtToken:" + XBets[x].FisrtToken + ":LastToken:" + XBets[x].LastToken + "-------------");
+                        us.Wallet += money;
+                        Helper.UserHelper.Table.UpdateByID(us, us.ID);
+                        Logger.ConsoleLog("Added money: " + money + " to user: " + us.Name, ConsoleColor.Cyan, LogLevel.Info);
                     }
                 }
             }
 
-            XLottery last_lot;
-            Logger.ConsoleLog((Helper.LotteryHelper.Table.SelectOne(data => data.SteamGameID == 570, out last_lot)));
-            uint xx = 10000;
             Random rnd = new Random();
             client.HttpSend(rnd.Next(0,2).ToString());
             return true;

@@ -350,7 +350,7 @@ namespace GameSlot.Helpers
                                     SteamItemImageQueue.SteamGameID = XSteamItem.SteamGameID;
                                     SteamItemImageQueue.ImageURL = XSteamItem.Image;
 
-                                    Helper.SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
+                                    SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
                                 }
 
                                 if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)

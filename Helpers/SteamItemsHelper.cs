@@ -27,7 +27,7 @@ namespace GameSlot.Helpers
 
         public static string NoneImage = "";
 
-        public Queue<SteamItemImageQueue> QueueDownloadImage = new Queue<SteamItemImageQueue>();
+        public static Queue<SteamItemImageQueue> QueueDownloadImage = new Queue<SteamItemImageQueue>();
 
         public SteamItemsHelper()
         {
@@ -42,6 +42,30 @@ namespace GameSlot.Helpers
             {
                 NoneImage = FilesProcessor.CacheFile(File.ReadAllBytes(path), ".jpg");
             }
+
+            new Thread(delegate()
+            {
+                while(true)
+                {
+                    List<XSteamItem> SteamItems = this.Table.SelectAll();
+                    for(int i = 0; i < SteamItems.Count; i++)
+                    {
+                        string image;
+                        if(this.GetImageFromMemory(SteamItems[i].ID, SteamItems[i].SteamGameID, out image))
+                        {
+                            SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
+                            SteamItemImageQueue.ID = SteamItems[i].ID;
+                            SteamItemImageQueue.SteamGameID = SteamItems[i].SteamGameID;
+                            SteamItemImageQueue.ImageURL = SteamItems[i].Image;
+
+                            if (!SteamItemsHelper.QueueDownloadImage.Contains(SteamItemImageQueue))
+                            {
+                                SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
+                            }
+                        }
+                    }
+                }
+            }).Start();
         }
 
         public bool SelectByName(string name, uint SteamGameID, out USteamItem SteamItem)
@@ -151,15 +175,15 @@ namespace GameSlot.Helpers
 
         private void DownloadImagesFromQueue()
         {
-            try
+            new Thread(delegate()
             {
-                new Thread(delegate()
+                try
                 {
                     while (true)
                     {
-                        if (this.QueueDownloadImage.Count > 0)
+                        if (SteamItemsHelper.QueueDownloadImage.Count > 0)
                         {
-                            SteamItemImageQueue SteamItemImageQueue = this.QueueDownloadImage.Dequeue();
+                            SteamItemImageQueue SteamItemImageQueue = SteamItemsHelper.QueueDownloadImage.Dequeue();
 
                             using (WebClient WebClient = new WebClient())
                             {
@@ -176,9 +200,9 @@ namespace GameSlot.Helpers
                             this.AddSteamImageToCache(SteamItemImageQueue.ID, SteamItemImageQueue.SteamGameID);
                         }
                     }
-                }).Start();
-            }
-            catch { }
+                }
+                catch { }
+            }).Start();
         }
 
         public void AddSteamImageToCache(uint ItemID, uint SteamGameID)
@@ -201,7 +225,7 @@ namespace GameSlot.Helpers
                     SteamItemImageQueue.ID = ItemID;
                     SteamItemImageQueue.SteamGameID = SteamGameID;
                     SteamItemImageQueue.ImageURL = XSteamItem.Image;
-                    this.QueueDownloadImage.Enqueue(SteamItemImageQueue);
+                    SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
                 }
             }
         }
