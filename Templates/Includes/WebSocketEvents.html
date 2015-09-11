@@ -438,6 +438,10 @@
     {
         var data = evt.data.split("{{=BaseFuncs.WSplit}}");
 
+        if (data[0] == "UpdateOnlineUsers") {
+            $("b#online_users").text(data[1]);
+        }
+
         if(GetMyInventoryPage)
         {
             LoadSteamInventoryData(data);

@@ -122,7 +122,7 @@
                         </div>
                         <div class="action-chet1">
                             <div class="tit-chet1">Ожидание первой ставки</div>
-                            <div class="ch-tt1"><span id="lot_secs">04</span><i>:</i><span id="lot_mins">00</span></div>
+                            <div class="ch-tt1"><span id="lot_secs">03</span><i>:</i><span id="lot_mins">00</span></div>
                             {{if(!Helper.UserHelper.Authorized(client))}}
                                 <a href="/login" class="start-game1">Начать игру</a>
                             {{end}}
@@ -135,7 +135,7 @@
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
                             <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
                             <p class="j3">Максимальная разовая ставка — 24 предметов</p>
-                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 4 минуты.</p>
+                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 3 минуты.</p>
                         </div>
                     </div>
                     <div class="nav-st1">
@@ -189,7 +189,7 @@
                             {{end}}
                             {{else}}
                                 <div class="tit-chet1">Ожидание второго игрока</div>
-                                <div class="ch-tt1"><span id="lot_mins">04</span><i>:</i><span id="lot_secs">00</span></div>
+                                <div class="ch-tt1"><span id="lot_mins">03</span><i>:</i><span id="lot_secs">00</span></div>
                             {{end}}
                             <b class="eft-pl1 lottery_time_alert"></b>
                             {{if(!Helper.UserHelper.Authorized(client))}}
@@ -204,7 +204,7 @@
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
                             <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
                             <p class="j3">Максимальная разовая ставка — 24 предметов</p>
-                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 4 минуты.</p>
+                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 3 минуты.</p>
                         </div>
                     </div>
 
@@ -348,7 +348,7 @@
                         </div>
                         <div class="action-chet1">
                             <div class="tit-chet1">Начнется через:</div>
-                            <div class="ch-tt1"><span id="lot_mins">04</span><i>:</i>
+                            <div class="ch-tt1"><span id="lot_mins">03</span><i>:</i>
                             <span id="lot_secs">00</span></div>
                             <b class="eft-pl1 lottery_time_alert"></b>
                             {{if(!Helper.UserHelper.Authorized(client))}}
@@ -363,7 +363,7 @@
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
                             <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
                             <p class="j3">Максимальная разовая ставка — 24 предметов</p>
-                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 4 минуты.</p>
+                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 3 минуты.</p>
                         </div>
                     </div>
 
@@ -549,8 +549,12 @@
                 <div class="tiltp">[items_name]</div>
             </div>
         </div>
-
-        <section id="content2">
+        {{if(Bets.Count > 0)}}
+            <section id="content2" class="mb-t1">
+        {{end}}
+        {{else}}
+            <section id="content2" class="">
+        {{end}}
             <span id="first_position" style="display:none;"></span>
             {{if(Bets.Count > 0)}}
                 {{foreach(Bet bet in Bets)}}
@@ -620,7 +624,7 @@
             {{end}}
         </section>
 
-        <div class="bt-ov-ft1">
+        <div class="bt-ov-ft1 mb-t2">
             <div class="item1">
                 <div class="et-tt1">Максимальный джекпот за всё время:</div>
                 <div class="sp-con1">

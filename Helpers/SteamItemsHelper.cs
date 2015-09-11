@@ -27,8 +27,39 @@ namespace GameSlot.Helpers
 
         public static string NoneImage = "";
 
-        public static Queue<SteamItemImageQueue> QueueDownloadImage = new Queue<SteamItemImageQueue>();
+        private static List<SteamItemImageQueue> QueueDownloadImage = new List<SteamItemImageQueue>();
 
+        private static readonly object _QueueDownloadImage = new object();
+
+
+        public void AddToQueueDownloadImage(SteamItemImageQueue SteamItemImageQueue)
+        {
+            if (!this.IsExistQueueDownloadImage(SteamItemImageQueue.ID))
+            {
+                lock (_QueueDownloadImage)
+                {
+                    SteamItemsHelper.QueueDownloadImage.Add(SteamItemImageQueue);
+                }
+            }
+        }
+        public bool IsExistQueueDownloadImage(uint id)
+        {
+            List<SteamItemImageQueue> Queue = new List<SteamItemImageQueue>(SteamItemsHelper.QueueDownloadImage);
+            foreach (SteamItemImageQueue SteamItemImageQueue in Queue)
+            {
+                if (SteamItemImageQueue != null && SteamItemImageQueue.ID == id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public int QueueDownloadImageCount()
+        {
+            return SteamItemsHelper.QueueDownloadImage.Count;
+        }
         public SteamItemsHelper()
         {
             SteamItemImages.Add(Configs.DOTA2_STEAM_GAME_ID, SteamItemImages_DOTA);
@@ -53,17 +84,14 @@ namespace GameSlot.Helpers
                         for (int i = 0; i < SteamItems.Count; i++)
                         {
                             string image;
-                            if (this.GetImageFromMemory(SteamItems[i].ID, SteamItems[i].SteamGameID, out image))
+                            if (!this.GetImageFromMemory(SteamItems[i].ID, SteamItems[i].SteamGameID, out image))
                             {
                                 SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
                                 SteamItemImageQueue.ID = SteamItems[i].ID;
                                 SteamItemImageQueue.SteamGameID = SteamItems[i].SteamGameID;
                                 SteamItemImageQueue.ImageURL = SteamItems[i].Image;
 
-                                if (!SteamItemsHelper.QueueDownloadImage.Contains(SteamItemImageQueue))
-                                {
-                                    SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
-                                }
+                                this.AddToQueueDownloadImage(SteamItemImageQueue);
                             }
                         }
                     }
@@ -190,21 +218,25 @@ namespace GameSlot.Helpers
                     {
                         if (SteamItemsHelper.QueueDownloadImage.Count > 0)
                         {
-                            SteamItemImageQueue SteamItemImageQueue = SteamItemsHelper.QueueDownloadImage.Dequeue();
-
-                            using (WebClient WebClient = new WebClient())
+                            SteamItemImageQueue SteamItemImageQueue = SteamItemsHelper.QueueDownloadImage.First();
+                            SteamItemsHelper.QueueDownloadImage.Remove(SteamItemImageQueue);
+                            string img;
+                            if (!this.GetImageFromMemory(SteamItemImageQueue.ID, SteamItemImageQueue.SteamGameID, out img))
                             {
-                                byte[] ImageBytes = WebClient.DownloadData(SteamItemImageQueue.ImageURL);
-                                Image Image = Image.FromStream(new MemoryStream(ImageBytes));
-                                if (!Directory.Exists("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID))
+                                using (WebClient WebClient = new WebClient())
                                 {
-                                    Directory.CreateDirectory("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID);
+                                    byte[] ImageBytes = WebClient.DownloadData(SteamItemImageQueue.ImageURL);
+                                    Image Image = Image.FromStream(new MemoryStream(ImageBytes));
+                                    if (!Directory.Exists("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID))
+                                    {
+                                        Directory.CreateDirectory("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID);
+                                    }
+
+                                    File.WriteAllBytes("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID + "\\" + SteamItemImageQueue.ID + Configs.STEAM_IMAGE_TYPE, ImageBytes);
                                 }
 
-                                File.WriteAllBytes("FileStorage\\Upload\\" + Configs.STEAM_ITEMS_STORAGE + SteamItemImageQueue.SteamGameID + "\\" + SteamItemImageQueue.ID + Configs.STEAM_IMAGE_TYPE, ImageBytes);
+                                this.AddSteamImageToCache(SteamItemImageQueue.ID, SteamItemImageQueue.SteamGameID);
                             }
-
-                            this.AddSteamImageToCache(SteamItemImageQueue.ID, SteamItemImageQueue.SteamGameID);
                         }
                     }
                     catch { }
@@ -233,7 +265,8 @@ namespace GameSlot.Helpers
                     SteamItemImageQueue.ID = ItemID;
                     SteamItemImageQueue.SteamGameID = SteamGameID;
                     SteamItemImageQueue.ImageURL = XSteamItem.Image;
-                    SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
+
+                    this.AddToQueueDownloadImage(SteamItemImageQueue);
                 }
             }
         }

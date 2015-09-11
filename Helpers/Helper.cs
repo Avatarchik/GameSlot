@@ -22,6 +22,7 @@ namespace GameSlot
         public static OrderHelper OrderHelper;
 
         public static double Rub_ExchangeRate = 0;
+
         public static int OnlineUsers = 0;
 
         public static int GetCurrentTime()
@@ -48,20 +49,6 @@ namespace GameSlot
                 }
                 catch { }
             }).Start();
-        }
-
-        public static string MakeDichFromCuteText(string cute_text)
-        {
-            StringBuilder dich = new StringBuilder();
-            byte[] Data = Encoding.Unicode.GetBytes(cute_text);
-            for (int i = 0; i < Data.Length; i++)
-            {
-                string val1 = Data[i++].ToString("X2");
-                string val2 = Data[i].ToString("X2");
-
-                dich.Append(@"\u" + val1 + val2);
-            }
-            return dich.ToString();
         }
     }
 }

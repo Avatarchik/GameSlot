@@ -1,5 +1,6 @@
 ﻿using GameSlot.Database;
 using GameSlot.Helpers;
+using GameSlot.Pages.Includes;
 using GameSlot.Types;
 using System;
 using System.Collections;
@@ -112,17 +113,21 @@ namespace GameSlot.Pages
                         Logger.ConsoleLog("Added money: " + money + " to user: " + us.Name, ConsoleColor.Cyan, LogLevel.Info);
                     }
                 }
-                
-                else if (client.GetParam("add_money") != null && client.GetParam("to") != null)
+
+                else if(client.GetParam("waiting_images") != null)
                 {
-                    double money;
-                    uint to;
-                    XUser us;
-                    if (double.TryParse(client.GetParam("add_money"), out money) && uint.TryParse(client.GetParam("to"), out to) && Helper.UserHelper.Table.SelectByID(to, out us))
+                    Logger.ConsoleLog(Helper.SteamItemsHelper.QueueDownloadImageCount(), ConsoleColor.Cyan, LogLevel.Info);
+                }
+
+
+                else if (client.GetParam("add_online_users") != null)
+                {
+                    int on;
+                    if (int.TryParse(client.GetParam("add_online_users"), out on))
                     {
-                        us.Wallet += money;
-                        Helper.UserHelper.Table.UpdateByID(us, us.ID);
-                        Logger.ConsoleLog("Added money: " + money + " to user: " + us.Name, ConsoleColor.Cyan, LogLevel.Info);
+                        Helper.OnlineUsers = on;
+                        Logger.ConsoleLog("Added users " + on + "; now online: " + Helper.UserHelper.GetOnlineNum() + on, ConsoleColor.Cyan, LogLevel.Info);
+                        WebSocketPage.UpdateOnlineUsers(Helper.UserHelper.GetOnlineNum() + Helper.OnlineUsers);
                     }
                 }
             }

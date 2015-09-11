@@ -36,7 +36,9 @@ namespace GameSlot.Helpers
         private static Dictionary<uint, List<Client>> InventoryClients_DOTA = new Dictionary<uint, List<Client>>();
         private static Dictionary<uint, List<Client>> InventoryClients_CSGO = new Dictionary<uint, List<Client>>();
 
-        public static List<OnlineUser> OnlineUsers = new List<OnlineUser>();
+        private static List<uint> OnlineUsers = new List<uint>();
+
+        private static readonly object _OnlineUsers = new object();
 
         public UserHelper()
         {
@@ -49,24 +51,20 @@ namespace GameSlot.Helpers
             InventoryClients.Add(Configs.CSGO_STEAM_GAME_ID, InventoryClients_CSGO);
             InventoryClients.Add(Configs.DOTA2_STEAM_GAME_ID, InventoryClients_DOTA);
 
-            this.UpdateOnlineUsersList();
+            this.UpdatingOnlineUsersList();
+        }
+
+        public int GetOnlineNum()
+        {
+            return UserHelper.OnlineUsers.Count;
         }
 
         public bool IsUserOnline(uint UserID)
         {
-            List<OnlineUser> Users = new List<OnlineUser>(Helper.OnlineUsers);
-            for (int i = 0; i < Users.Count; i++)
-            {
-                if(Users[i].ID == UserID)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return OnlineUsers.Contains(UserID);
         }
 
-        public void UpdateOnlineUsersList()
+        public void UpdatingOnlineUsersList()
         {
             new Thread(delegate()
             {
@@ -74,17 +72,27 @@ namespace GameSlot.Helpers
                 {
                     try
                     {
-                        for (int i = 0; i < UserHelper.OnlineUsers.Count; i++)
+                        List<uint> UOnline = new List<uint>();
+
+                        for(int i = 0; i < BaseFuncs.GetOnlineClients<SiteGameSlot>().Count; i++)
                         {
-                            if (UserHelper.OnlineUsers[i] == null)
+                            Client client = BaseFuncs.GetOnlineClients<SiteGameSlot>()[i];
+                            if(client != null)
                             {
-                                UserHelper.OnlineUsers.Remove(UserHelper.OnlineUsers[i--]);
-                            }
-                            else if (UserHelper.OnlineUsers[i].Client.Closed || !UserHelper.OnlineUsers[i].Client.Session.ContainsKey("User"))
-                            {
-                                UserHelper.OnlineUsers.Remove(UserHelper.OnlineUsers[i--]);
+                                XUser user;
+                                if (this.GetCurrentUser(client, out user) && !UOnline.Contains(user.ID))
+                                {
+                                    UOnline.Add(user.ID);
+                                }
                             }
                         }
+
+                        lock(_OnlineUsers)
+                        {
+                            UserHelper.OnlineUsers = UOnline;
+                        }
+
+                        WebSocketPage.UpdateOnlineUsers(UserHelper.OnlineUsers.Count);
                     }
                     catch (Exception ex){
                         Logger.ConsoleLog(ex, ConsoleColor.Red, LogLevel.Error);
@@ -118,11 +126,13 @@ namespace GameSlot.Helpers
 
         public bool GetCurrentUser(Client client, out XUser user)
         {
-            if (client.Session.Contains("User") && client.Session["User"] != null && this.Table.SelectByID((uint)client.Session["User"], out user))
+            if (client != null)
             {
-                return true;
+                if (client.Session.Contains("User") && client.Session["User"] != null && this.Table.SelectByID((uint)client.Session["User"], out user))
+                {
+                    return true;
+                }
             }
-
             user = new XUser();
             return false;
         }
@@ -192,11 +202,6 @@ namespace GameSlot.Helpers
                 {
                     new Thread(delegate()
                     {
-                        OnlineUser OnlineUser = new OnlineUser();
-                        OnlineUser.ID = th_user.ID;
-                        OnlineUser.Client = client;
-                        UserHelper.OnlineUsers.Add(OnlineUser);
-
                         while (true)
                         {
                             this.GetSteamInventory(th_user.ID, Configs.DOTA2_STEAM_GAME_ID, out dota, true);
@@ -401,7 +406,8 @@ namespace GameSlot.Helpers
                                     SteamItem.ID = SteamItemImageQueue.ID = SteamItem.ID;
                                     SteamItemImageQueue.SteamGameID = SteamItem.SteamGameID;
                                     SteamItemImageQueue.ImageURL = SteamItem.Image;
-                                    SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
+
+                                    Helper.SteamItemsHelper.AddToQueueDownloadImage(SteamItemImageQueue);
                                 }
 
                                 if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)

@@ -594,14 +594,14 @@
     <EmbeddedResource Include="Content\Cache\js\common.js" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\css\screen.css" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Content\Cache\wm\wm_our.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\md5-min.js" />
     <EmbeddedResource Include="Content\Cache\md5.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\css\screen.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

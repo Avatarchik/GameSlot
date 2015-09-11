@@ -11732,3 +11732,12 @@ body.vn3 #page #header .r-head .ct-t3 span {
   width: 24px;
   height: 24px;
 }
+
+.mb-t1 {
+  margin-bottom: 100px !important;
+}
+
+.mb-t2 {
+  margin-bottom: 78px !important;
+  padding-bottom: 0 !important;
+}

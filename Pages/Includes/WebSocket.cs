@@ -764,5 +764,17 @@ namespace GameSlot.Pages.Includes
                 }
             }
         }
+
+        public static void UpdateOnlineUsers(int num)
+        {
+            for (int i = 0; i < BaseFuncs.GetWebsocketClients<SiteGameSlot>().Count; i++)
+            {
+                Client client = BaseFuncs.GetWebsocketClients<SiteGameSlot>()[i];
+                if (client != null)
+                {
+                    client.SendWebsocket("UpdateOnlineUsers" + BaseFuncs.WSplit + num);
+                }
+            }
+        }
     }
 }

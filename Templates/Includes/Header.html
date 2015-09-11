@@ -18,7 +18,7 @@
                         <li><a href="/logout">Выйти</a></li>
                     </ul>
                 {{end}}
-                <div class="onl1">Online: <b>{{=UserHelper.OnlineUsers.Count}}</b></div>
+                <div class="onl1">Online: <b id="online_users">{{=(Helper.UserHelper.GetOnlineNum() + Helper.OnlineUsers)}}</b></div>
             </div>
             <div class="rr1">
                 <ul>
