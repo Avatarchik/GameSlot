@@ -34,5 +34,9 @@ namespace GameSlot.Types
 
         public int StartTimeNextGame;
         public int LeftTimeNextGame;
+
+        public int UsersCount;
+
+        public double CentBank;
     }
 }

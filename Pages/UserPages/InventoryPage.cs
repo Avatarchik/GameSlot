@@ -70,8 +70,7 @@ namespace GameSlot.Pages.UserPages
                         case 4:
                             f100++;
                             break;
-                    }
-                        
+                    }                       
                 }
 
                 Hashtable data = new Hashtable();

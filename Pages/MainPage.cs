@@ -49,10 +49,7 @@ namespace GameSlot.Pages
                 data.Add("MaxJackpot_DOTA", Helper.LotteryHelper.MaxJackpot(Configs.DOTA2_STEAM_GAME_ID, out i_d2, 0).ToString("###,##0.00"));
             }
 
-            data.Add("Gamers_CSGO", "");
-            data.Add("Gamers_DOTA", "");
-
-            data.Add("Title", "Главная страница GAMESLOT");
+            data.Add("Title", "GAMESLOT — Удача сопутствует смелым");
 
             client.HttpSend(TemplateActivator.Activate(this, client, data));
             return true;

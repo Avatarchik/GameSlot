@@ -527,7 +527,7 @@ namespace GameSlot.Pages.Includes
                 string UsersGroupName = "";
                 if(user.GroupOwnerID >= 0)
                 {
-                    UsersGroupName = BaseFuncs.WSplit + Helper.GroupHelper.SelectByID((uint)user.GroupOwnerID).Name;
+                    UsersGroupName = Helper.GroupHelper.SelectByID((uint)user.GroupOwnerID).Name;
                 }
 
                 for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XBet.LotteryID].Count; i++)
@@ -581,7 +581,7 @@ namespace GameSlot.Pages.Includes
                         }
                         else
                         {
-                            top_items += BankChips[CurTopPriceItem.Position].Cost_Str + "$↓";
+                            top_items += "Фишка на сумму " + BankChips[CurTopPriceItem.Position].Cost + "$↓";
                             top_items += "/chip-image/" + BankChips[CurTopPriceItem.Position].ID + "↓";
                             if (currency == 1)
                             {
@@ -649,13 +649,15 @@ namespace GameSlot.Pages.Includes
                         Chip chip;
                         Helper.ChipHelper.SelectByID(XBet.ChipIDs[g], out chip);
 
+                        string chip_name = chip.Cost.ToString() + "$";
                         if(user.Currency == 1)
                         {
+                            chip_name = "Фишка на сумму " + chip.Cost.ToString() + "$";
                             chip.Cost *= lottery.RubCurrency;
                             chip.Cost_Str = chip.Cost.ToString("###,###,##0");
                         }
 
-                        ws += chip.ID + "::" + chip.Cost_Str + "↓";
+                        ws += chip.ID + "::" + chip.Cost_Str + "::" + chip_name + "$↓";
                     }
 
                     // 21: top_items
@@ -680,8 +682,9 @@ namespace GameSlot.Pages.Includes
                     // 23 group
                     ws += BaseFuncs.WSplit + user.GroupOwnerID;
                     // 24 group name
-                    ws += UsersGroupName;
-
+                    ws += BaseFuncs.WSplit + UsersGroupName;
+                    // 25
+                    ws += BaseFuncs.WSplit + lottery.GamersCount;
 
                     WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i].SendWebsocket("AddedNewLotteryBet" + BaseFuncs.WSplit + ws);
                 }
@@ -699,8 +702,6 @@ namespace GameSlot.Pages.Includes
                 {
                     ws += data.UsersAvatar + "↑" + data.Token.ToString("D8") + "↑" + data.Winner + "↓";
                 }
-
-                ws += BaseFuncs.WSplit;
 
                 for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XLottery.ID].Count; i++)
                 {
@@ -735,6 +736,9 @@ namespace GameSlot.Pages.Includes
                     {
                         extra += 0.ToString();
                     }
+                    //14
+                    extra += BaseFuncs.WSplit + BaseFuncs.MD5(XLottery.RaundNumber.ToString());
+
                     Logger.ConsoleLog("User:" + CurrentUser.ID, ConsoleColor.Yellow);
                     WebSocketPage.ClientsLotteryPage[XLottery.ID][i].SendWebsocket("LotteryRouletteStarted" + BaseFuncs.WSplit + extra);
                 }

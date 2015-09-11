@@ -47,22 +47,29 @@ namespace GameSlot.Helpers
             {
                 while(true)
                 {
-                    List<XSteamItem> SteamItems = this.Table.SelectAll();
-                    for(int i = 0; i < SteamItems.Count; i++)
+                    try
                     {
-                        string image;
-                        if(this.GetImageFromMemory(SteamItems[i].ID, SteamItems[i].SteamGameID, out image))
+                        List<XSteamItem> SteamItems = this.Table.SelectAll();
+                        for (int i = 0; i < SteamItems.Count; i++)
                         {
-                            SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
-                            SteamItemImageQueue.ID = SteamItems[i].ID;
-                            SteamItemImageQueue.SteamGameID = SteamItems[i].SteamGameID;
-                            SteamItemImageQueue.ImageURL = SteamItems[i].Image;
-
-                            if (!SteamItemsHelper.QueueDownloadImage.Contains(SteamItemImageQueue))
+                            string image;
+                            if (this.GetImageFromMemory(SteamItems[i].ID, SteamItems[i].SteamGameID, out image))
                             {
-                                SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
+                                SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
+                                SteamItemImageQueue.ID = SteamItems[i].ID;
+                                SteamItemImageQueue.SteamGameID = SteamItems[i].SteamGameID;
+                                SteamItemImageQueue.ImageURL = SteamItems[i].Image;
+
+                                if (!SteamItemsHelper.QueueDownloadImage.Contains(SteamItemImageQueue))
+                                {
+                                    SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
+                                }
                             }
                         }
+                    }
+                    catch(Exception ex)
+                    {
+                        Logger.ConsoleLog(ex, ConsoleColor.Red, LogLevel.Error);
                     }
                 }
             }).Start();
@@ -177,9 +184,9 @@ namespace GameSlot.Helpers
         {
             new Thread(delegate()
             {
-                try
+                while (true)
                 {
-                    while (true)
+                    try
                     {
                         if (SteamItemsHelper.QueueDownloadImage.Count > 0)
                         {
@@ -200,8 +207,9 @@ namespace GameSlot.Helpers
                             this.AddSteamImageToCache(SteamItemImageQueue.ID, SteamItemImageQueue.SteamGameID);
                         }
                     }
+                    catch { }
                 }
-                catch { }
+               
             }).Start();
         }
 

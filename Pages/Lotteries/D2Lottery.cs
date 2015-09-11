@@ -45,6 +45,11 @@ namespace GameSlot.Pages.Lotteries
                 SteamGameID = Configs.CSGO_STEAM_GAME_ID;
                 title = "CSGO";
             }
+            else if(Game.Equals("teamfortess"))
+            {
+                BaseFuncs.ShowPage(new CommingSoonPage(), client);
+                return true;
+            }
             else
             {
                 BaseFuncs.Show404(client);

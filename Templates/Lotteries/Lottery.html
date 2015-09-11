@@ -79,7 +79,6 @@
             {
                 $("div#ower_timer").html('<a href="" class="new-game">Новая игра</a>');
                 clearInterval(ower_timer_interval);
-                console.log("timer finished");
             }
         }
     </script>
@@ -98,7 +97,7 @@
 
         {{include GameSlot Header}}
 
-        {{if(Lottery.LeftTime < 0)}}
+        {{if(Lottery.LeftTime < 0 && Lottery.UsersCount == 0)}}
             <div class="pl-big-st1" id="lottery_standart_form">
                 <div class="bg-dsk1">
                     <i></i>
@@ -123,7 +122,7 @@
                         </div>
                         <div class="action-chet1">
                             <div class="tit-chet1">Ожидание первой ставки</div>
-                            <div class="ch-tt1"><span>00</span><i>:</i><span>00</span></div>
+                            <div class="ch-tt1"><span id="lot_secs">04</span><i>:</i><span id="lot_mins">00</span></div>
                             {{if(!Helper.UserHelper.Authorized(client))}}
                                 <a href="/login" class="start-game1">Начать игру</a>
                             {{end}}
@@ -147,7 +146,7 @@
                 </div>
             </div>
         {{end}}
-        {{else if(Lottery.LeftTime > 0)}}
+        {{else if(Lottery.LeftTime != 0)}}
             <div class="pl-big-st1 pl-big-st11 pl-big-st112" id="lottery_started_format">
                 <div class="bg-dsk1">
                     <i></i>
@@ -174,18 +173,24 @@
                             <b class="eft-pl1 price_jackpot_alert"></b>
                         </div>
                         <div class="action-chet1">
-                            <div class="tit-chet1">Начнется через:</div>
-                            {{set int Minutes = (Lottery.LeftTime / 60)}}
-                            {{set int Sec = Lottery.LeftTime - 60 * Minutes}}
-                            <div class="ch-tt1"><span id="lot_mins">0{{=Minutes}}</span><i>:</i>
-                            <span id="lot_secs">
-                                {{if(Sec < 10)}}
-                                    0{{=Sec}}
-                                {{end}}
-                                {{else}}
-                                    {{=Sec}}
-                                {{end}}
-                            </span></div>
+                            {{if(Lottery.UsersCount > 1)}}
+                                <div class="tit-chet1">Начнется через:</div>
+                                {{set int Minutes = (Lottery.LeftTime / 60)}}
+                                {{set int Sec = Lottery.LeftTime - 60 * Minutes}}
+                                <div class="ch-tt1"><span id="lot_mins">0{{=Minutes}}</span><i>:</i>
+                                <span id="lot_secs">
+                                    {{if(Sec < 10)}}
+                                        0{{=Sec}}
+                                    {{end}}
+                                    {{else}}
+                                        {{=Sec}}
+                                    {{end}}
+                                </span></div>
+                            {{end}}
+                            {{else}}
+                                <div class="tit-chet1">Ожидание второго игрока</div>
+                                <div class="ch-tt1"><span id="lot_mins">04</span><i>:</i><span id="lot_secs">00</span></div>
+                            {{end}}
                             <b class="eft-pl1 lottery_time_alert"></b>
                             {{if(!Helper.UserHelper.Authorized(client))}}
                                 <a href="/login" class="start-game1 start-game11">Принять участие</a>
@@ -249,12 +254,12 @@
                     <div class="game-over-s1">
                         <div class="ll1">
                             <div class="tl1"><span>Номер<br>Игры</span><div>{{=Lottery.IDStr}}</div></div>
-                            <div class="tl3">Число судьбы: <span>{{=Lottery.RaundNumber}}</span></div>
+                            <div class="tl3">Хэш раунда: <span>{{=Lottery.RaundNumber_MD5}}</span></div>
                             <div class="tl2"><span>Победный<br>жетон</span><i>{{=Lottery.WinnersToken}}</i></div>
                             <div class="tl4">
                                 <div>Честная игра</div>
                                 <p><i></i>{{=Lottery.RaundNumber}} <span>(Число судьбы)</span></p>
-                                <p><i>х</i>{{=Lottery.JackpotPrice * 100}} <span>(Банк в центах)</span></p>
+                                <p><i>х</i>{{=Lottery.CentBank}} <span>(Банк в центах)</span></p>
                                 <p><i>=</i>{{=Lottery.WinnersToken}} <span>(Победный жетон)</span></p>
                             </div>
                         </div>
@@ -343,7 +348,7 @@
                         </div>
                         <div class="action-chet1">
                             <div class="tit-chet1">Начнется через:</div>
-                            <div class="ch-tt1"><span id="lot_mins">05</span><i>:</i>
+                            <div class="ch-tt1"><span id="lot_mins">04</span><i>:</i>
                             <span id="lot_secs">00</span></div>
                             <b class="eft-pl1 lottery_time_alert"></b>
                             {{if(!Helper.UserHelper.Authorized(client))}}
@@ -358,7 +363,7 @@
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
                             <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
                             <p class="j3">Максимальная разовая ставка — 24 предметов</p>
-                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времнеи — 5 минут.</p>
+                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 4 минуты.</p>
                         </div>
                     </div>
 
@@ -455,7 +460,7 @@
                 <div class="game-over-s1">
                     <div class="ll1">
                         <div class="tl1"><span>Номер<br>Игры</span><div>#{{=Lottery.IDStr}}</div></div>
-                        <div class="tl3">Число судьбы: <span><own id="raund_number"></own></span></div>
+                        <div class="tl3">Хэш раунда: <span><own id="hash_number"></own></span></div>
                         <div class="tl2"><span>Победный<br>жетон</span><i><own id="winners_token"></own></i></div>
                         <div class="tl4">
                             <div>Честная игра</div>
@@ -595,13 +600,14 @@
                                 <div class="item1">
                                     <img src="/chip-image/{{=chip.ID}}">
                                     <span class="">{{=chip.Cost_Str}}</span>
+                                    <div class="tiltp">Фишка на сумму {{=chip.Cost / Helper.Rub_ExchangeRate}}$</div>
                                 </div>
                             {{end}}
 
                             {{foreach(USteamItem Item in bet.SteamItems)}}
                                 <div class="item1">
-                                    <!--<img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">-->
-                                    <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
+                                    <img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">
+                                    <!--<img src="{{=Item.Image}}" alt="{{=Item.Name}}">-->
                                     <span class="">{{=Item.Price_Str}}</span>
                                     <div class="tiltp">{{=Item.Name}}</div>
                                 </div>
@@ -638,8 +644,9 @@
         </div>
 
         <div class="ev-foot1"></div>
+        {{include GameSlot Footer}}
     </div>
-    {{include GameSlot Footer}}
+    <div class="up1"></div>
 
     {{if(Helper.UserHelper.Authorized(client))}}
     {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}

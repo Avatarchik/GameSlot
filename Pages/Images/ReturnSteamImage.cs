@@ -39,8 +39,7 @@ namespace GameSlot.Pages.Images
                 {
                     FileSender.SendCachedFile(client, (CachedFile)UpCacher.files[SteamItemsHelper.NoneImage]);
                     return false;
-                }
-                
+                }                
             }
 
             BaseFuncs.Show404(client);

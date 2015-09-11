@@ -48,14 +48,16 @@
                     <div class="ef-t3"><span>ВНИМАНИЕ!</span>Так как до последнего момента никому не известен окончательный банк раунда, то и подделать победителя также невозможно!</div>
                 </div>
                 <div class="form-game1">
-                    <div class="title-form-game1">Проверка честной игры</div>
-                    <div class="ip j1"><input type="text" value="Хэш раунда"></div>
-                    <div class="ip j2"><input type="text" value="Число судьбы"></div>
-                    <div class="ip j3"><input type="text" value="Банк"></div>
-                    <div class="ep-send">
-                        <div class="sub-st1">Проверить<input type="submit" value=""></div>
-                        <div class="win-g1"><i>Победный жетон</i><span>123456789</span></div>
-                    </div>
+                    <form onsubmit="return get_token();">
+                        <div class="title-form-game1">Проверка честной игры</div>
+                        <div class="ip j1"><input type="text" placeholder="Хэш раунда" id="hash"></div>
+                        <div class="ip j2"><input type="text" placeholder="Число судьбы" id="decode_hash"></div>
+                        <div class="ip j3"><input type="text" placeholder="Банк в центах" id="bank"></div>
+                        <div class="ep-send">
+                            <div class="sub-st1">Проверить<input type="submit" value=""></div>
+                            <div class="win-g1" id="result_token_form"><i>Победный жетон</i><span id="result_token">0</span></div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -63,6 +65,52 @@
     </div>
     {{include GameSlot Footer}}
     <div class="up1"></div>
+    <script type="text/javascript" src="/cached_files/md5-min.js"></script>
+
+    <script>
+        function get_token()
+        {
+            var hash = $("#hash").val();
+            var decode_hash = $("#decode_hash").val();
+            var bank = $("#bank").val();
+
+            var err = false;
+            if(hash.length != 32)
+            {
+                alert("Хэш раунда введен неправильно!");
+                err = true;
+            }
+
+            if (!isNumber(decode_hash))
+            {
+                alert("Число судьбы введено неправильно!");
+                err = true;
+            }
+
+            if (!isNumber(bank)) {
+                alert("Банк введен неправильно!");
+                err = true;
+            }
+
+            if (!err) {
+                if (hex_md5(decode_hash).toLowerCase() != hash.toLowerCase())
+                {
+                    alert("Хэш раунда и число судьбы не совпадают.");
+                }
+                else
+                {
+                    var token = Math.floor(decode_hash * bank);
+                    $("span#result_token").text(token);
+                }
+            }
+
+            return false;
+        }
+
+        function isNumber(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+    </script>
+
 </body>
-{{include GameSlot Last}}
 </html>

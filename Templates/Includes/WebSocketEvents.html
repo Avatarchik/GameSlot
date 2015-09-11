@@ -583,7 +583,7 @@
                     var items_html = $("div#new_bets_items").html();
                     items_html = items_html.replace("/[items_image]", "/steam-image/" + spl[1] + "/" + spl[0]);
                     items_html = items_html.replace("[items_name]", spl[2]);
-                    items_html = items_html.replace("[items_name]", spl[1]);
+                    items_html = items_html.replace("[items_name]", spl[2]);
                     items_html = items_html.replace("[items_price]", spl[3]);
                     addition_items += items_html;
                 }
@@ -595,7 +595,7 @@
                     var items_html = $("div#new_bets_items").html();
                     items_html = items_html.replace("/[items_image]", "/chip-image/" + spl[0]);
                     items_html = items_html.replace("[items_name]", spl[1]);
-                    items_html = items_html.replace("[items_name]", spl[1]);
+                    items_html = items_html.replace("[items_name]", spl[2]);
                     items_html = items_html.replace("[items_price]", spl[1]);
                     addition_items += items_html;
                 }
@@ -651,13 +651,25 @@
                     mouseWheelPixels: 300
                 });
 
-                left_secs = data[18];
-                if (data[4] < 0)
+                console.log("extra time: " + data[4] + "; users:" + data[25] + "; left secs: " + data[18]);
+                if (data[25] > 0)
                 {
                     $("#lottery_standart_form").remove();
+
+                    if (data[25] > 1)
+                    {
+                        left_secs = data[18];
+                        $(".tit-chet1").text("Начнется через:");
+                    }
+                    else
+                    {
+                        $(".tit-chet1").text("Ожидание второго игрока");
+                    }
+
                     $("#lottery_started_format").attr("style", "display:block");
                 }
-                else if (data[4] > 0)
+
+                if (data[4] > 0)
                 {
                     min = Math.floor(data[4] / 60);
                     sec = data[4] - 60 * min;
@@ -725,6 +737,8 @@
                 /* trash code end */
 
                 /* updating end data */
+                $("div#lottery_end_format own#hash_number").text(data[14]);
+
                 $("div#lottery_end_format own#raund_number").text(data[5]);
                 $("div#lottery_end_format own#winners_token").text(data[6]);
                 $("div#lottery_end_format own#bank_cent").text(data[7]);
@@ -740,7 +754,7 @@
 
                 $("div#lottery_end_format div#winners_wonrate").text(data[9] + "%");
 
-                if (data[13] == "0")
+                if (data[13] == 1)
                 {
                     $(".fk15").removeClass("fk151");
                     $(".rr11").removeClass("rr111");

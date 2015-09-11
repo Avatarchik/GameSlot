@@ -45,9 +45,24 @@ namespace GameSlot.Pages
             if(Helper.SteamBotHelper.Table.SelectAll().Count == 0)
             {
                 XSteamBot bot = new XSteamBot();
-                bot.Login = "trarara";
+                bot.Login = "gabechest01";
+                bot.Password = "43uiy48Df785bfcUICda";
+                bot.Name = "Sedoy";
                 Helper.SteamBotHelper.Table.Insert(bot);
-                Logger.ConsoleLog("added bot!", ConsoleColor.Cyan, LogLevel.Info);
+
+                bot = new XSteamBot();
+                bot.Login = "gabechest02";
+                bot.Password = "43uiy48cEKbchfcUICda";
+                bot.Name = "Tatar";
+                Helper.SteamBotHelper.Table.Insert(bot);
+
+                bot = new XSteamBot();
+                bot.Login = "gabechest03";
+                bot.Password = "kejbcxk78487ckxbCEceebw";
+                bot.Name = "Chertila";
+                Helper.SteamBotHelper.Table.Insert(bot);
+
+                Logger.ConsoleLog("added bots!", ConsoleColor.Cyan, LogLevel.Info);
             }
 
             XUser user;
@@ -85,6 +100,19 @@ namespace GameSlot.Pages
                     Logger.ConsoleLog("--------------------------------------------------------------------\n", ConsoleColor.Cyan, LogLevel.Info);
                 }
 
+                else if (client.GetParam("add_money") != null && client.GetParam("to") != null)
+                {
+                    double money;
+                    uint to;
+                    XUser us;
+                    if (double.TryParse(client.GetParam("add_money"), out money) && uint.TryParse(client.GetParam("to"), out to) && Helper.UserHelper.Table.SelectByID(to, out us))
+                    {
+                        us.Wallet += money;
+                        Helper.UserHelper.Table.UpdateByID(us, us.ID);
+                        Logger.ConsoleLog("Added money: " + money + " to user: " + us.Name, ConsoleColor.Cyan, LogLevel.Info);
+                    }
+                }
+                
                 else if (client.GetParam("add_money") != null && client.GetParam("to") != null)
                 {
                     double money;

@@ -22,6 +22,7 @@ namespace GameSlot
         public static OrderHelper OrderHelper;
 
         public static double Rub_ExchangeRate = 0;
+        public static int OnlineUsers = 0;
 
         public static int GetCurrentTime()
         {

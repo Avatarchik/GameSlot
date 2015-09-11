@@ -43,6 +43,7 @@ namespace GameSlot.Pages
                 data.Add("InGroup", InGroup);
                 data.Add("InOtherGroup", InOtherGroup);
 
+                data.Add("Title", "Тусовка пользователя " + User.Name);
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }

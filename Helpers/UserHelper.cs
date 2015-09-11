@@ -36,7 +36,8 @@ namespace GameSlot.Helpers
         private static Dictionary<uint, List<Client>> InventoryClients_DOTA = new Dictionary<uint, List<Client>>();
         private static Dictionary<uint, List<Client>> InventoryClients_CSGO = new Dictionary<uint, List<Client>>();
 
-        private static List<uint> EnterUser = new List<uint>();
+        public static List<OnlineUser> OnlineUsers = new List<OnlineUser>();
+
         public UserHelper()
         {
             UsersInventories.Add(Configs.CSGO_STEAM_GAME_ID, UsersInventories_CSGO);
@@ -47,6 +48,49 @@ namespace GameSlot.Helpers
 
             InventoryClients.Add(Configs.CSGO_STEAM_GAME_ID, InventoryClients_CSGO);
             InventoryClients.Add(Configs.DOTA2_STEAM_GAME_ID, InventoryClients_DOTA);
+
+            this.UpdateOnlineUsersList();
+        }
+
+        public bool IsUserOnline(uint UserID)
+        {
+            List<OnlineUser> Users = new List<OnlineUser>(Helper.OnlineUsers);
+            for (int i = 0; i < Users.Count; i++)
+            {
+                if(Users[i].ID == UserID)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void UpdateOnlineUsersList()
+        {
+            new Thread(delegate()
+            {
+                while (true)
+                {
+                    try
+                    {
+                        for (int i = 0; i < UserHelper.OnlineUsers.Count; i++)
+                        {
+                            if (UserHelper.OnlineUsers[i] == null)
+                            {
+                                UserHelper.OnlineUsers.Remove(UserHelper.OnlineUsers[i--]);
+                            }
+                            else if (UserHelper.OnlineUsers[i].Client.Closed || !UserHelper.OnlineUsers[i].Client.Session.ContainsKey("User"))
+                            {
+                                UserHelper.OnlineUsers.Remove(UserHelper.OnlineUsers[i--]);
+                            }
+                        }
+                    }
+                    catch (Exception ex){
+                        Logger.ConsoleLog(ex, ConsoleColor.Red, LogLevel.Error);
+                    }
+                }
+            }).Start();
         }
 
         public SteamUser GetSteamData(ulong SteamID)
@@ -144,10 +188,15 @@ namespace GameSlot.Helpers
                 UsersInventory dota, csgo;
 
                 XUser th_user = user;
-                if (!EnterUser.Contains(user.ID))
+                if (!this.IsUserOnline(user.ID))
                 {
                     new Thread(delegate()
                     {
+                        OnlineUser OnlineUser = new OnlineUser();
+                        OnlineUser.ID = th_user.ID;
+                        OnlineUser.Client = client;
+                        UserHelper.OnlineUsers.Add(OnlineUser);
+
                         while (true)
                         {
                             this.GetSteamInventory(th_user.ID, Configs.DOTA2_STEAM_GAME_ID, out dota, true);
@@ -155,8 +204,6 @@ namespace GameSlot.Helpers
                             Thread.Sleep(Configs.INVENTORY_UPDATE_TIME);
                         }
                     }).Start();
-
-                    EnterUser.Add(user.ID);
                 }
 
                 return true;
@@ -345,11 +392,15 @@ namespace GameSlot.Helpers
                                     SteamItem.SteamGameID = XSteamItem.SteamGameID = SteamGameID;
 
                                     Helper.SteamItemsHelper.Table.Insert(XSteamItem);
-                                    SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
-                                    SteamItem.ID = SteamItemImageQueue.ID = Helper.SteamItemsHelper.Table.Insert(XSteamItem);
-                                    SteamItemImageQueue.SteamGameID = XSteamItem.SteamGameID;
-                                    SteamItemImageQueue.ImageURL = XSteamItem.Image;
+                                }
 
+                                string iimgg;
+                                if(!Helper.SteamItemsHelper.GetImageFromMemory(SteamItem.ID, SteamItem.SteamGameID, out iimgg))
+                                {
+                                    SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
+                                    SteamItem.ID = SteamItemImageQueue.ID = SteamItem.ID;
+                                    SteamItemImageQueue.SteamGameID = SteamItem.SteamGameID;
+                                    SteamItemImageQueue.ImageURL = SteamItem.Image;
                                     SteamItemsHelper.QueueDownloadImage.Enqueue(SteamItemImageQueue);
                                 }
 

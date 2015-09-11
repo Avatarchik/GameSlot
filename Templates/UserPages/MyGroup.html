@@ -3,74 +3,73 @@
 {{include GameSlot Head}}
 
 <body class="vn1">
-    <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
-    {{include GameSlot UpHeader}}
-    {{include GameSlot Header}}
+    <div id="page">
+        <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
+        {{include GameSlot UpHeader}}
+        {{include GameSlot Header}}
 
-    {{using GameSlot.Types}}
-    {{set UGroup Group = (UGroup) PageData["Group"]}}
+        {{using GameSlot.Types}}
+        {{set UGroup Group = (UGroup) PageData["Group"]}}
 
-    <script>
-        MyGroupPageConnect = true;
-        MyGroupPage_GroupID = "{{=Group.ID}}";
+        <script>
+            MyGroupPageConnect = true;
+            MyGroupPage_GroupID = "{{=Group.ID}}";
 
-        var GroupName = "{{=Group.Name}}";
-        function validCheck(current_group_name)
-        {
-            if (GroupName != current_group_name && current_group_name.length > 2) {
-                return true;
-            }
-            return false;
-        }
-
-        function show_btn()
-        {
-            var CurrentName = $("input#group_name").val();
-            if (CurrentName.length > 3)
+            var GroupName = "{{=Group.Name}}";
+            function validCheck(current_group_name)
             {
-                if (GroupName == CurrentName) {
-                    $("b#upd_sb").attr("class", "active");
-                    $("b#upd_sb own").text("Сохранено");
+                if (GroupName != current_group_name && current_group_name.length > 2) {
+                    return true;
+                }
+                return false;
+            }
+
+            function show_btn()
+            {
+                var CurrentName = $("input#group_name").val();
+                if (CurrentName.length > 3)
+                {
+                    if (GroupName == CurrentName) {
+                        $("b#upd_sb").attr("class", "active");
+                        $("b#upd_sb own").text("Сохранено");
+                    }
+                    else
+                    {
+                        $("b#upd_sb own").text("Сохранить");
+
+                        if (validCheck(CurrentName)) {
+                            $("b#upd_sb").removeClass("active");
+                        }
+                        else {
+                            $("b#upd_sb").attr("class", "active");
+                        }
+
+                        $(".sm-search-new1").removeClass("err");
+                    }
                 }
                 else
                 {
                     $("b#upd_sb own").text("Сохранить");
-
-                    if (validCheck(CurrentName)) {
-                        $("b#upd_sb").removeClass("active");
-                    }
-                    else {
-                        $("b#upd_sb").attr("class", "active");
-                    }
-
-                    $(".sm-search-new1").removeClass("err");
+                    $("b#upd_sb").attr("class", "active");
+                    $(".sm-search-new1").addClass("err");
                 }
             }
-            else
+
+            function update()
             {
-                $("b#upd_sb own").text("Сохранить");
-                $("b#upd_sb").attr("class", "active");
-                $(".sm-search-new1").addClass("err");
+                var name = $("input#group_name").val();
+                if(validCheck(name))
+                {
+                    $("b#upd_sb").attr("class", "active");
+                    $("b#upd_sb own").text("Сохранить");
+                    ws.send("MyGroupPage{{=BaseFuncs.WSplit}}ChangeName{{=BaseFuncs.WSplit}}" + name);
+
+                    GroupName = name;
+                    alert("name updated!")
+                }
+                return false;
             }
-        }
-
-        function update()
-        {
-            var name = $("input#group_name").val();
-            if(validCheck(name))
-            {
-                $("b#upd_sb").attr("class", "active");
-                $("b#upd_sb own").text("Сохранить");
-                ws.send("MyGroupPage{{=BaseFuncs.WSplit}}ChangeName{{=BaseFuncs.WSplit}}" + name);
-
-                GroupName = name;
-                alert("name updated!")
-            }
-            return false;
-        }
-    </script>
-
-	<div id="page">
+        </script>
         <section id="content">
             <div class="ct">
                 <div class="tit-mt1">Моя Тусовка</div>
@@ -154,8 +153,8 @@
             </div>
             <div class="ev-foot1"></div>
         </section>
-        {{include GameSlot Footer}}
     </div>
+    {{include GameSlot Footer}}
     <div class="up1"></div>
 </body>
 </html>
