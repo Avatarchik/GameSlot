@@ -41,12 +41,12 @@
                             {{end}}
                             {{else}}
                                 {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
-                                    <a class="active">Dota2</a>
-                                    <a href="/games-history/csgo/my">Cs go</a>
+                                    <a class="active">DOTA2</a>
+                                    <a href="/games-history/csgo/my">CS GO</a>
                                 {{end}}
                                 {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
-                                <a href="/games-history/dota2/my">Dota2</a>
-                                <a class="active">Cs go</a>
+                                <a href="/games-history/dota2/my">DOTA2</a>
+                                <a class="active">CS GO</a>
                                 {{end}}
                             {{end}}
                         </div>
@@ -97,7 +97,7 @@
                                         {{=Lottery.JackpotPrice.ToString("###,##0.00")}}
                                     {{end}}
                                     </span></span></div>
-                                <div class="et j6"><span class="dc1"><a href="/game-history/" onclick="return false;" style="opacity: 0.6;" class="bt-link1">Полная история еще недоступна</a></span></div>
+                                <div class="et j6"><span class="dc1"><a href='/game/id/{{=Lottery.ID}}' class="bt-link1">Посмотреть полную историю игры</a></span></div>
                             </div>
                         </div>
                     {{end}}

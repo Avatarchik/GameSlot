@@ -41,6 +41,7 @@ namespace GameSlot.Helpers
 
         private static readonly object _OnlineUsers = new object();
         private static readonly object _UsersSteamInventories = new object();
+        private static readonly object _UpdatingInventories = new object();
 
         public static int ExtraOnlineUsers = 0;
 
@@ -57,6 +58,14 @@ namespace GameSlot.Helpers
 
             this.UpdatingOnlineUsersList();
             this.UpdatingOnlineUsersInventories();
+        }
+
+        private Dictionary<uint, Dictionary<uint, int>> GetUpdatingInventories()
+        {
+            lock(_UpdatingInventories)
+            {
+                return new Dictionary<uint, Dictionary<uint, int>>(UpdatingInventories);
+            }
         }
 
         public void DeleteItemFromSteamInventory(uint UserID, ulong AssertID, uint SteamGameID)
@@ -88,7 +97,7 @@ namespace GameSlot.Helpers
             return UserHelper.ExtraOnlineUsers + UserHelper.OnlineUsers.Count;
         }
 
-        public List<uint> GetUpdatingInventories()
+        public List<uint> GetUpdatingInventoriesThreads()
         {
             return new List<uint>(UserHelper.UpdatingInventoryThreads);
         }
@@ -188,6 +197,7 @@ namespace GameSlot.Helpers
             {
                 using (WebClient WebClient = new WebClient())
                 {
+                    WebClient.Encoding = Encoding.UTF8;
                     string data = WebClient.DownloadString("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + Configs.STEAM_API + "&steamids=" + SteamID);
                     if (data.Contains("\"steamid\":"))
                     {
@@ -359,7 +369,7 @@ namespace GameSlot.Helpers
                 {
                     UsersInventory = UsersInventories[SteamGameID][User.ID];
                     //Logger.ConsoleLog(UsersInventory.Opened + "CERCE");
-                    if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID) && UsersInventory.LastUpdate + Configs.INVENTORY_UPDATE_TIME < Helper.GetCurrentTime())
+                    if (!this.GetUpdatingInventories()[SteamGameID].ContainsKey(User.ID) && UsersInventory.LastUpdate + Configs.INVENTORY_UPDATE_TIME < Helper.GetCurrentTime())
                     {
                         //Logger.ConsoleLog("again update!");
                         if (wait)
@@ -376,7 +386,7 @@ namespace GameSlot.Helpers
                     return true;
                 }
 
-                if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID))
+                if (!this.GetUpdatingInventories()[SteamGameID].ContainsKey(User.ID))
                 {
                     //Logger.ConsoleLog("update!");
                     if (wait)
@@ -420,11 +430,13 @@ namespace GameSlot.Helpers
         {
             UsersInventory UsersInventory = new UsersInventory();
             UsersInventory.Opened = false;
-            if (!UpdatingInventories[SteamGameID].ContainsKey(User.ID))
+            if (!this.GetUpdatingInventories()[SteamGameID].ContainsKey(User.ID))
             {
                 double TotalPrice = 0d;
-
-                UpdatingInventories[SteamGameID][User.ID] = Helper.GetCurrentTime();
+                lock (_UpdatingInventories)
+                {
+                    UpdatingInventories[SteamGameID][User.ID] = Helper.GetCurrentTime();
+                }
                 try
                 {
                     using (WebClient WebClient = new WebClient())
@@ -449,17 +461,33 @@ namespace GameSlot.Helpers
                                 string ItemContent = Regex.Split(data, "{\"appid\":\"" + SteamGameID + "\",\"classid\":\"" + classid + "\"")[1];
 
                                 string name = Regex.Split(ItemContent, "\"market_hash_name\":\"")[1].Split('"')[0];
-                                name = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(name));
+                                name = BaseFuncs.XSSReplacer(Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(name)));
 
                                 USteamItem SteamItem;
                                 if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem, User.Currency))
                                 {
                                     XSteamItem XSteamItem = new XSteamItem();
+                                    XSteamItem.Name = name;
+
                                     SteamItem = new USteamItem();
 
-                                    string RusName = Regex.Split(ItemContent, "\"name\":\"")[1].Split('"')[0];
-                                    XSteamItem.RusName = Helper.SteamItemsHelper.MakeTextFromRealDich(RusName);
-                                    XSteamItem.Name = name;
+                                    SteamItem.Price = XSteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(XSteamItem.Name, SteamGameID);
+                                    SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
+
+                                    XSteamItem.Rarity = Regex.Split(ItemContent, "internal_name\":\"Rarity_")[1].Split('"')[0];
+                                    XSteamItem.Color = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0]; ;
+
+                                    string RusName = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
+                                    XSteamItem.RusName = BaseFuncs.XSSReplacer(Helper.SteamItemsHelper.MakeTextFromRealDich(RusName));
+
+                                    if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                    {
+                                        if(XSteamItem.Rarity.Contains("_"))
+                                        {
+                                            XSteamItem.Rarity = XSteamItem.Rarity.Split('_')[0];
+                                        }
+                                    }
+
                                     if (User.Currency == 1)
                                     {
                                         SteamItem.Name = XSteamItem.RusName;
@@ -469,20 +497,6 @@ namespace GameSlot.Helpers
                                         SteamItem.Name = XSteamItem.Name;
                                     }
 
-                                    SteamItem.Price = XSteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(XSteamItem.Name, SteamGameID);
-                                    SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
-
-                                    XSteamItem.Rarity = Regex.Split(ItemContent, "internal_name\":\"Rarity_")[1].Split('"')[0];
-                                    XSteamItem.Color = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0]; ;
-
-                                    if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)
-                                    {
-                                        if(XSteamItem.Rarity.Contains("_"))
-                                        {
-                                            XSteamItem.Rarity = XSteamItem.Rarity.Split('_')[0];
-                                        }
-                                    }
-                                    
                                     SteamItem.Image = XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url\":\"")[1].Split('"')[0];
                                     SteamItem.Rarity = XSteamItem.Rarity;
                                     SteamItem.RarityColor = Helper.SteamItemsHelper.GetRarityColor(XSteamItem.Rarity, SteamGameID);
@@ -556,7 +570,10 @@ namespace GameSlot.Helpers
                     UsersInventories[SteamGameID][User.ID] = UsersInventory;
                 }
 
-                UpdatingInventories[SteamGameID].Remove(User.ID);
+                lock (_UpdatingInventories)
+                {
+                    UpdatingInventories[SteamGameID].Remove(User.ID);
+                }
 
                 if (InventoryClients[SteamGameID].ContainsKey(User.ID))
                 {
@@ -628,7 +645,7 @@ namespace GameSlot.Helpers
                     foreach (XSItemUsersInventory inventory in x_inventory)
                     {
                         USteamItem USteamItem;
-                        if (Helper.SteamItemsHelper.SelectByID(inventory.SteamItemID, inventory.SteamGameID, out USteamItem))
+                        if (Helper.SteamItemsHelper.SelectByID(inventory.SteamItemID, inventory.SteamGameID, out USteamItem, user.Currency))
                         {
                             if (tradable)
                             {

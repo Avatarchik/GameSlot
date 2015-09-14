@@ -31,24 +31,46 @@ namespace GameSlot.Pages.Lotteries
         }
         public override bool Init(Client client)
         {
+            Lottery Lottery = null;
             uint SteamGameID = 0;
             string Game = BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0];
+            bool byid = false;
 
-            string title;
             if (Game.Equals("dota2"))
             {
                 SteamGameID = Configs.DOTA2_STEAM_GAME_ID;
-                title = "DOTA2";
             }
             else if (Game.Equals("csgo"))
             {
                 SteamGameID = Configs.CSGO_STEAM_GAME_ID;
-                title = "CSGO";
             }
             else if(Game.Equals("teamfortess"))
             {
                 BaseFuncs.ShowPage(new ComingSoonPage(), client);
                 return true;
+            }
+            else if (Game.Equals("id"))
+            {
+                uint xlot_id;
+                if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[1], out xlot_id) && Helper.LotteryHelper.GetLottery(xlot_id, client, out Lottery))
+                {
+                    SteamGameID = Lottery.SteamGameID;
+                    byid = true;
+
+                    if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                    {
+                        Game = "dota2";
+                    }
+                    else if (SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                    {
+                        Game = "csgo";
+                    }
+                }
+                else
+                {
+                    BaseFuncs.Show404(client);
+                    return false;
+                }
             }
             else
             {
@@ -58,7 +80,11 @@ namespace GameSlot.Pages.Lotteries
 
             Hashtable data = new Hashtable();
             ushort currency = Helper.UserHelper.GetCurrency(client);
-            Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID, client);
+
+            if (!byid)
+            {
+                Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID, client);
+            }
 
             XUser user;
             bool auth = Helper.UserHelper.GetCurrentUser(client, out user);
@@ -120,10 +146,34 @@ namespace GameSlot.Pages.Lotteries
             }
 
             data.Add("MaxJackpotItems", items);
-            data.Add("TodaysJackpotItems", TodaysJackpotItems);
+            data.Add("TodaysJackpotItems", TodaysJackpotItems);           
             
-            data.Add("Title", "Лотерея " + title);
+            string title = "";
+            if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+            {
+                if(byid)
+                {
+                    title = "История игры DOTA2 #" + Lottery.ID;
+                }
+                else
+                {
+                    title = "Лотерея DOTA2 — Удача сопутствует смелым";
+                }
+            }
+            else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+            {
+                if (byid)
+                {
+                    title = "История игры CSGO #" + Lottery.ID;
+                }
+                else
+                {
+                    title = "Лотерея CSGO — Удача сопутствует смелым";
+                }         
+            }
+            data.Add("Title", title);
             data.Add("Game", Game);
+            data.Add("ItsHistory", byid);
             client.HttpSend(TemplateActivator.Activate(this, client, data));
             return true;
         }

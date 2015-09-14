@@ -231,15 +231,32 @@
 
         else if (data[0] == "SteamInventory")
         {
+            console.log(data[2]);
             USERS_ITEMS_IN_INVENTORY = data[3];
 
             console.log("SteamInventory");
-            var items = data[2].split(';');
+            var items = data[2].split('→');
             var items_content = "";
+
             for (var i = 0; i < (items.length - 1) ; i++)
             {
-                var items_html = $("div#steam_items_html").html();
                 var item = items[i].split('↓');
+                if (LotteryPage_GetInventory) 
+                {
+                    var next_fr = true;
+                    $("div#bet_iventory div.item1").each(function (index) {
+                        var item_id = $("span#item_id", this).text();
+                        if (item_id == item[3]) {
+                            next_fr = false;
+                        }
+                    });
+
+                    if (next_fr == false) {
+                        continue;
+                    }
+                }
+
+                var items_html = $("div#steam_items_html").html();
 
                 var name = "<itm style='color:#" + item[5] + "'>" + item[0] + "</itm><br /><itm style='color:" + item[7] + "'>" + item[6] + "</itm>";
                 items_html = items_html.replace("[item_name]", name);
@@ -347,15 +364,30 @@
 
     function LoadLocalSteamInventory(data)
     {
-        if (data[0] == "LocalInventory") {
+        if (data[0] == "LocalInventory")
+        {
             USERS_ITEMS_IN_LOCAL_INVENTORY = data[3];
 
             console.log("LocalInventory");
-            var items = data[2].split(';');
+            var items = data[2].split('→');
             var items_content = "";
             for (var i = 0; i < (items.length - 1) ; i++) {
                 var items_html = $("div#steam_items_html").html();
                 var item = items[i].split('↓');
+
+                if (LotteryPage_GetInventory) {
+                    var next_fr = true;
+                    $("div#bet_iventory div.item1").each(function (index) {
+                        var item_id = $("span#item_id", this).text();
+                        if (item_id == item[3]) {
+                            next_fr = false;
+                        }
+                    });
+
+                    if (next_fr == false) {
+                        continue;
+                    }
+                }
 
                 var name = "<itm style='color:#" + item[5] + "'>" + item[0] + "</itm><br /><itm style='color:" + item[7] + "'>" + item[6] + "</itm>";
                 items_html = items_html.replace("[item_name]", name);
@@ -625,7 +657,7 @@
                 }
 
                 var bets_items_block = "";
-                var best_items = data[21].split(";");
+                var best_items = data[21].split("→");
 
                 for (var i = 0; i < best_items.length -1; i++)
                 {

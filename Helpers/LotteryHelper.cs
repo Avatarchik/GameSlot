@@ -218,9 +218,20 @@ namespace GameSlot.Helpers
                         XLottery = this.CreateNew(SteamGameID);
 
                         // update winners info (group and user)
-                        WinnerUser.WonCount++;
-                        WinnerUser.WonTotalPrice += LastLottery.JackpotPrice - WinnersBetsPrice;
-                        WinnerUser.WonItemsCount += SteamItems.Count + Chips.Count - WinnersBetsItemsCount;
+                        if(LastLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                        {
+                            WinnerUser.DOTA_WonCount++;
+                            WinnerUser.DOTA_WonTotalPrice += LastLottery.JackpotPrice - WinnersBetsPrice;
+                            WinnerUser.DOTA_RUB_WonTotalPrice += WinnerUser.DOTA_WonTotalPrice * LastLottery.RubCurrency;
+                            WinnerUser.DOTA_WonItemsCount += SteamItems.Count + Chips.Count - WinnersBetsItemsCount;
+                        }
+                        else if (LastLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                        {
+                            WinnerUser.CSGO_WonCount++;
+                            WinnerUser.CSGO_WonTotalPrice += LastLottery.JackpotPrice - WinnersBetsPrice;
+                            WinnerUser.CSGO_RUB_WonTotalPrice += WinnerUser.CSGO_WonTotalPrice * LastLottery.RubCurrency;
+                            WinnerUser.CSGO_WonItemsCount += SteamItems.Count + Chips.Count - WinnersBetsItemsCount;
+                        }
 
 
                         int WinnerBetPercentage = Convert.ToInt32(Math.Round((100 * WinnersBetsPrice) / LastLottery.JackpotPrice));
@@ -244,9 +255,19 @@ namespace GameSlot.Helpers
 
                                         if (SteamItems[st].Price <= GroupGetItemPrice)
                                         {
-                                            GroupOwner.GotItemsFromGroup++;
-                                            GroupOwner.GotPriceFromGroup += SteamItems[st].Price;
-                                            GroupOwner.RUB_GotPriceFromGroup += SteamItems[st].Price * LastLottery.RubCurrency;
+
+                                            if (LastLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                            {
+                                                GroupOwner.DOTA_GotItemsFromGroup++;
+                                                GroupOwner.DOTA_GotPriceFromGroup += SteamItems[st].Price;
+                                                GroupOwner.DOTA_RUB_GotPriceFromGroup += SteamItems[st].Price * LastLottery.RubCurrency;
+                                            }
+                                            else if (LastLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                            {
+                                                GroupOwner.CSGO_GotItemsFromGroup++;
+                                                GroupOwner.CSGO_GotPriceFromGroup += SteamItems[st].Price;
+                                                GroupOwner.CSGO_RUB_GotPriceFromGroup += SteamItems[st].Price * LastLottery.RubCurrency;
+                                            }
 
                                             XSItemUsersInventory XSItemUsersInventory = new XSItemUsersInventory();
                                             XSItemUsersInventory.UserID = GroupOwner.ID;
@@ -270,8 +291,17 @@ namespace GameSlot.Helpers
 
                                         if (Chips[ch].Cost <= GroupGetChipPrice)
                                         {
-                                            GroupOwner.GotItemsFromGroup++;
-                                            GroupOwner.RUB_GotPriceFromGroup += Chips[ch].Cost * LastLottery.RubCurrency;
+                                            if (LastLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                            {
+                                                GroupOwner.DOTA_GotItemsFromGroup++;
+                                                GroupOwner.DOTA_RUB_GotPriceFromGroup += Chips[ch].Cost * LastLottery.RubCurrency;
+                                            }
+                                            else if (LastLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                            {
+
+                                                GroupOwner.CSGO_GotItemsFromGroup++;
+                                                GroupOwner.CSGO_RUB_GotPriceFromGroup += Chips[ch].Cost * LastLottery.RubCurrency;
+                                            }
 
                                             XChipUsersInventory XChipUsersInventory = new XChipUsersInventory();
                                             XChipUsersInventory.UserID = GroupOwner.ID;
@@ -313,20 +343,48 @@ namespace GameSlot.Helpers
                         XLotteryUsersMemory XLotteryUsersMemory;
                         if (WinnerUser.GroupOwnerID >= 0 && this.TableUsersMemory.SelectOne(data => data.LotteryID == LastLottery.ID && data.GroupOwnerID == WinnerUser.GroupOwnerID, out XLotteryUsersMemory))
                         {
-                            if (WinnerUser.GroupOwnerID == WinnerUser.ID)
+                            if (LastLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
                             {
-                                WinnerUser.GroupWonCount++;
-                                WinnerUser.GroupWonItemsCount += WinnerUser.WonItemsCount;
-                                WinnerUser.GroupWonTotalPrice += WinnerUser.WonTotalPrice;
-                            }
-                            else
-                            {
-                                XUser GroupOwner = Helper.UserHelper.Table.SelectByID((uint)WinnerUser.GroupOwnerID);
-                                GroupOwner.GroupWonCount++;
-                                GroupOwner.GroupWonItemsCount += WinnerUser.WonItemsCount;
-                                GroupOwner.GroupWonTotalPrice += WinnerUser.WonTotalPrice;
+                                if (WinnerUser.GroupOwnerID == WinnerUser.ID)
+                                {
+                                    WinnerUser.DOTA_GroupWonCount++;
+                                    WinnerUser.DOTA_GroupWonItemsCount += WinnerUser.DOTA_WonItemsCount;
 
-                                Helper.UserHelper.Table.UpdateByID(GroupOwner, GroupOwner.ID);
+                                    WinnerUser.DOTA_GroupWonTotalPrice += WinnerUser.DOTA_WonTotalPrice;
+                                    WinnerUser.DOTA_RUB_GroupWonTotalPrice += WinnerUser.DOTA_RUB_WonTotalPrice;
+                                }
+                                else
+                                {
+                                    XUser GroupOwner = Helper.UserHelper.Table.SelectByID((uint)WinnerUser.GroupOwnerID);
+                                    GroupOwner.DOTA_GroupWonCount++;
+                                    GroupOwner.DOTA_GroupWonItemsCount += WinnerUser.DOTA_WonItemsCount;
+
+                                    GroupOwner.DOTA_GroupWonTotalPrice += WinnerUser.DOTA_WonTotalPrice;
+                                    GroupOwner.DOTA_RUB_GroupWonTotalPrice += WinnerUser.DOTA_RUB_WonTotalPrice;
+
+                                    Helper.UserHelper.Table.UpdateByID(GroupOwner, GroupOwner.ID);
+                                }
+                            }
+                            else if (LastLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                            {
+                                if (WinnerUser.GroupOwnerID == WinnerUser.ID)
+                                {
+                                    WinnerUser.CSGO_GroupWonCount++;
+                                    WinnerUser.CSGO_GroupWonItemsCount += WinnerUser.CSGO_WonItemsCount;
+
+                                    WinnerUser.CSGO_GroupWonTotalPrice += WinnerUser.CSGO_WonTotalPrice;
+                                    WinnerUser.CSGO_RUB_GroupWonTotalPrice += WinnerUser.CSGO_RUB_WonTotalPrice;
+                                }
+                                else
+                                {
+                                    XUser GroupOwner = Helper.UserHelper.Table.SelectByID((uint)WinnerUser.GroupOwnerID);
+                                    GroupOwner.CSGO_GroupWonCount++;
+                                    GroupOwner.CSGO_GroupWonItemsCount += WinnerUser.CSGO_WonItemsCount;
+
+                                    GroupOwner.CSGO_GroupWonTotalPrice += WinnerUser.CSGO_WonTotalPrice;
+                                    GroupOwner.CSGO_RUB_GroupWonTotalPrice += WinnerUser.CSGO_RUB_WonTotalPrice;
+                                    Helper.UserHelper.Table.UpdateByID(GroupOwner, GroupOwner.ID);
+                                }
                             }
                         }
 
@@ -358,7 +416,7 @@ namespace GameSlot.Helpers
                     for (int x = 0; x < XLotteryBet.SteamItemsNum; x++)
                     {
                         USteamItem SteamItem;
-                        if (Helper.SteamItemsHelper.SelectByID(XLotteryBet.SteamItemIDs[x], xlot.SteamGameID, out SteamItem))
+                        if (Helper.SteamItemsHelper.SelectByID(XLotteryBet.SteamItemIDs[x], xlot.SteamGameID, out SteamItem, currency))
                         {
                             //Logger.ConsoleLog(x + "lolz" + SteamItem.ID, ConsoleColor.DarkGreen);
                             SteamItem.AssertID = XLotteryBet.ItemAssertIDs[x];
@@ -539,7 +597,7 @@ namespace GameSlot.Helpers
                         for (uint i = 0; i < XBets[bb].SteamItemsNum; i++)
                         {
                             USteamItem Item;
-                            if (Helper.SteamItemsHelper.SelectByID(XBets[bb].SteamItemIDs[i], XLottery.SteamGameID, out Item))
+                            if (Helper.SteamItemsHelper.SelectByID(XBets[bb].SteamItemIDs[i], XLottery.SteamGameID, out Item, currency))
                             {
                                 Item.AssertID = XBets[bb].ItemAssertIDs[i];
                                 if (currency == 1)
@@ -734,7 +792,15 @@ namespace GameSlot.Helpers
                     XLotteryUsersMemory XLotteryUsersMemory;
                     if (!this.TableUsersMemory.SelectOne(data => data.UserID == User.ID && data.LotteryID == XLottery.ID, out XLotteryUsersMemory))
                     {
-                        User.GamesCount++;
+                        if (XLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                        {
+                            User.DOTA_GamesCount++;
+                        }
+                        else if(XLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                        {
+                            User.CSGO_GamesCount++;
+                        }
+
                         XLottery.GamersCount++;
 
                         XLotteryUsersMemory = new XLotteryUsersMemory();
@@ -832,8 +898,18 @@ namespace GameSlot.Helpers
 
                     //Logger.ConsoleLog("Bet created! :D");
 
-                    User.TotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
-                    User.TotalBetPrice += XLotteryBet.TotalPrice;
+                    if (XLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                    {
+                        User.DOTA_TotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                        User.DOTA_TotalBetPrice += XLotteryBet.TotalPrice;
+                        User.DOTA_RUB_TotalBetPrice += XLotteryBet.TotalPrice * XLottery.RubCurrency;
+                    }
+                    else if (XLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                    {
+                        User.CSGO_TotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                        User.CSGO_TotalBetPrice += XLotteryBet.TotalPrice;
+                        User.CSGO_RUB_TotalBetPrice += XLotteryBet.TotalPrice * XLottery.RubCurrency;
+                    }
 
                     XLotteryPercentage GroupPercentage;
                     int GameSlot_Percentage = Configs.GAMESLOT_PERCENTAGE;
@@ -862,13 +938,31 @@ namespace GameSlot.Helpers
 
                         if(User.GroupOwnerID == User.ID)
                         {
-                            User.GroupTotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
-                            User.GroupTotalBetPrice += XLotteryBet.TotalPrice;
-                            User.RUB_GroupTotalBetPrice += XLotteryBet.TotalPrice * XLottery.RubCurrency;
+
+                            if (XLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                            {
+                                User.DOTA_GroupTotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                                User.DOTA_GroupTotalBetPrice += XLotteryBet.TotalPrice;
+                                User.DOTA_RUB_GroupTotalBetPrice += XLotteryBet.TotalPrice * XLottery.RubCurrency;
+                            }
+                            else if (XLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                            {
+                                User.CSGO_GroupTotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                                User.CSGO_GroupTotalBetPrice += XLotteryBet.TotalPrice;
+                                User.CSGO_RUB_GroupTotalBetPrice += XLotteryBet.TotalPrice * XLottery.RubCurrency;
+                            }
 
                             if (!this.TableUsersMemory.SelectOne(data => data.GroupOwnerID == User.ID && data.LotteryID == XLottery.ID, out XLotteryUsersMemory))
                             {
-                                User.GroupGamesCount++;
+
+                                if (XLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                {
+                                    User.DOTA_GroupGamesCount++;
+                                }
+                                else if (XLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                {
+                                    User.CSGO_GroupGamesCount++;
+                                }
 
                                 XLotteryUsersMemory = new XLotteryUsersMemory();
                                 XLotteryUsersMemory.LotteryID = XLottery.ID;
@@ -881,13 +975,30 @@ namespace GameSlot.Helpers
                         {
                             if(Helper.UserHelper.Table.SelectByID((uint)User.GroupOwnerID, out GroupOwner))
                             {
-                                GroupOwner.GroupTotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
-                                GroupOwner.GroupTotalBetPrice += XLotteryBet.TotalPrice;
-                                GroupOwner.RUB_GroupTotalBetPrice += XLotteryBet.TotalPrice * XLottery.RubCurrency;
+
+                                if (XLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                {
+                                    GroupOwner.DOTA_GroupTotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                                    GroupOwner.DOTA_GroupTotalBetPrice += XLotteryBet.TotalPrice;
+                                    GroupOwner.DOTA_RUB_GroupTotalBetPrice += XLotteryBet.TotalPrice * XLottery.RubCurrency;
+                                }
+                                else if (XLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                {
+                                    User.CSGO_GroupGamesCount++; GroupOwner.CSGO_GroupTotalBetItemsCount += XLotteryBet.ChipsNum + XLotteryBet.SteamItemsNum;
+                                    GroupOwner.CSGO_GroupTotalBetPrice += XLotteryBet.TotalPrice;
+                                    GroupOwner.CSGO_RUB_GroupTotalBetPrice += XLotteryBet.TotalPrice * XLottery.RubCurrency;
+                                }
 
                                 if (!this.TableUsersMemory.SelectOne(data => data.GroupOwnerID == User.GroupOwnerID && data.LotteryID == XLottery.ID, out XLotteryUsersMemory))
                                 {
-                                    GroupOwner.GroupGamesCount++;
+                                    if (XLottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                    {
+                                        GroupOwner.DOTA_GroupGamesCount++;
+                                    }
+                                    else if (XLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                    {
+                                        GroupOwner.CSGO_GroupGamesCount++;
+                                    }
 
                                     XLotteryUsersMemory = new XLotteryUsersMemory();
                                     XLotteryUsersMemory.LotteryID = XLottery.ID;

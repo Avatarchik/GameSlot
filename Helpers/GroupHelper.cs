@@ -28,27 +28,27 @@ namespace GameSlot.Helpers
                 group.UserCount = group.Users.Count();
 
                 group.Winrate = this.CalcWinrate(group.ID);
-                group.BetItemsCount = user.GroupTotalBetItemsCount;
+                group.BetItemsCount = user.DOTA_GroupTotalBetItemsCount + user.CSGO_GroupTotalBetItemsCount;
 
                 ushort currency = Helper.UserHelper.GetCurrency(client);
                 if (currency == 1)
                 {
-                    group.BetPrice = user.RUB_GroupTotalBetPrice;
+                    group.BetPrice = user.DOTA_RUB_GroupTotalBetPrice + user.CSGO_RUB_GroupTotalBetPrice;
                     group.BetItemsPrice_Str = group.BetPrice.ToString("###,###,##0");
 
-                    group.GotPriceFromGroup = user.RUB_GotPriceFromGroup;
+                    group.GotPriceFromGroup = user.DOTA_RUB_GotPriceFromGroup + user.CSGO_RUB_GotPriceFromGroup;
                     group.GotPriceFromGroup_Str = group.GotPriceFromGroup.ToString("###,###,##0");
                 }
                 else
                 {
-                    group.BetPrice = user.GroupTotalBetPrice;
+                    group.BetPrice = user.DOTA_GroupTotalBetPrice + user.CSGO_GroupTotalBetPrice;
                     group.BetItemsPrice_Str = group.BetPrice.ToString("###,##0.00");
 
-                    group.GotPriceFromGroup = user.GotPriceFromGroup;
+                    group.GotPriceFromGroup = user.DOTA_GotPriceFromGroup + user.CSGO_GotPriceFromGroup;
                     group.GotPriceFromGroup_Str = group.GotPriceFromGroup.ToString("###,##0.00");
                 }
 
-                group.GotItemsFromGroup = user.GotItemsFromGroup;
+                group.GotItemsFromGroup = user.DOTA_GotItemsFromGroup + user.CSGO_GotItemsFromGroup;
 
                 Owner = user;
                 return true;
@@ -129,14 +129,14 @@ namespace GameSlot.Helpers
         public int CalcWinrate(uint id)
         {
             XUser GroupOwner;
-            if (Helper.UserHelper.Table.SelectByID(id, out GroupOwner) && GroupOwner.GroupWonCount > 0 && GroupOwner.GroupGamesCount > 0)
+            if (Helper.UserHelper.Table.SelectByID(id, out GroupOwner) && (GroupOwner.DOTA_GroupWonCount + GroupOwner.CSGO_GroupWonCount) > 0 
+                && (GroupOwner.DOTA_GroupGamesCount + GroupOwner.CSGO_GroupGamesCount)> 0)
             {
 
-                Logger.ConsoleLog(GroupOwner.GroupWonCount + " " + GroupOwner.GroupGamesCount);
-                return (int)(100 * GroupOwner.GroupWonCount / GroupOwner.GroupGamesCount);
+                Logger.ConsoleLog((GroupOwner.DOTA_GroupWonCount + GroupOwner.CSGO_GroupWonCount) + " " + (GroupOwner.DOTA_GroupGamesCount + GroupOwner.CSGO_GroupGamesCount));
+                return (int)(100 * (GroupOwner.DOTA_GroupWonCount + GroupOwner.CSGO_GroupWonCount) / (GroupOwner.DOTA_GroupGamesCount + GroupOwner.CSGO_GroupGamesCount));
             }
 
-            Logger.ConsoleLog(GroupOwner.GroupWonCount + " " + GroupOwner.GroupGamesCount);
             return 0;
         }
     }

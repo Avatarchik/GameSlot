@@ -121,6 +121,7 @@
     <Compile Include="Types\SteamItemImageQueue.cs" />
     <Compile Include="Types\Tokens.cs" />
     <Compile Include="Types\TopItem.cs" />
+    <Compile Include="Types\TopPlayer.cs" />
     <Compile Include="Types\TopPriceItem.cs" />
     <Compile Include="Types\UsersInventory.cs" />
     <Compile Include="UTSteam.cs" />
@@ -600,6 +601,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\md5-min.js" />
     <EmbeddedResource Include="Content\Cache\md5.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\TopPlayers.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\css\screen.css" />

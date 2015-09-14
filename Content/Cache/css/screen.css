@@ -1866,6 +1866,8 @@ body.vn3 #page #header .r-head .ct-t3 span {
   font-family: "Roboto";
   font-size: 17px;
   font-weight: bold;
+  width: 98px;
+  word-break: break-all;
 }
 #content .ov-sp1 .item1 .et.j2 {
   width: 106px;
@@ -8872,6 +8874,7 @@ body.vn3 #page #header .r-head .ct-t3 span {
   float: right;
   width: 190px;
   height: 53px;
+  position: relative;
   background: url(../img/kyb-st1.png);
 }
 .sz1-modal1 .ll1 .tit-rt1 .bl-rr1 span {
@@ -8892,8 +8895,11 @@ body.vn3 #page #header .r-head .ct-t3 span {
   font-weight: bold;
   line-height: 25px;
   float: left;
-  position: relative;
   top: 17px;
+  position: absolute;
+  right: 7px;
+  left: 118px;
+  text-align: center;
 }
 
 .hh1-test {

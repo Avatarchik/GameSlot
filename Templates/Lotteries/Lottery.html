@@ -9,6 +9,9 @@
     {{set List<Bet> Bets = (List<Bet>) PageData["Bets"]}}
     {{set List<TopItem> TopItems = (List<TopItem>) PageData["TopItems"]}}
     {{set bool ItsWinner = (bool) PageData["ItsWinner"]}}
+    {{set bool ItsHistory = (bool) PageData["ItsHistory"]}}
+    {{set string Game = (string) PageData["Game"]}}
+
     <script>
         var jackpot_price_str = "{{=Lottery.JackpotPrice_Str}}";
         var auth = false;
@@ -136,7 +139,7 @@
                             <div class="ep-tit1"><span>Правила:</span><a href="/bet-info" target="_blank">Подробнее</a></div>
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
                             <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
-                            <p class="j3">Максимальная разовая ставка — 24 предметов</p>
+                            <p class="j3">Максимальная разовая ставка — 24 предмета</p>
                             <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 3 минуты.</p>
                         </div>
                     </div>
@@ -205,7 +208,7 @@
                             <div class="ep-tit1"><span>Правила:</span><a href="/bet-info" target="_blank">Подробнее</a></div>
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
                             <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
-                            <p class="j3">Максимальная разовая ставка — 24 предметов</p>
+                            <p class="j3">Максимальная разовая ставка — 24 предмета</p>
                             <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 3 минуты.</p>
                         </div>
                     </div>
@@ -319,7 +322,12 @@
                                     </div>
                                 {{end}}
                                 {{else}}
-                                    <a href="" class="new-game">Новая игра</a>
+                                    {{if(ItsHistory)}}
+                                        <a href="/games-history/{{=Game}}" class="new-game">НАЗАД</a>
+                                    {{end}}
+                                    {{else}}
+                                        <a href="/game/{{=Game}}" class="new-game">Новая игра</a>
+                                    {{end}}
                                 {{end}}
                             </div>
                         </div>
@@ -370,7 +378,7 @@
                             <div class="ep-tit1"><span>Правила:</span><a href="/bet-info" target="_blank">Подробнее</a></div>
                             <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
                             <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
-                            <p class="j3">Максимальная разовая ставка — 24 предметов</p>
+                            <p class="j3">Максимальная разовая ставка — 24 предмета</p>
                             <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 3 минуты.</p>
                         </div>
                     </div>

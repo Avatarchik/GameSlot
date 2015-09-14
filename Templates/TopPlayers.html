@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+{{include GameSlot Head}}
+{{using GameSlot.Types}}
+
+{{set List<TopPlayer> Users = (List<TopPlayer>) PageData["Users"]}}
+{{set uint SteamGameID = (uint) PageData["SteamGameID"]}}
+{{set int From = (int) PageData["From"]}}
+{{set int ShowNum = (int) PageData["ShowNum"]}}
+{{set int UsersNum = (int) PageData["UsersNum"]}}
+
+<body class="vn1">
+	<div id="page">
+        {{include GameSlot UpHeader}}
+
+       <div class="ft-img1"><span>
+            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                <img src="/cached_files/img/b2.png" alt="">
+            {{end}}
+            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                <img src="/cached_files/img/b3.png" alt="">
+            {{end}}
+            {{else if(SteamGameID == 4)}}
+                <img src="/cached_files/img/b4.png" alt="">
+            {{end}}
+        </span></div>
+
+        {{include GameSlot Header}}
+        <section id="content">
+            <div class="ct">
+                <div class="et-title1">
+                    <div class="ll1">
+                        <div class="tit1 j1">
+                            <span>{{=PageData["Title"]}}</span>
+                            <i>Игры:</i>
+                            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                                <a href="/top-players/current">ОБЩИЙ</a>
+                                <a class="active">DOTA2</a>
+                                <a href="/top-players/csgo">CS GO</a>
+                            {{end}}
+                            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                                <a href="/top-players/current">ОБЩИЙ</a>
+                                <a href="/top-players/dota2">DOTA2</a>
+                                <a class="active">CS GO</a>
+                            {{end}}
+                            {{else if(SteamGameID == 0)}}
+                                <a class="active">ОБЩИЙ</a>
+                                <a href="/top-players/dota2">DOTA2</a>
+                                <a href="/top-players/csgo">CS GO</a>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ov-poss-et-item1">
+                    <div class="tb-s1-table tb-s1-table1">
+                        <div class="j1"><a href=""><span>Профиль</span></a></div>
+                        <div class="j2"><a href=""><span>Место</span></a></div>
+                        <div class="j3"><a href=""><span>Сыграно</span></a></div>
+                        <div class="j4"><a href=""><span>Побед</span></a></div>
+                        <div class="j5"><a href=""><span>Процент побед</span></a></div>
+                        <div class="j6"><a href=""><span>Поставил<br>предметов</span></a></div>
+                        <div class="j7"><a href=""><span>Выиграл<br>предметов</span></a></div>
+                        <div class="j8"><a href=""><span>Сумма ставок</span></a></div>
+                        <div class="j9"><a href=""><span>Сумма выигрышей</span></a></div>
+                    </div>
+                    <div class="ov-sp1">
+                        {{for(int i = 0; i < Users.Count; i++)}}
+                            <div class="item1 j{{=(i+1)}}">
+                                <div class="over-st1 j1">
+                                    <div class="et j1"><span class="dc1"><img src="{{=Users[i].Avatar}}" alt=""><span>{{=Users[i].Name}}</span></span></div>
+                                    <div class="et j2"><span class="dc1"><span class="md">{{=(i+1)}}</span></span></div>
+                                    <div class="et j3"><span class="dc1">{{=Users[i].GamesCount}}</span></div>
+                                    <div class="et j4"><span class="dc1">{{=Users[i].WonCount}}</span></div>
+                                    <div class="et j5"><span class="dc1">{{=Users[i].Winrate}}%</span></div>
+                                    <div class="et j6"><span class="dc1">{{=Users[i].BetItemsCount}}</span></div>
+                                    <div class="et j7"><span class="dc1">{{=Users[i].WonItemsCount}}</span></div>
+                                    <div class="et j8"><span class="dc1 dc11">{{=Users[i].BetPrice_Str}}</span></div>
+                                    <div class="et j9"><span class="dc1 dc11">{{=Users[i].WonPrice_Str}}</span></div>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+
+                    {{if(UsersNum > ShowNum)}}
+                        <div class="nav-sp1">
+                            {{if(From <= 0)}}
+                                <div><a class="diss">В начало</a></div>
+                                <div><a class="diss">Предыдущая</a></div>
+                            {{end}}
+                            {{else}}
+                                <div><a class="" href='/top-players/{{=PageData["GameURL"]}}'>В начало</a></div>
+                                <div><a class="" href='/top-players/{{=PageData["GameURL"]}}/?from={{=((From-ShowNum < 0) ? 0 : (From-ShowNum))}}'>Предыдущая</a></div>
+                            {{end}}
+
+                            {{if(UsersNum <= (From+ShowNum))}}
+                                <div><a class="diss">Следующая</a></div>
+                                <div><a class="diss">В конец</a></div>
+                            {{end}}
+                            {{else}}
+                                <div><a href='/top-players/{{=PageData["GameURL"]}}/?from={{=(From+ShowNum)}}'>Следующая</a></div>
+                                <div><a href='/top-players/{{=PageData["GameURL"]}}/?from={{=UsersNum}}'>В конец</a></div>
+                            {{end}}
+                        </div>
+                    {{end}}
+
+                </div>
+            </div>
+        </section>
+        <div class="ev-foot1"></div>
+    </div>
+    {{include GameSlot Footer}}
+    <div class="up1"></div>
+</body>
+</html>

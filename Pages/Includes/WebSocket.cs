@@ -468,7 +468,7 @@ namespace GameSlot.Pages.Includes
             // 4- last
             //return SteamItem.Name + "↓" + SteamItem.Price_Str + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + "↓" + SteamItem.Image + ";";
             //Logger.ConsoleLog("[" + SteamItem.Color);
-            return SteamItem.Name + "↓" + SteamItem.Price_Str + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + "↓" + SteamItem.Color + "↓" + SteamItem.Rarity + "↓" + SteamItem.RarityColor + ";";
+            return SteamItem.Name + "↓" + SteamItem.Price_Str + "↓" + SteamItem.SteamGameID + "↓" + SteamItem.ID + "↓" + SteamItem.AssertID + "↓" + SteamItem.Color + "↓" + SteamItem.Rarity + "↓" + SteamItem.RarityColor + "→";
         }
 
         /*public static void ChangeBetProcessStatus(ulong UserSteamID, ushort status)
@@ -561,22 +561,25 @@ namespace GameSlot.Pages.Includes
                         // name↓image↓price; 
                         if (TopPriceItems[g].Type == 0)
                         {
-                            top_items += BankSteamItems[CurTopPriceItem.Position].Name + "↓";
-                            top_items += "/steam-image/" + BankSteamItems[CurTopPriceItem.Position].SteamGameID + "/" + BankSteamItems[CurTopPriceItem.Position].ID + "↓";
+                            string image = "/steam-image/" + BankSteamItems[CurTopPriceItem.Position].SteamGameID + "/" + BankSteamItems[CurTopPriceItem.Position].ID + "↓";
 
                             if (currency == 1)
                             {
+                                top_items += Helper.SteamItemsHelper.Table.SelectByID(BankSteamItems[CurTopPriceItem.Position].ID).RusName + "↓";
+                                top_items += image;
                                 double price = BankSteamItems[CurTopPriceItem.Position].Price * lottery.RubCurrency;
                                 top_items += price.ToString("###,###,##0") + "↓";
                             }
                             else
                             {
+                                top_items += BankSteamItems[CurTopPriceItem.Position].Name + "↓";
+                                top_items += image;
                                 top_items += BankSteamItems[CurTopPriceItem.Position].Price_Str + "↓";
                             }
 
                             top_items += BankSteamItems[CurTopPriceItem.Position].Color + "↓";
                             top_items += BankSteamItems[CurTopPriceItem.Position].Rarity + "↓";
-                            top_items += BankSteamItems[CurTopPriceItem.Position].RarityColor + ";";
+                            top_items += BankSteamItems[CurTopPriceItem.Position].RarityColor + "→";
                         }
                         else
                         {
@@ -585,11 +588,11 @@ namespace GameSlot.Pages.Includes
                             if (currency == 1)
                             {
                                 double price = BankChips[CurTopPriceItem.Position].Cost * lottery.RubCurrency;
-                                top_items += price.ToString("###,###,##0") + ";";
+                                top_items += price.ToString("###,###,##0") + "→";
                             }
                             else
                             {
-                                top_items += BankChips[CurTopPriceItem.Position].Cost + ";";
+                                top_items += BankChips[CurTopPriceItem.Position].Cost + "→";
                             }
                         }
                     }
@@ -631,6 +634,7 @@ namespace GameSlot.Pages.Includes
                         double Price = 0d;
                         if(user.Currency == 1)
                         {
+                            SteamItem.Name = Helper.SteamItemsHelper.Table.SelectByID(SteamItem.ID).RusName;
                             Price = XBet.SteamItemsPrice[g] * lottery.RubCurrency;
                             ItemPrice = Price.ToString("###,###,##0");
                         }

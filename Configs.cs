@@ -35,6 +35,6 @@ namespace GameSlot
         public static int GAMESLOT_PERCENTAGE = 10;
 
 
-        public static uint ADMIN_ACCOUNT = 0;
+        public static uint ADMIN_ACCOUNT = 1;
     }
 }

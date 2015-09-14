@@ -43,12 +43,20 @@ namespace GameSlot.Helpers
                 }
             }
         }
+
+        public List<SteamItemImageQueue> GetQueueDownloadImage()
+        {
+            lock (_QueueDownloadImage)
+            {
+                return new List<SteamItemImageQueue>(SteamItemsHelper.QueueDownloadImage);
+            }
+        }
         public bool IsExistQueueDownloadImage(uint id)
         {
-            SteamItemImageQueue[] Queue = SteamItemsHelper.QueueDownloadImage.ToArray();
+            List<SteamItemImageQueue> Queue = this.GetQueueDownloadImage();
             foreach (SteamItemImageQueue SteamItemImageQueue in Queue)
             {
-                if (SteamItemImageQueue != null && SteamItemImageQueue.ID == id)
+                if (SteamItemImageQueue.ID == id)
                 {
                     return true;
                 }
@@ -100,7 +108,7 @@ namespace GameSlot.Helpers
                     }
                     catch(Exception ex)
                     {
-                        Logger.ConsoleLog(ex, ConsoleColor.Red, LogLevel.Error);
+                        //Logger.ConsoleLog(ex, ConsoleColor.Red, LogLevel.Error);
                     }
                 }
             }).Start();
@@ -146,14 +154,22 @@ namespace GameSlot.Helpers
             return this.Table.SelectOne(data => data.ID == id && data.SteamGameID == SteamGameID, out XSteamItem) ? true : false;
         }
 
-        public bool SelectByID(uint id, uint SteamGameID, out USteamItem SteamItem)
+        public bool SelectByID(uint id, uint SteamGameID, out USteamItem SteamItem, ushort currency)
         {
             XSteamItem XSteamItem;
             if(this.SelectByID(id, SteamGameID, out XSteamItem))
             {
                 SteamItem = new USteamItem();
                 SteamItem.ID = XSteamItem.ID;
-                SteamItem.Name = XSteamItem.Name;
+                if (currency == 1)
+                {
+                    SteamItem.Name = XSteamItem.RusName;
+                }
+                else if(currency == 0)
+                {
+                    SteamItem.Name = XSteamItem.Name;
+                }
+
                 SteamItem.Image = XSteamItem.Image;
                 SteamItem.Price = XSteamItem.Price;
                 SteamItem.Price_Str = XSteamItem.Price.ToString("###,##0.00");
@@ -265,8 +281,8 @@ namespace GameSlot.Helpers
                 }
 
                 catch {
-                    string name = ItemName.Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("™", "%E2%84%A2");
-                    Logger.ConsoleLog("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name, ConsoleColor.Red, LogLevel.Error);
+                    //string name = ItemName.Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("™", "%E2%84%A2");
+                    //Logger.ConsoleLog("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name, ConsoleColor.Red, LogLevel.Error);
                 }
             }
 
@@ -308,7 +324,11 @@ namespace GameSlot.Helpers
                         if (SteamItemsHelper.QueueDownloadImage.Count > 0)
                         {
                             SteamItemImageQueue SteamItemImageQueue = SteamItemsHelper.QueueDownloadImage.First();
-                            SteamItemsHelper.QueueDownloadImage.Remove(SteamItemImageQueue);
+                            lock (_QueueDownloadImage)
+                            {
+                                SteamItemsHelper.QueueDownloadImage.Remove(SteamItemImageQueue);
+                            }
+
                             string img;
                             if (!this.GetImageFromMemory(SteamItemImageQueue.ID, SteamItemImageQueue.SteamGameID, out img))
                             {

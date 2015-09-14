@@ -133,7 +133,35 @@ namespace GameSlot.Pages
 
                 else if(client.GetParam("get_inventory_updating_num") != null)
                 {
-                    Logger.ConsoleLog("At now inventory updating: " + Helper.UserHelper.GetUpdatingInventories().Count, ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("At now inventory updating: " + Helper.UserHelper.GetUpdatingInventoriesThreads().Count, ConsoleColor.Cyan, LogLevel.Info);
+                }
+
+                else if (client.GetParam("auth_by_other_user") != null)
+                {
+                    uint userID;
+                    XUser usr;
+                    if (uint.TryParse(client.GetParam("auth_by_other_user"), out userID) && Helper.UserHelper.Table.SelectByID(userID, out usr))
+                    {
+                        Helper.UserHelper.Auth(usr.SteamID, out usr, client);
+                        Logger.ConsoleLog("Auth done to: " + usr.Name + " (" + usr.SteamID + ")", ConsoleColor.Cyan, LogLevel.Info);
+                    }
+                }
+
+                else if (client.GetParam("encode_all_items_names") != null)
+                {
+                    List<XSteamItem> SteamItems = new List<XSteamItem>(Helper.SteamItemsHelper.Table.SelectAll());
+                    int co = 0;
+                    for(int i = 0; i < SteamItems.Count; i++)
+                    {
+                        XSteamItem item = Helper.SteamItemsHelper.Table.SelectByID(SteamItems[i].ID);
+                        item.Name = BaseFuncs.XSSReplacer(item.Name);
+                        item.RusName = BaseFuncs.XSSReplacer(item.RusName);
+                        Helper.SteamItemsHelper.Table.UpdateByID(item, item.ID);
+                        co++;
+                    }
+
+                    Logger.ConsoleLog("Updated " + co + " items", ConsoleColor.Cyan, LogLevel.Info);
+                    
                 }
 
                 else if (client.GetParam("get_ws_stat") != null)

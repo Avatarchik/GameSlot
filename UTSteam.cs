@@ -23,7 +23,7 @@ namespace GameSlot
 
         public UTSteam()
         {
-            UTClient uc = new UTClient("91.228.154.216", 7712, "GameSlotTestes", data =>
+            UTClient uc = new UTClient("localhost", 7712, "GameSlotTestes", data =>
             {
                 if (data.GetType() == typeof(string))
                 {

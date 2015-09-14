@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 1022, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 1162, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XUser
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -67,76 +67,165 @@ namespace GameSlot.Database
         //users data
         [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(928)]
-        public int TotalBetItemsCount;
+        public int DOTA_TotalBetItemsCount;
 
-        [MarshalAs(UnmanagedType.R8)]
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(932)]
-        public double TotalBetPrice;
-
-        [MarshalAs(UnmanagedType.I4)]
-        [FieldOffset(940)]
-        public int GamesCount;
-
-        [MarshalAs(UnmanagedType.I4)]
-        [FieldOffset(944)]
-        public int WonCount;
-
-        // groups data
-        [MarshalAs(UnmanagedType.I4)]
-        [FieldOffset(948)]
-        public int GroupTotalBetItemsCount;
+        public int CSGO_TotalBetItemsCount;
 
         [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(936)]
+        public double DOTA_TotalBetPrice;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(944)]
+        public double CSGO_TotalBetPrice;
+
+        [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(952)]
-        public double GroupTotalBetPrice;
+        public int DOTA_GamesCount;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(956)]
+        public int CSGO_GamesCount;
 
         [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(960)]
-        public int GroupGamesCount;
+        public int DOTA_WonCount;
 
         [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(964)]
-        public int GroupWonCount;
+        public int CSGO_WonCount;
 
-
-
-        // won info
+        // groups data
         [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(968)]
-        public int WonItemsCount;
-
-        [MarshalAs(UnmanagedType.R8)]
-        [FieldOffset(972)]
-        public double WonTotalPrice;
+        public int DOTA_GroupTotalBetItemsCount;
 
         [MarshalAs(UnmanagedType.I4)]
-        [FieldOffset(980)]
-        public int GroupWonItemsCount;
+        [FieldOffset(972)]
+        public int CSGO_GroupTotalBetItemsCount;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(976)]
+        public double DOTA_GroupTotalBetPrice;
 
         [MarshalAs(UnmanagedType.R8)]
         [FieldOffset(984)]
-        public double GroupWonTotalPrice;
+        public double CSGO_GroupTotalBetPrice;
 
         [MarshalAs(UnmanagedType.I4)]
         [FieldOffset(992)]
-        public int GotItemsFromGroup;
+        public int DOTA_GroupGamesCount;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(996)]
+        public int CSGO_GroupGamesCount;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(1000)]
+        public int DOTA_GroupWonCount;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(1004)]
+        public int CSGO_GroupWonCount;
+
+        // won info
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(1008)]
+        public int DOTA_WonItemsCount;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(1012)]
+        public int CSGO_WonItemsCount;
 
         [MarshalAs(UnmanagedType.R8)]
-        [FieldOffset(996)]
-        public double GotPriceFromGroup;
+        [FieldOffset(1016)]
+        public double DOTA_WonTotalPrice;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1024)]
+        public double CSGO_WonTotalPrice;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(1032)]
+        public int DOTA_GroupWonItemsCount;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(1036)]
+        public int CSGO_GroupWonItemsCount;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1040)]
+        public double DOTA_GroupWonTotalPrice;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1048)]
+        public double CSGO_GroupWonTotalPrice;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(1056)]
+        public int DOTA_GotItemsFromGroup;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(1060)]
+        public int CSGO_GotItemsFromGroup;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1064)]
+        public double DOTA_GotPriceFromGroup;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1072)]
+        public double CSGO_GotPriceFromGroup;
 
         // 0: usd; 1: rub
         [MarshalAs(UnmanagedType.U2)]
-        [FieldOffset(1004)]
+        [FieldOffset(1080)]
         public ushort Currency;
 
         // rubs
         [MarshalAs(UnmanagedType.R8)]
-        [FieldOffset(1006)]
-        public double RUB_GotPriceFromGroup;
+        [FieldOffset(1082)]
+        public double DOTA_RUB_GotPriceFromGroup;
 
         [MarshalAs(UnmanagedType.R8)]
-        [FieldOffset(1014)]
-        public double RUB_GroupTotalBetPrice;
+        [FieldOffset(1090)]
+        public double CSGO_RUB_GotPriceFromGroup;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1098)]
+        public double DOTA_RUB_GroupTotalBetPrice;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1106)]
+        public double CSGO_RUB_GroupTotalBetPrice;
+
+
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1114)]
+        public double DOTA_RUB_WonTotalPrice;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1122)]
+        public double CSGO_RUB_WonTotalPrice;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1130)]
+        public double DOTA_RUB_GroupWonTotalPrice;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1138)]
+        public double CSGO_RUB_GroupWonTotalPrice;
+
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1146)]
+        public double DOTA_RUB_TotalBetPrice;
+
+        [MarshalAs(UnmanagedType.R8)]
+        [FieldOffset(1154)]
+        public double CSGO_RUB_TotalBetPrice;
     }
 }
