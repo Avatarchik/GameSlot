@@ -129,12 +129,13 @@ namespace GameSlot
                                 Process.StatusChangedTime = Helper.GetCurrentTime();
                                 Helper.SteamBotHelper.Table_Items.UpdateByID(Process, Process.ID);
                             }
-                            else if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.OfferID == Convert.ToUInt64(args[2]), out XBotsOffer))
+
+                            else if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.OfferID == Convert.ToUInt64(args[1]), out XBotsOffer))
                             {
                                 XBotsOffer.Status = 6;
                                 Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer, XBotsOffer.ID);
-
                             }
+
                             Logger.ConsoleLog("'No offer with that id(may be already processed) ID::: " + args[1]);
                             Offers.Remove(args[1]);
                         }
@@ -149,7 +150,7 @@ namespace GameSlot
                                 Helper.SteamBotHelper.Table_Items.UpdateByID(Process, Process.ID);
                             }
 
-                            else if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.OfferID == Convert.ToUInt64(args[2]), out XBotsOffer))
+                            else if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.OfferID == Convert.ToUInt64(args[1]), out XBotsOffer))
                             {
                                 XBotsOffer.Status = 3;
                                 Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer, XBotsOffer.ID);
@@ -188,7 +189,7 @@ namespace GameSlot
                             {
                                 XBotsOffer.Status = 5;
                                 Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer, XBotsOffer.ID);
-                                Helper.SteamBotHelper.ErrorToSendLocalItem(XBotsOffer.SteamUserID);
+                                Helper.SteamBotHelper.ErrorToSendLocalItem(XBotsOffer.SteamUserID, XBotsOffer.SentTime);
 
                                 WebSocketPage.SendItemsOffer(XBotsOffer.SteamUserID, 0);
                             }
@@ -209,7 +210,7 @@ namespace GameSlot
                                 Logger.ConsoleLog("Updated XBotsOffer status to " + XBotsOffer.Status);
                             }
 
-                            Logger.ConsoleLog("Items sent to steamid: '" + args[1] + "'");
+                            Logger.ConsoleLog("Items sent to steamid: '" + args[1] + "' offer.ID: " + args[2]);
                         }
                         else
                         {
@@ -254,6 +255,18 @@ namespace GameSlot
                         {
                             for (int i = 0; i < XBotsOffer.Length; i++)
                             {
+                                if (XBotsOffer[i].OfferID == 0)
+                                {
+                                    Logger.ConsoleLog("Trying to decline offer with 0 offer_id status:" + XBotsOffer[i].Status + " UserID:" + XBotsOffer[i].UserID
+                                        + " SteamUserID:" + XBotsOffer[i].SteamUserID, ConsoleColor.Yellow, LogLevel.Error);
+
+                                    XBotsOffer XBotsOffer_fail = Helper.SteamBotHelper.Table_BotsOffer.SelectByID(XBotsOffer[i].ID);
+                                    XBotsOffer_fail.Status = 5;
+                                    Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer_fail, XBotsOffer_fail.ID);
+
+                                    continue;
+                                }
+
                                 UpTunnel.Sender.Send(UTSteam.sk, "decline:" + XBotsOffer[i].OfferID);
                             }
                         }

@@ -32,6 +32,7 @@ namespace GameSlot.Pages.UserPages
 
                 Hashtable data = new Hashtable();
                 data.Add("Group", group);
+                data.Add("Title", "Моя тусовка");
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }

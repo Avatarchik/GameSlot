@@ -67,13 +67,13 @@ namespace GameSlot.Helpers
             return this.Table_Items.SelectOne(data => data.OfferID == OfferID, out XSteamBotProcessItem);
         }
 
-        public void ErrorToSendLocalItem(ulong SteamUserID, bool to_admin = false)
+        public void ErrorToSendLocalItem(ulong SteamUserID, int SentTime, bool to_admin = false)
         {
             XUser user;
             if (Helper.UserHelper.Table.SelectOne(data => data.SteamID == SteamUserID, out user))
             {
                 XBotsOffer XBotsOffer;
-                if (Table_BotsOffer.SelectOne(data => data.SteamUserID == SteamUserID && data.Status == 0, out XBotsOffer))
+                if (Table_BotsOffer.SelectOne(data => data.SteamUserID == SteamUserID && data.Status == 5 && data.SentTime == SentTime, out XBotsOffer))
                 {
                     XBotOffersItem[] XBotOffersItems;
                     if(Table_BotOffersItem.SelectArr(data => data.BotsOfferID == XBotsOffer.ID, out XBotOffersItems))
