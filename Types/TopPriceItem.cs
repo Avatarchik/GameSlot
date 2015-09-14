@@ -11,5 +11,10 @@ namespace GameSlot.Types
         public ushort Type;
         public double Price;
         public int Position;
+
+        public string Rarity;
+        public string RarityColor;
+
+        public string Color;
     }
 }

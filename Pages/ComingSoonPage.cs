@@ -9,7 +9,7 @@ using UpServer;
 
 namespace GameSlot.Pages
 {
-    public class CommingSoonPage : SiteGameSlot
+    public class ComingSoonPage : SiteGameSlot
     {
         public override PageType PageType
         {
@@ -17,7 +17,7 @@ namespace GameSlot.Pages
         }
         public override string URL
         {
-            get { return "/comming-soon"; }
+            get { return "/coming-soon"; }
         }
         public override string TemplateAddr
         {

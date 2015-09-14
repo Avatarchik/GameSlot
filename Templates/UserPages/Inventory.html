@@ -94,28 +94,28 @@
                     <div class="fsh1">
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t1.png" alt=""></span></div>
-                            <div class="sp-tt1" id="count_f_0">х{{=PageData["f5"]}}</div>
-                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 5)}}, 0);">Купить за {{=(Helper.Rub_ExchangeRate * 5)}}</a>                            
+                            <div class="sp-tt1" id="count_f_0">x{{=PageData["f5"]}}</div>
+                            <a href="" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 5)}}, 0);">Купить за {{=(Helper.Rub_ExchangeRate * 5)}}</a>                            
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t2.png" alt=""></span></div>
                             <div class="sp-tt1" id="count_f_1">x{{=PageData["f10"]}}</div>
-                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 10)}}, 1);">Купить за {{=(Helper.Rub_ExchangeRate * 10)}}</a>
+                            <a href="" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 10)}}, 1);">Купить за {{=(Helper.Rub_ExchangeRate * 10)}}</a>
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t3.png" alt=""></span></div>
                             <div class="sp-tt1" id="count_f_2">x{{=PageData["f25"]}}</div>
-                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 25)}}, 2);">Купить за {{=(Helper.Rub_ExchangeRate * 25)}}</a>
+                            <a href="" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 25)}}, 2);">Купить за {{=(Helper.Rub_ExchangeRate * 25)}}</a>
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t4.png" alt=""></span></div>
                             <div class="sp-tt1" id="count_f_3">x{{=PageData["f50"]}}</div>
-                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 50)}}, 3);">Купить за {{=(Helper.Rub_ExchangeRate * 50)}}</a>                            
+                            <a href="" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 50)}}, 3);">Купить за {{=(Helper.Rub_ExchangeRate * 50)}}</a>                            
                         </div>
                         <div class="item1">
                             <div class="ft-img"><span><img src="/cached_files/img/ff-t5.png" alt=""></span></div>
                             <div class="sp-tt1" id="count_f_4">x{{=PageData["f100"]}}</div>    
-                            <a href="/comming-soon" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 100)}}, 4);">Купить за {{=(Helper.Rub_ExchangeRate * 100)}}</a>                             
+                            <a href="" class="bt-now1" onclick="return buy_f({{=(Helper.Rub_ExchangeRate * 100)}}, 4);">Купить за {{=(Helper.Rub_ExchangeRate * 100)}}</a>                             
                         </div>
                     </div>
                 </div>
@@ -135,7 +135,7 @@
                                 <a href="" class="link-steam-tt1" id="send_local_items_to_steam" style="display:none;" onclick="return SendLocalItemsToSteam();">Передать в инвентарь Steam</a>
                             </div>
                             <div class="search1">
-                                <div class="rr-sort1">
+                                <div class="rr-sort1" id="search_in_local_steam_inventory_srch">
                                     <ul>
                                         <li>Сортировка:</li>
                                         <li id="local_inventory_sort_by_high_price" class="active"><a onclick="return SortLocalInventoryByLowPrice(36, 0);">Сперва дорогие</a></li>
@@ -166,7 +166,7 @@
                     <div class="rr1 rr3">
                         <div class="sp-top-st1">
                             <div class="ev-tit-ll1">Инвентарь Steam</div>
-                            <div class="srh1"><input type="text" placeholder="Поиск по инвентарю" id="search_in_steam_inventory"><input type="submit" value=""></div>
+                            <div class="srh1" id="search_in_steam_inventory_srch"><input type="text" placeholder="Поиск по инвентарю" id="search_in_steam_inventory"><input type="submit" value=""></div>
                         </div>
                         <div class="ov-bl1">
                             <div class="bg-ov-bl1"><div></div></div>

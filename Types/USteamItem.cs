@@ -11,11 +11,13 @@ namespace GameSlot.Types
         public uint ID;
 
         public string Name;
+        public string Color;
+
         public double Price;
         public string Price_Str;
 
-        public string NameColor;
-        public string Type;
+        public string RarityColor;
+        public string Rarity;
 
         public string Image;
 

@@ -14,5 +14,10 @@ namespace GameSlot.Types
         public string TotalPrice_Str;
         public int LastUpdate;
         public bool Opened;
+
+        public UsersInventory Clone()
+        {
+            return (UsersInventory)this.MemberwiseClone();
+        } 
     }
 }

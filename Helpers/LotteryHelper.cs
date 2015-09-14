@@ -455,6 +455,8 @@ namespace GameSlot.Helpers
                 Lottery.SteamGameID = xlot.SteamGameID;
                 Lottery.UsersCount = xlot.GamersCount;
 
+                Lottery.RubCurrency = xlot.RubCurrency;
+
                 if (xlot.EndTime > 0 && xlot.EndTime <= Helper.GetCurrentTime() + 1)
                 {
                     XLottery new_xlot;
@@ -992,12 +994,17 @@ namespace GameSlot.Helpers
 
                         // canceling other offer requests
                         XSteamBotProcessItems[] ProcessItems;
-                        if (Helper.SteamBotHelper.Table_Items.SelectArr(data => data.UserID == User.ID && (data.Status == 1), out ProcessItems))
+                        while (Helper.SteamBotHelper.Table_Items.SelectArr(data => data.UserSteamID == User.SteamID && (data.Status == 1), out ProcessItems))
                         {
                             for (int i = 0; i < ProcessItems.Length; i++ )
                             {
                                 Logger.ConsoleLog("Trying to decline offer: " + ProcessItems[i].OfferID);
                                 UpTunnel.Sender.Send(UTSteam.sk, "decline:" + ProcessItems[i].OfferID);
+
+                                while (Helper.SteamBotHelper.Table_Items.SelectByID(ProcessItems[i].ID).Status == 1)
+                                {
+                                    Thread.Sleep(100);
+                                }
                             }
                         }
 
@@ -1188,6 +1195,10 @@ namespace GameSlot.Helpers
                 TopItem.Price = BankSteamItems[i].Price;
                 TopItem.Price_Str = BankSteamItems[i].Price_Str;
                 TopItem.Image = "/steam-image/" + BankSteamItems[i].SteamGameID + "/" + BankSteamItems[i].ID;
+
+                TopItem.Color = BankSteamItems[i].Color;
+                TopItem.Rarity = BankSteamItems[i].Rarity;
+                TopItem.RarityColor = BankSteamItems[i].RarityColor;
 
                 TopItems.Add(TopItem);
             }

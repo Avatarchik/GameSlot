@@ -47,7 +47,7 @@ namespace GameSlot.Pages.Lotteries
             }
             else if(Game.Equals("teamfortess"))
             {
-                BaseFuncs.ShowPage(new CommingSoonPage(), client);
+                BaseFuncs.ShowPage(new ComingSoonPage(), client);
                 return true;
             }
             else
@@ -58,7 +58,6 @@ namespace GameSlot.Pages.Lotteries
 
             Hashtable data = new Hashtable();
             ushort currency = Helper.UserHelper.GetCurrency(client);
-
             Lottery Lottery = Helper.LotteryHelper.GetCurrent(SteamGameID, client);
 
             XUser user;
@@ -68,13 +67,23 @@ namespace GameSlot.Pages.Lotteries
                 double ChipsTotalPrice;
                 data.Add("Chips", Helper.UserHelper.GetChipInventory(user.ID, out ChipsTotalPrice));
 
+                double UsersBetsPrice = 0;
+                XLotteryUsersBetsPrice Users_XLotteryUsersBetsPrice;
+                if (Helper.LotteryHelper.TableUsersBetsPrice.SelectOne(dt => dt.LotteryID == Lottery.ID && dt.UserID == user.ID, out Users_XLotteryUsersBetsPrice))
+                {
+                    UsersBetsPrice = Users_XLotteryUsersBetsPrice.TotalBetsPrice;
+                    Logger.ConsoleLog("UsersBetsPrice: " + UsersBetsPrice);
+                }
+
                 if (user.Currency == 1)
                 {
                     data.Add("ChipsTotalPrice", ChipsTotalPrice.ToString("###,###,##0"));
+                    data.Add("UsersBetsPrice", Math.Round(UsersBetsPrice * Lottery.RubCurrency));
                 }
                 else
                 {
                     data.Add("ChipsTotalPrice", ChipsTotalPrice.ToString("###,##0.00"));
+                    data.Add("UsersBetsPrice", UsersBetsPrice);
                 }
 
                 data.Add("User", user);

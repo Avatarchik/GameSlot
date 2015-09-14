@@ -13,18 +13,18 @@
                     <ul class="tt-ul1">
                         <li><a href="/my.hangout">Тусовка</a></li>
                         <li><a href="/inventory/dota2">Инвентарь</a></li>
-                        <li><a href="/comming-soon">Достижения</a></li>
-                        <li class="pay1"><span>{{=Helper.UserHelper.Table.SelectByID((uint)client.Session["User"]).Wallet}}</span> <a href="" onclick="return payment_modal();">Пополнить</a></li>
+                        <li><a href="/coming-soon">Достижения</a></li>
+                        <li class="pay1"><span id="users_wallet">{{=Helper.UserHelper.Table.SelectByID((uint)client.Session["User"]).Wallet}}</span> <a href="" onclick="return payment_modal();">Пополнить</a></li>
                         <li><a href="/logout">Выйти</a></li>
                     </ul>
                 {{end}}
-                <div class="onl1">Online: <b id="online_users">{{=(Helper.UserHelper.GetOnlineNum() + Helper.OnlineUsers)}}</b></div>
+                <div class="onl1">Online: <b id="online_users">{{=(Helper.UserHelper.GetOnlineNum())}}</b></div>
             </div>
             <div class="rr1">
                 <ul>
                     <li>язык:</li>
                     <li class="active"><a href="">Рус</a></li>
-                    <li><a href="/comming-soon">Eng</a></li>
+                    <li><a href="/coming-soon">Eng</a></li>
                 </ul>
             </div>
         </div>

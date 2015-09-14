@@ -49,6 +49,7 @@ namespace GameSlot
         public override string Host
         {
             //get { return "localhost;uptrade.local;gameslot.uptrade.pro;thegameslot.ru;www.thegameslot.ru;thegameslot.com;www.thegameslot.com"; }
+           // get { return "localhost;uptrade.local;gameslot.uptrade.pro;thegameslot.com;www.thegameslot.com"; }
             get { return "localhost;uptrade.local;gameslot.uptrade.pro;thegameslot.com;www.thegameslot.com"; }
         }
         public override uint CacheTime

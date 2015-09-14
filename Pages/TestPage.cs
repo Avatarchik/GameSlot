@@ -125,10 +125,20 @@ namespace GameSlot.Pages
                     int on;
                     if (int.TryParse(client.GetParam("add_online_users"), out on))
                     {
-                        Helper.OnlineUsers = on;
-                        Logger.ConsoleLog("Added users " + on + "; now online: " + Helper.UserHelper.GetOnlineNum() + on, ConsoleColor.Cyan, LogLevel.Info);
-                        WebSocketPage.UpdateOnlineUsers(Helper.UserHelper.GetOnlineNum() + Helper.OnlineUsers);
+                        UserHelper.ExtraOnlineUsers = on;
+                        Logger.ConsoleLog("Added users " + on + "; now online: " + Helper.UserHelper.GetOnlineNum(), ConsoleColor.Cyan, LogLevel.Info);
+                        WebSocketPage.UpdateOnlineUsers(Helper.UserHelper.GetOnlineNum());
                     }
+                }
+
+                else if(client.GetParam("get_inventory_updating_num") != null)
+                {
+                    Logger.ConsoleLog("At now inventory updating: " + Helper.UserHelper.GetUpdatingInventories().Count, ConsoleColor.Cyan, LogLevel.Info);
+                }
+
+                else if (client.GetParam("get_ws_stat") != null)
+                {
+                    WebSocketPage.GetStats();
                 }
             }
 

@@ -12,5 +12,10 @@ namespace GameSlot.Types
         public double Price;
         public string Price_Str;
         public string Image;
+
+        public string Color;
+
+        public string Rarity;
+        public string RarityColor;
     }
 }

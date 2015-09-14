@@ -31,6 +31,7 @@ namespace GameSlot.Helpers
 
         private static readonly object _QueueDownloadImage = new object();
 
+        public static int LastItemPricesUpdate = 0;
 
         public void AddToQueueDownloadImage(SteamItemImageQueue SteamItemImageQueue)
         {
@@ -44,7 +45,7 @@ namespace GameSlot.Helpers
         }
         public bool IsExistQueueDownloadImage(uint id)
         {
-            List<SteamItemImageQueue> Queue = new List<SteamItemImageQueue>(SteamItemsHelper.QueueDownloadImage);
+            SteamItemImageQueue[] Queue = SteamItemsHelper.QueueDownloadImage.ToArray();
             foreach (SteamItemImageQueue SteamItemImageQueue in Queue)
             {
                 if (SteamItemImageQueue != null && SteamItemImageQueue.ID == id)
@@ -80,7 +81,7 @@ namespace GameSlot.Helpers
                 {
                     try
                     {
-                        List<XSteamItem> SteamItems = this.Table.SelectAll();
+                        List<XSteamItem> SteamItems =  new List<XSteamItem>(this.Table.SelectAll());
                         for (int i = 0; i < SteamItems.Count; i++)
                         {
                             string image;
@@ -94,6 +95,8 @@ namespace GameSlot.Helpers
                                 this.AddToQueueDownloadImage(SteamItemImageQueue);
                             }
                         }
+
+                        Thread.Sleep(10);
                     }
                     catch(Exception ex)
                     {
@@ -103,18 +106,27 @@ namespace GameSlot.Helpers
             }).Start();
         }
 
-        public bool SelectByName(string name, uint SteamGameID, out USteamItem SteamItem)
+        public bool SelectByName(string name, uint SteamGameID, out USteamItem SteamItem, ushort currency)
         {
             XSteamItem XSteamItem;
             if (this.SelectByName(name, SteamGameID, out XSteamItem))
             {
                 SteamItem = new USteamItem();
                 SteamItem.ID = XSteamItem.ID;
-                SteamItem.Name = XSteamItem.Name;
+                if (currency == 1)
+                {
+                    SteamItem.Name = XSteamItem.RusName;
+                }
+                else
+                {
+                    SteamItem.Name = XSteamItem.Name;
+                }
                 SteamItem.Image = XSteamItem.Image;
                 SteamItem.Price = XSteamItem.Price;
-                SteamItem.NameColor = XSteamItem.NameColor;
-                SteamItem.Type = XSteamItem.Type;
+                SteamItem.RarityColor = this.GetRarityColor(XSteamItem.Rarity, SteamGameID);
+                SteamItem.Rarity = XSteamItem.Rarity;
+
+                SteamItem.Color = XSteamItem.Color;
                 SteamItem.SteamGameID = SteamGameID;
 
                 return true;
@@ -145,8 +157,10 @@ namespace GameSlot.Helpers
                 SteamItem.Image = XSteamItem.Image;
                 SteamItem.Price = XSteamItem.Price;
                 SteamItem.Price_Str = XSteamItem.Price.ToString("###,##0.00");
-                SteamItem.NameColor = XSteamItem.NameColor;
-                SteamItem.Type = XSteamItem.Type;
+                SteamItem.RarityColor = this.GetRarityColor(XSteamItem.Rarity, XSteamItem.SteamGameID);
+                SteamItem.Rarity = XSteamItem.Rarity;
+
+                SteamItem.Color = XSteamItem.Color;
                 SteamItem.SteamGameID = SteamGameID;
 
                 return true;
@@ -156,13 +170,79 @@ namespace GameSlot.Helpers
             return false;
         }
 
+        public string GetRarityColor(string rarity, uint SteamGameID)
+        {
+            //Logger.ConsoleLog("[" + rarity + "]" + SteamGameID);
+
+            if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+            {
+                if(rarity.Equals("Common"))
+                {
+                    return "rgb(176, 195, 217)";
+                }
+                else if(rarity.Equals("Rare"))
+                {
+                    return "rgb(75, 105, 255)";
+                }
+                else if (rarity.Equals("Uncommon"))
+                {
+                    return "rgb(94, 152, 217)";
+                }
+                else if (rarity.Equals("Mythical"))
+                {
+                    return "rgb(136, 71, 255)";
+                }
+                else if (rarity.Equals("Legendary"))
+                {
+                    return "rgb(211, 44, 230)";
+                }
+                else if (rarity.Equals("Ancient"))
+                {
+                    return "rgb(235, 75, 75)";
+                }
+                else if (rarity.Equals("Contraband"))
+                {
+                    return "rgb(228, 174, 57)";
+                }
+            }
+
+            else if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+            {
+                if (rarity.Equals("Uncommon"))
+                {
+                    return "rgb(94, 152, 217)";
+                }
+                else if (rarity.Equals("Rare"))
+                {
+                    return "rgb(75, 175, 255)";
+                }
+                else if (rarity.Equals("Mythical"))
+                {
+                    return "rgb(136, 71, 255)";
+                }
+                else if (rarity.Equals("Immortal"))
+                {
+                    return "rgb(218, 174, 57)";
+                }
+                else if (rarity.Equals("Arcana"))
+                {
+                    return "rgb(173, 229, 92)";
+                }
+                else if (rarity.Equals("Legendary"))
+                {
+                    return "rgb(211, 44, 230)";
+                }
+            }
+
+            return "";
+        }
         public double GetMarketPrice(string ItemName, uint SteamGameID)
         {
             using (WebClient webClient = new WebClient())
             {
                 try
                 {
-                    string name = ItemName.Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29");
+                    string name = ItemName.Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("™", "%E2%84%A2");
                     string data = webClient.DownloadString("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name);
                     if (data.Contains("\"success\":true") && (data.Contains("\"median_price\":\"") && data.Contains("\"lowest_price\":\"")))
                     {
@@ -171,16 +251,23 @@ namespace GameSlot.Helpers
                         {
                             price = Regex.Split(data, "\"lowest_price\":\"")[1].Split('"')[0].Replace("$", "");
                         }
-                        /*else
+                        else
                         {
-                            price = Regex.Split(data, "\"median_price\":\"")[1].Split('"')[0].Replace("$", "");
-                        }*/
+                            XSteamItem XSteamItem;
+                            if(this.SelectByName(ItemName, SteamGameID, out XSteamItem))
+                            {
+                                return XSteamItem.Price;
+                            }
+                        }
 
                         return Convert.ToDouble(price);
                     }
                 }
 
-                catch { }
+                catch {
+                    string name = ItemName.Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("™", "%E2%84%A2");
+                    Logger.ConsoleLog("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name, ConsoleColor.Red, LogLevel.Error);
+                }
             }
 
             return 0d;
@@ -202,8 +289,10 @@ namespace GameSlot.Helpers
                             this.Table.UpdateByID(XSteamItem, XSteamItem.ID);
                             //this.DownloadItemsImage(XSteamItem.ID, XSteamItem.SteamGameID);
                         }
+
+                        SteamItemsHelper.LastItemPricesUpdate = Helper.GetCurrentTime();
                     }
-                    Thread.Sleep(60*60*12);
+                    Thread.Sleep(TimeSpan.FromHours(12));
                 }
             }).Start();
         }
@@ -238,6 +327,8 @@ namespace GameSlot.Helpers
                                 this.AddSteamImageToCache(SteamItemImageQueue.ID, SteamItemImageQueue.SteamGameID);
                             }
                         }
+
+                        Thread.Sleep(100);
                     }
                     catch { }
                 }
@@ -275,7 +366,7 @@ namespace GameSlot.Helpers
         {
             Logger.ConsoleLog("Images to memory...", ConsoleColor.Yellow);
 
-            List<XSteamItem> Items = this.Table.SelectAll();
+            List<XSteamItem> Items = new List<XSteamItem>(this.Table.SelectAll());
             foreach(XSteamItem Item in Items)
             {
                 this.AddSteamImageToCache(Item.ID, Item.SteamGameID);
@@ -312,6 +403,38 @@ namespace GameSlot.Helpers
             } 
 
             return SteamItems;
+        }
+
+        public string MakeTextFromRealDich(string dich)
+        {
+            StringBuilder res = new StringBuilder();
+            byte k = 0;
+            for (int i = 0; i < dich.Length; i++)
+            {
+                if (k == 0 && dich[i] == '\\')
+                {
+                    k = 1;
+                }
+                else if (k == 1 && dich[i] == 'u')
+                {
+                    k = 2;
+                }
+                else if (k == 2)
+                {
+                    string sb = dich.Substring(i + 2, 2) + dich.Substring(i, 2);
+
+                    byte[] ns = Enumerable.Range(0, 4).Where(x => x % 2 == 0).Select(x => Convert.ToByte(sb.Substring(x, 2), 16)).ToArray();
+
+                    res.Append(Encoding.Unicode.GetString(ns));
+                    i += 3;
+                    k = 0;
+                }
+                else
+                {
+                    res.Append(dich[i]);
+                }
+            }
+            return res.ToString();
         }
     }
 }

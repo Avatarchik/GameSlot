@@ -23,7 +23,7 @@ namespace GameSlot
 
         public UTSteam()
         {
-            UTClient uc = new UTClient("localhost", 7712, "GameSlotTestes", data =>
+            UTClient uc = new UTClient("91.228.154.216", 7712, "GameSlotTestes", data =>
             {
                 if (data.GetType() == typeof(string))
                 {
@@ -39,7 +39,7 @@ namespace GameSlot
 
                         if (args[0] == "accepted")//чел принял
                         {
-
+                            Logger.ConsoleLog("User accepted!", ConsoleColor.Green);
                             XBotsOffer XBotsOffer;
                             XSteamBotProcessItems XSteamBotProcessItem;
                             if (Helper.SteamBotHelper.SelectByOfferID(Convert.ToUInt64(args[2]), out XSteamBotProcessItem))
@@ -56,11 +56,11 @@ namespace GameSlot
                                     XSItemUsersInventory.UserID = XSteamBotProcessItem.UserID;
                                     XSItemUsersInventory.SteamItemID = XSteamBotProcessItem.SteamItemIDs[i];
                                     XSItemUsersInventory.AssertID = XSteamBotProcessItem.ItemAssertIDs[i];
-                                    Logger.ConsoleLog(XSItemUsersInventory.SteamItemID, ConsoleColor.Red);
                                     XSItemUsersInventory.SteamGameID = XSteamBotProcessItem.SteamGameID;
                                     XSItemUsersInventory.SteamBotID = XSteamBotProcessItem.SteamBotID;
 
                                     Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
+                                    Helper.UserHelper.DeleteItemFromSteamInventory(XSItemUsersInventory.UserID, XSItemUsersInventory.AssertID, XSItemUsersInventory.SteamGameID);
                                 }
 
                                 ProcessingBet ProcessingBet;

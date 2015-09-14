@@ -85,7 +85,7 @@
     <Compile Include="Helpers\UserHelper.cs" />
     <Compile Include="Pages\TopPlayersPage.cs" />
     <Compile Include="Pages\Store\StoreMainPage.cs" />
-    <Compile Include="Pages\CommingSoonPage.cs" />
+    <Compile Include="Pages\ComingSoonPage.cs" />
     <Compile Include="Pages\GamesHistoryPage.cs" />
     <Compile Include="Pages\FairPlayInfoPage.cs" />
     <Compile Include="Pages\BetInfoPage.cs" />
@@ -113,6 +113,7 @@
     <Compile Include="SiteGameSlot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\Chip.cs" />
+    <Compile Include="Types\InventoryWaitingClients.cs" />
     <Compile Include="Types\Lottery.cs" />
     <Compile Include="Types\OnlineUser.cs" />
     <Compile Include="Types\ProcessingBet.cs" />

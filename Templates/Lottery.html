@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    {{include GameSlot Header}}
+    {{using GameSlot.Types}}
+    {{using GameSlot.Database}}
+    {{set Lottery Lottery = (Lottery) PageData["Lottery"]}}
+
+    Lottery here! <br />
+    ID: {{=Lottery.IDStr}}<br />
+    Raund number: {{=Lottery.RaundNumber}}<br />
+    Time Left: {{=Lottery.LeftTime}}
+    <hr />
+
+    {{if(Lottery.LeftTime < 0)}}
+        Начать игру!
+    {{end}}
+    {{else if(Lottery.LeftTime > 0)}}
+        Сделать ставку!
+    {{end}}
+    {{else}}
+        Игра окончилась!
+    {{end}}
+    <hr />
+
+    {{if(Helper.UserHelper.Authorized(client))}}  
+        {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
+
+        <h4>Chips</h4>
+        <div id="inventory_chips">
+            <div id="inventory_items_chips">
+                {{foreach(Chip chip in Chips)}}
+                    {{=chip.Cost}} $ ({{=chip.AssertID}})<br />
+                {{end}}
+            </div>
+        </div>
+    {{end}}
+</body>
+{{include GameSlot Last}}
+</html>

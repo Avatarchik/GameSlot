@@ -38,5 +38,7 @@ namespace GameSlot.Types
         public int UsersCount;
 
         public double CentBank;
+
+        public double RubCurrency;
     }
 }

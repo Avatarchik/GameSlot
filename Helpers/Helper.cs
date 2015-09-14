@@ -23,8 +23,6 @@ namespace GameSlot
 
         public static double Rub_ExchangeRate = 0;
 
-        public static int OnlineUsers = 0;
-
         public static int GetCurrentTime()
         {
             return (int)(DateTime.Now - new DateTime(2015, 7, 18)).TotalSeconds;

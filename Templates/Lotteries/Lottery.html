@@ -10,6 +10,8 @@
     {{set List<TopItem> TopItems = (List<TopItem>) PageData["TopItems"]}}
     {{set bool ItsWinner = (bool) PageData["ItsWinner"]}}
     <script>
+        var jackpot_price_str = "{{=Lottery.JackpotPrice_Str}}";
+        var auth = false;
         LotteryPageConnect = true;
         LotteryPage_LotteryID = "{{=Lottery.ID}}";
 
@@ -225,7 +227,13 @@
                                     <img src="{{=Item.Image}}" alt="{{=Item.Name}}">
                                     <span class="">{{=Item.Price_Str}}</span>
                                     <a href=""></a>
-                                    <div class="tiltp">{{=Item.Name}}</div>
+                                    {{if(Item.Rarity != null)}}
+                                        <div class="tiltp"><itm style="color:#{{=Item.Color}}">{{=Item.Name}}</itm><br />
+                                        <itm style="color:{{=Item.RarityColor}}">{{=Item.Rarity}}</itm></div>
+                                    {{end}}
+                                    {{else}}
+                                        <div class="tiltp">{{=Item.Name}}</div>
+                                    {{end}}
                                 </div>
                             </div>
                             {{end}}
@@ -613,7 +621,7 @@
                                     <img src="/steam-image/{{=Item.SteamGameID}}/{{=Item.ID}}" alt="{{=Item.Name}}">
                                     <!--<img src="{{=Item.Image}}" alt="{{=Item.Name}}">-->
                                     <span class="">{{=Item.Price_Str}}</span>
-                                    <div class="tiltp">{{=Item.Name}}</div>
+                                    <div class="tiltp"><itm style="color:#{{=Item.Color}}">{{=Item.Name}}</itm><br /><itm style="color:{{=Item.RarityColor}}">{{=Item.Rarity}}</itm></div>
                                 </div>
                             {{end}}
                         </div>
@@ -655,6 +663,8 @@
     {{if(Helper.UserHelper.Authorized(client))}}
     {{set List<Chip> Chips = (List<Chip>) PageData["Chips"]}}
     {{set XUser user = (XUser) PageData["User"]}}
+    {{set double UsersBetsPrice = (double) PageData["UsersBetsPrice"]}}
+
     <div id="steam_items_html" style="display:none;">
         <div class="item1" id="item_id_[item_unique_id]">
             <span style="display:none;" id="iventory_id">[iventory_id]</span>
@@ -663,7 +673,7 @@
             <span style="display:none;" id="item_id">[item_id]</span>
 
             [item_steam_image]
-            <span class="">[item_price]</span>
+            <span class="" id="item_price">[item_price]</span>
 
             <a href="" onclick="return hh([item_assert_id], [iventory_id]);"></a>
             <div class="tiltp">[item_name]</div>  
@@ -680,17 +690,17 @@
                     <div class="ll1">
                         <div class="tit-rt1">
                             <div class="bl-rr1">
-                                <span></span>
-                                <div></div>
+                                <span>Суммарный<br>шанс победы:</span>
+                                <div id="users_win_rate">0%</div>
                             </div>
                             <div class="ep-rt1">Игровая ставка</div>
                         </div>
                         <div class="ov-bl1">
                             <div class="bg-ov-bl1"><div></div></div>
                             <div class="tit-bl1">
-                                <div class="ef1">0</div>
+                                <div class="ef1" id="current_bet_items_num">0</div>
                                 <div class="ef2">Суммарная<br>стоимость:</div>
-                                <div class="ef3">0</div>
+                                <div class="ef3" id="current_bet_price">0</div>
                             </div>
                             <div class="cont-ov-items-more1 more24" id="bet_iventory">
                                 <!--ITEMS HERE -->
@@ -776,7 +786,7 @@
                                         <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
                                     </div>
                                     <div class="search1">
-                                        <div class="srh1">
+                                        <div class="srh1" id="search_in_steam_inventory_srch">
                                             <input type="text" placeholder="Поиск по инвентарю" id="search_in_steam_inventory">
                                             <input type="submit" value="">
                                         </div>
@@ -830,7 +840,7 @@
                                         <div class="ef4">отображаются только те вещи,<br>которые доступны для ставки!</div>
                                     </div>
                                     <div class="search1">
-                                        <div class="srh1"><input type="text" placeholder="Поиск по инвентарю" id="search_in_local_steam_inventory"><input type="submit" value=""></div>
+                                        <div class="srh1" id="search_in_local_steam_inventory_srch"><input type="text" placeholder="Поиск по инвентарю" id="search_in_local_steam_inventory"><input type="submit" value=""></div>
                                         <div class="rr-sort1">
                                             <ul>
                                                 <li>Сортировка:</li>
@@ -888,7 +898,7 @@
                                                 <span style="display:none;" id="item_id">{{=Item.ID}}</span>
 
                                                 <img src="/chip-image/{{=Item.ID}}" alt="{{=Item.Cost_Str}}">
-                                                <span class="">{{=Item.Cost_Str}}</span>
+                                                <span class="" id="item_price">{{=Item.Cost_Str}}</span>
                                                 <a href="" onclick="return hh({{=Item.AssertID}}, 3);"></a>
                                                 <div class="tiltp">{{=Item.Cost_Str}}</div>
                                             </div>                                           
@@ -905,6 +915,13 @@
         </div>
     </div>
     <script>
+        var UsersBetsPrice = parseFloat("{{=UsersBetsPrice}}");
+        auth = true;
+
+        function RubConvert(str) {
+            return str.replace(/\d(?=(?:\d{3})+\b)/g, "$&" + ",");
+        }
+
         var bet_count = 0;
         {{if(user.TradePartner == 0 || user.TradeToken.Length == 0)}}
         var trade_ok = false;
@@ -915,16 +932,24 @@
 
         var handler = false;
         var remove_from_cur_page = false;
+        var cur_bet_price = 0;
         function hh(item_id, iven_id)
         {
             if(handler == false)
             {
+                var itm_price = $("#item_id_" + item_id + "_" + iven_id + " span#item_price").text();
+                if(itm_price.indexOf(',') > -1)
+                {
+                    itm_price = itm_price.replace(',', '');
+                }
+                itm_price = parseFloat(itm_price);
+
                 var iventory_id = $("#item_id_" + item_id + "_" + iven_id + " span#iventory_id").text();
                 var current_iventory_id = $("#item_id_" + item_id + "_" + iven_id + " span#current_iventory_id").text();
                 /* 1: steam, 2: local, 0: bet, 3: fishka */
                 if(current_iventory_id > 0)
                 {
-                    if(bet_count < 24){
+                    if(bet_count < 24) {
                         if(current_iventory_id == 1 && !trade_ok)
                         {
                             return false;
@@ -933,6 +958,7 @@
                         $("#item_id_" + item_id + "_" + iven_id + " span#current_iventory_id").text(0);
                         $("#item_id_" + item_id + "_" + iven_id).appendTo("div#bet_iventory");
                         bet_count++;
+                        cur_bet_price += itm_price;
                     }
                 }
                 else 
@@ -952,16 +978,58 @@
                     {
                         $("#item_id_" + item_id+ "_" + iven_id).remove();
                     }
+                    cur_bet_price = cur_bet_price - itm_price;
                     bet_count = bet_count -1;
                 }
+
+                $("#current_bet_price").text(RubConvert(cur_bet_price.toString()));
+                $("#current_bet_items_num").text(bet_count);
+                show_winrate();
             }
             return false;
         }
 
+        function show_winrate()
+        {
+            var jc_Price = jackpot_price_str;
+            if(jc_Price.indexOf(',') > -1)
+            {
+                jc_Price = jc_Price.replace(',', '');
+            }
+            jc_Price = parseFloat(jc_Price);
+
+            var us_bets_price = UsersBetsPrice + cur_bet_price;
+            if(us_bets_price > 0)
+            {
+                var win_rate_us = Math.round(us_bets_price / ((jc_Price + cur_bet_price) / 100));
+                if(win_rate_us > 100){
+                    $("#users_win_rate").text("100%");
+                }
+                else if(win_rate_us <= 0)
+                {
+                    $("#users_win_rate").text("1%");
+                }
+                else
+                {                  
+                    $("#users_win_rate").text(win_rate_us + "%");
+                }
+
+                console.log(us_bets_price + "| "+ jc_Price +"|" + win_rate_us);
+            }
+            else
+            {
+                $("#users_win_rate").text(0 + "%");
+            }
+        }
+
         function open_bet()
         {
+            show_winrate();
             $("div#bet_sys").attr('style', 'display:block;');
-            /*$("div#bet_sys").addClass("active");*/
+
+            $('.cont-ov-items-more1 .item1,.ov-ic-more-s1 .item1,.over-items-more-bl1 .rr1 ,item1,.owl1 .item').each(function () {
+                $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
+            });
             return false;
         }
 
@@ -986,7 +1054,7 @@
                 $("div#bet_ready").attr("style", "display:block;");
                 ws.send(bet);
                 console.log("ws bet sent");
-                bet_count = 0;
+                /*bet_count = 0;*/
             }
 
             return false;
@@ -995,6 +1063,7 @@
 
         $("document").ready(function () 
         {
+            show_winrate();
             trade_url =  $("input#steam_trade_url").val();
             $("input#steam_trade_url").keyup(function () 
             {
