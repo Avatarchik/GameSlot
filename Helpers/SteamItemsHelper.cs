@@ -108,10 +108,12 @@ namespace GameSlot.Helpers
                     }
                     catch(Exception ex)
                     {
-                        //Logger.ConsoleLog(ex, ConsoleColor.Red, LogLevel.Error);
+                        Logger.ConsoleLog(ex, ConsoleColor.Red, LogLevel.Error);
                     }
                 }
             }).Start();
+
+            this.UpdatePrices();
         }
 
         public bool SelectByName(string name, uint SteamGameID, out USteamItem SteamItem, ushort currency)
@@ -258,7 +260,7 @@ namespace GameSlot.Helpers
             {
                 try
                 {
-                    string name = ItemName.Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("™", "%E2%84%A2");
+                    string name = ItemName.Replace("\\u2122", "%E2%84%A2").Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29");
                     string data = webClient.DownloadString("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name);
                     if (data.Contains("\"success\":true") && (data.Contains("\"median_price\":\"") && data.Contains("\"lowest_price\":\"")))
                     {
@@ -289,25 +291,23 @@ namespace GameSlot.Helpers
             return 0d;
         }
 
-        public void UpdatePrices(uint SteamGameID)
+        private void UpdatePrices()
         {
             new Thread(delegate()
             {
                 while (true)
                 {
-                    List<XSteamItem> Items;
-                    if (this.Table.Select(data => data.SteamGameID == SteamGameID, out Items))
+                    uint size = 0;
+                    XSteamItem[] Items = this.Table.GetData(out size);
+                    for (int i = 0; i < size; i++)
                     {
-                        for (int i = 0; i < Items.Count; i++)
-                        {
-                            XSteamItem XSteamItem = Items[i];
-                            XSteamItem.Price = this.GetMarketPrice(XSteamItem.Name, SteamGameID);
-                            this.Table.UpdateByID(XSteamItem, XSteamItem.ID);
-                            //this.DownloadItemsImage(XSteamItem.ID, XSteamItem.SteamGameID);
-                        }
-
-                        SteamItemsHelper.LastItemPricesUpdate = Helper.GetCurrentTime();
+                        XSteamItem XSteamItem = Items[i];
+                        XSteamItem.Price = this.GetMarketPrice(XSteamItem.Name, XSteamItem.SteamGameID);
+                        this.Table.UpdateByID(XSteamItem, XSteamItem.ID);
+                        //this.DownloadItemsImage(XSteamItem.ID, XSteamItem.SteamGameID);
                     }
+
+                    SteamItemsHelper.LastItemPricesUpdate = Helper.GetCurrentTime();
                     Thread.Sleep(TimeSpan.FromHours(12));
                 }
             }).Start();

@@ -475,7 +475,7 @@ namespace GameSlot.Helpers
                                     SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
 
                                     XSteamItem.Rarity = Regex.Split(ItemContent, "internal_name\":\"Rarity_")[1].Split('"')[0];
-                                    XSteamItem.Color = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0]; ;
+                                    SteamItem.Color = XSteamItem.Color = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0]; ;
 
                                     string RusName = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
                                     XSteamItem.RusName = BaseFuncs.XSSReplacer(Helper.SteamItemsHelper.MakeTextFromRealDich(RusName));

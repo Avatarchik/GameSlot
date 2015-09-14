@@ -168,6 +168,18 @@ namespace GameSlot.Pages
                 {
                     WebSocketPage.GetStats();
                 }
+
+                else if (client.GetParam("get_item_by_id") != null)
+                {
+                    XSteamItem Item;
+                    uint id;
+                    if (uint.TryParse(client.GetParam("get_item_by_id"), out id) && Helper.SteamItemsHelper.Table.SelectByID(id, out Item))
+                    {
+
+                        Logger.ConsoleLog(Item.Name, ConsoleColor.Cyan, LogLevel.Info);
+                    }
+
+                }
             }
 
             Random rnd = new Random();
