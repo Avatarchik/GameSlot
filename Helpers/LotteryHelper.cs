@@ -22,10 +22,17 @@ namespace GameSlot.Helpers
         public XTable<XLotteryPercentage> TablePercentage = new XTable<XLotteryPercentage>();
         public XTable<XLotteryUsersBetsPrice>TableUsersBetsPrice = new XTable<XLotteryUsersBetsPrice>();
 
-
         private static List<ProcessingBet> ProcessingBets = new List<ProcessingBet>();
         //private static Dictionary<uint, List<ProcessingBet>> ProcessingBets = new Dictionary<uint,List<ProcessingBet>>();
         private static Dictionary<uint, List<Bet>> LotteryBets = new Dictionary<uint, List<Bet>>();
+
+        public static Dictionary<uint, double> MaxJackpotPrice = new Dictionary<uint, double>();
+        public static Dictionary<uint, double> RUB_MaxJackpotPrice = new Dictionary<uint, double>();
+        public static Dictionary<uint, int> ItemsRecord = new Dictionary<uint, int>();
+
+        private static readonly object _MaxJackpotPrice = new object();
+        private static readonly object _RUB_MaxJackpotPrice = new object();
+        private static readonly object _ItemsRecord = new object();
 
         public LotteryHelper()
         {
@@ -48,6 +55,50 @@ namespace GameSlot.Helpers
                 }
                 
             }).Start();
+        }
+
+        public void UpdateRecords(uint SteamGameID)
+        {
+            int ItemsRecord;
+            double MaxJackpotPrice = this.MaxJackpot(SteamGameID, out ItemsRecord, 0);
+
+            lock (_MaxJackpotPrice)
+            {
+                if (LotteryHelper.MaxJackpotPrice.ContainsKey(SteamGameID))
+                {
+                    LotteryHelper.MaxJackpotPrice[SteamGameID] = MaxJackpotPrice;
+                }
+                else
+                {
+                    LotteryHelper.MaxJackpotPrice.Add(SteamGameID, MaxJackpotPrice);
+                }
+            }
+
+            double RUB_MaxJackpotPrice = this.MaxJackpot(SteamGameID, out ItemsRecord, 1);
+
+            lock (_RUB_MaxJackpotPrice)
+            {
+                if (LotteryHelper.RUB_MaxJackpotPrice.ContainsKey(SteamGameID))
+                {
+                    LotteryHelper.RUB_MaxJackpotPrice[SteamGameID] = RUB_MaxJackpotPrice;
+                }
+                else
+                {
+                    LotteryHelper.RUB_MaxJackpotPrice.Add(SteamGameID, RUB_MaxJackpotPrice);
+                }
+            }
+
+            lock (_ItemsRecord)
+            {
+                if (LotteryHelper.ItemsRecord.ContainsKey(SteamGameID))
+                {
+                    LotteryHelper.ItemsRecord[SteamGameID] = ItemsRecord;
+                }
+                else
+                {
+                    LotteryHelper.ItemsRecord.Add(SteamGameID, ItemsRecord);
+                }
+            }
         }
 
         public XLottery CreateNew(uint SteamGameID)
@@ -731,7 +782,10 @@ namespace GameSlot.Helpers
                         {
                             if(SteamInventory_String == null)
                             {
-                                Helper.UserHelper.GetUsersSteamInventory_Json(User.ID, XLottery.SteamGameID, out SteamInventory_String);
+                                while (SteamInventory_String != null)
+                                {
+                                    Helper.UserHelper.GetUsersSteamInventory_Json(User.ID, XLottery.SteamGameID, out SteamInventory_String);
+                                }
                             }
 
                             if (Helper.UserHelper.IsUserHaveSteamItem_SteamInventory(SteamItem.AssertID, SteamItem.ID, User, XLottery.SteamGameID, SteamInventory_String))
@@ -880,7 +934,7 @@ namespace GameSlot.Helpers
 
                     foreach(Chip Chip in ProcessingBet.Chips)
                     {
-                        Logger.ConsoleLog(Chip.AssertID, ConsoleColor.Red);
+                        Logger.ConsoleLog("Chip asserID: " + Chip.AssertID, ConsoleColor.Red);
                         XLotteryBet.ChipIDs[XLotteryBet.ChipsNum] = Chip.ID;
                         XLotteryBet.ChipAssertIDs[XLotteryBet.ChipsNum] = Chip.AssertID;
 
@@ -1053,13 +1107,12 @@ namespace GameSlot.Helpers
                     }
 
                     this.Table.UpdateByID(XLottery, XLottery.ID);
-                    Helper.UserHelper.Table.UpdateByID(User, User.ID);
+                    Helper.UserHelper.Table.UpdateByID(User, User.ID);               
 
-                    //Logger.ConsoleLog(this.TableBet.SelectByID(0).ChipsNum + "SHT");
                     new Thread(delegate()
                     {
-                        //int left_time = ((XLottery.EndTime - Helper.GetCurrentTime()) > 0) ? XLottery.EndTime - Helper.GetCurrentTime() : 0;
                         WebSocketPage.AddNewLotteryBet(this.TableBet.SelectByID(xbet_id), LotteryExtraTime, XLottery.EndTime - Helper.GetCurrentTime());
+                        this.UpdateRecords(XLottery.SteamGameID);
                     }).Start();
 
                     client.SendWebsocket("BetDone" + BaseFuncs.WSplit + "1");
@@ -1263,7 +1316,7 @@ namespace GameSlot.Helpers
             return csgo;
         }
 
-        public double MaxJackpot(uint SteamGameID, out int ItemsRecord, ushort currency)
+        private double MaxJackpot(uint SteamGameID, out int ItemsRecord, ushort currency)
         {
             // TODO: закэшировать эту информацию
             double price = 0d;

@@ -133,19 +133,18 @@ namespace GameSlot.Pages.Lotteries
             int TodaysJackpotItems;
             data.Add("TodaysGames", Helper.LotteryHelper.TodaysGames(SteamGameID, out TodaysJackpotPrice, out TodaysJackpotItems, currency).Length);
 
-            int items;
             if (currency == 1)
             {
-                data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items, 1).ToString("###,###,##0"));
+                data.Add("MaxJackpot", LotteryHelper.RUB_MaxJackpotPrice[SteamGameID].ToString("###,###,##0"));
                 data.Add("TodaysJackpotPrice", TodaysJackpotPrice.ToString("###,###,##0"));
             }
             else
             {
-                data.Add("MaxJackpot", Helper.LotteryHelper.MaxJackpot(SteamGameID, out items, 0).ToString("###,##0.00"));
+                data.Add("MaxJackpot", LotteryHelper.MaxJackpotPrice[SteamGameID].ToString("###,##0.00"));
                 data.Add("TodaysJackpotPrice", TodaysJackpotPrice.ToString("###,##0.00"));
             }
 
-            data.Add("MaxJackpotItems", items);
+            data.Add("MaxJackpotItems", LotteryHelper.ItemsRecord[SteamGameID]);
             data.Add("TodaysJackpotItems", TodaysJackpotItems);           
             
             string title = "";

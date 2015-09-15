@@ -57,6 +57,11 @@ namespace GameSlot.Pages
             if(client.GetParam("from") != null)
             {
                 int.TryParse(client.GetParam("from"), out from);
+
+                if(from < 0)
+                {
+                    from = 0;
+                }
             }
 
             XUser user;
@@ -82,7 +87,10 @@ namespace GameSlot.Pages
                 Helper.LotteryHelper.Table.SelectArrFromEnd(data => data.SteamGameID == SteamGameID && data.WinnersToken > 0, out Lots);
             }
 
-            from = Math.Min(from, ((Lots.Length - ShowNum < 0) ? 0 : Lots.Length - ShowNum));
+            if(from >= Lots.Length)
+            {
+                from = (Lots.Length / ShowNum) * ShowNum;
+            }
 
             ushort currency = Helper.UserHelper.GetCurrency(client);
             for (int i = from; i < Math.Min(from + ShowNum, Lots.Length); i++)

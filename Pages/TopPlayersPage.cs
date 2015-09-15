@@ -64,7 +64,11 @@ namespace GameSlot.Pages
             {
                 int.TryParse(client.GetParam("from"), out from);
             }
-            from = Math.Min(from, ((Users.Count - ShowNum < 0) ? 0 : Users.Count - ShowNum));
+
+            if (from >= Users.Count)
+            {
+                from = (Users.Count / ShowNum) * ShowNum;
+            }
 
 
             List<TopPlayer> TopPlayers = new List<TopPlayer>();

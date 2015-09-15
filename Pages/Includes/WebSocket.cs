@@ -1,4 +1,5 @@
 ﻿using GameSlot.Database;
+using GameSlot.Helpers;
 using GameSlot.Types;
 using SteamBotUTRequest;
 using System;
@@ -705,9 +706,20 @@ namespace GameSlot.Pages.Includes
             double Today_JackpotPriceRecord;
             int TodayGamesNum = Helper.LotteryHelper.TodaysGames(lottery.SteamGameID, out Today_JackpotPriceRecord, out ItemsNumRecord, 0).Length;
 
-            int ItemsRecord;
-            string MaxJackpot_Rub = Helper.LotteryHelper.MaxJackpot(lottery.SteamGameID, out ItemsRecord, 1).ToString("###,###,##0");
-            string MaxJackpot = Helper.LotteryHelper.MaxJackpot(lottery.SteamGameID, out ItemsRecord, 0).ToString("###,##0.00");
+            double MaxJackpot_Rub = LotteryHelper.RUB_MaxJackpotPrice[lottery.SteamGameID];
+            double MaxJackpot = LotteryHelper.MaxJackpotPrice[lottery.SteamGameID];
+
+            if(lottery.JackpotPrice > MaxJackpot)
+            {
+                MaxJackpot = lottery.JackpotPrice;
+            }
+            if((lottery.JackpotPrice * lottery.RubCurrency) > MaxJackpot_Rub)
+            {
+                MaxJackpot_Rub = (lottery.JackpotPrice * lottery.RubCurrency);
+            }
+
+            string MaxJackpot_Rub_Str = MaxJackpot_Rub.ToString("###,###,##0");
+            string MaxJackpot_Str = MaxJackpot.ToString("###,##0.00");
 
             Client[] wclients = BaseFuncs.GetWebsocketClients<SiteGameSlot>().ToArray();
             for (int i = 0; i < wclients.Length; i++)
@@ -721,13 +733,13 @@ namespace GameSlot.Pages.Includes
                     if (currency == 1)
                     {
                         jackpot = (lottery.JackpotPrice * lottery.RubCurrency).ToString("###,###,##0");
-                        max_jackpot = MaxJackpot_Rub;
+                        max_jackpot = MaxJackpot_Rub_Str;
                     }
 
                     else if (currency == 0)
                     {
                         jackpot = lottery.JackpotPrice.ToString("###,##0.00");
-                        max_jackpot = MaxJackpot;
+                        max_jackpot = MaxJackpot_Str;
                     }
 
                     client.SendWebsocket("MainPageLotteries" + BaseFuncs.WSplit + lottery.SteamGameID + BaseFuncs.WSplit + lottery.GamersCount + BaseFuncs.WSplit + jackpot + BaseFuncs.WSplit + LotteryLeftTime + BaseFuncs.WSplit + lottery.JackpotItemsNum
