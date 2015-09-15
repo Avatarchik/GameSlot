@@ -11,19 +11,22 @@
 
 <body class="vn1">
 	<div id="page">
+        {{if(SteamGameID == 0)}}
+            <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
+        {{end}}
+
         {{include GameSlot UpHeader}}
 
-       <div class="ft-img1"><span>
-            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
-                <img src="/cached_files/img/b2.png" alt="">
-            {{end}}
-            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
-                <img src="/cached_files/img/b3.png" alt="">
-            {{end}}
-            {{else if(SteamGameID == 4)}}
-                <img src="/cached_files/img/b4.png" alt="">
-            {{end}}
-        </span></div>
+        {{if(SteamGameID > 0)}}
+           <div class="ft-img1"><span>
+                {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                    <img src="/cached_files/img/b2.png" alt="">
+                {{end}}
+                {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                    <img src="/cached_files/img/b3.png" alt="">
+                {{end}}
+            </span></div>
+        {{end}}
 
         {{include GameSlot Header}}
         <section id="content">
@@ -31,7 +34,7 @@
                 <div class="et-title1">
                     <div class="ll1">
                         <div class="tit1 j1">
-                            <span>{{=PageData["Title"]}}</span>
+                            <span>Топ победителей</span>
                             <i>Игры:</i>
                             {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
                                 <a href="/top-players/current">ОБЩИЙ</a>

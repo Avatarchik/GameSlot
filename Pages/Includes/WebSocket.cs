@@ -478,6 +478,8 @@ namespace GameSlot.Pages.Includes
 
         public static void AddNewLotteryBet(XLotteryBet XBet, int ExtraTime, int LotteryLeftTime)
         {
+            XLottery lottery = Helper.LotteryHelper.Table.SelectByID(XBet.LotteryID);
+
             if (WebSocketPage.ClientsLotteryPage.ContainsKey(XBet.LotteryID))
             {
                 XUser user;
@@ -492,7 +494,6 @@ namespace GameSlot.Pages.Includes
 
                 // first_token : last_token : bet_items_num : bet_price ↓
                 string OtherBets = "";
-                XLottery lottery = Helper.LotteryHelper.Table.SelectByID(XBet.LotteryID);
 
                 int Winrate = (int)Math.Round(TotalPrice / (lottery.JackpotPrice / 100));
                 if (Winrate > 100)
@@ -693,8 +694,47 @@ namespace GameSlot.Pages.Includes
                     WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i].SendWebsocket("AddedNewLotteryBet" + BaseFuncs.WSplit + ws);
                 }
             }
+
+            WebSocketPage.UpdateMainPageLotteries(lottery);
         }
 
+        public static void UpdateMainPageLotteries(XLottery lottery)
+        {
+            int LotteryLeftTime = (lottery.EndTime > 0) ? Helper.LotteryHelper.CalcLeftTime(lottery.ID) : -1;
+            int ItemsNumRecord;
+            double Today_JackpotPriceRecord;
+            int TodayGamesNum = Helper.LotteryHelper.TodaysGames(lottery.SteamGameID, out Today_JackpotPriceRecord, out ItemsNumRecord, 0).Length;
+
+            int ItemsRecord;
+            string MaxJackpot_Rub = Helper.LotteryHelper.MaxJackpot(lottery.SteamGameID, out ItemsRecord, 1).ToString("###,###,##0");
+            string MaxJackpot = Helper.LotteryHelper.MaxJackpot(lottery.SteamGameID, out ItemsRecord, 0).ToString("###,##0.00");
+
+            Client[] wclients = BaseFuncs.GetWebsocketClients<SiteGameSlot>().ToArray();
+            for (int i = 0; i < wclients.Length; i++)
+            {
+                string max_jackpot = "";
+                Client client = wclients[i];
+                if (client != null)
+                {
+                    ushort currency = Helper.UserHelper.GetCurrency(client);
+                    string jackpot = "";
+                    if (currency == 1)
+                    {
+                        jackpot = (lottery.JackpotPrice * lottery.RubCurrency).ToString("###,###,##0");
+                        max_jackpot = MaxJackpot_Rub;
+                    }
+
+                    else if (currency == 0)
+                    {
+                        jackpot = lottery.JackpotPrice.ToString("###,##0.00");
+                        max_jackpot = MaxJackpot;
+                    }
+
+                    client.SendWebsocket("MainPageLotteries" + BaseFuncs.WSplit + lottery.SteamGameID + BaseFuncs.WSplit + lottery.GamersCount + BaseFuncs.WSplit + jackpot + BaseFuncs.WSplit + LotteryLeftTime + BaseFuncs.WSplit + lottery.JackpotItemsNum
+                        + BaseFuncs.WSplit + TodayGamesNum + BaseFuncs.WSplit + max_jackpot);
+                }
+            }
+        }
         public static void SendLotteryRoulette(XLottery XLottery, List<LotteryRouletteData> RouletteData, XUser Winner)
         {
             if (ClientsLotteryPage.ContainsKey(XLottery.ID))
@@ -747,6 +787,8 @@ namespace GameSlot.Pages.Includes
                     WebSocketPage.ClientsLotteryPage[XLottery.ID][i].SendWebsocket("LotteryRouletteStarted" + BaseFuncs.WSplit + extra);
                 }
             }
+
+            WebSocketPage.UpdateMainPageLotteries(XLottery);
         }
 
         public static void SendItemsOffer(ulong UserSteamID, ushort status, ulong offerID = 0)

@@ -132,18 +132,9 @@
     <Compile Include="Types\UGroup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Templates\Group1.html" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Templates\Includes\Head.html" />
     <EmbeddedResource Include="Templates\Includes\Header.html" />
     <EmbeddedResource Include="Templates\Main.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\UserPages\MyGroup2.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\UserPages\Inventory2.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Templates\Includes\WebSocketEvents.html" />

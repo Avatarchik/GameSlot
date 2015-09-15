@@ -22,43 +22,139 @@
                 <div class="ov-inf1">
                     <div class="sp1">
                         <span>Банк</span>
-                        <div class="j1"><b>{{=Lottery_DOTA.JackpotPrice_Str}}</b></div>
-                        <div class="j2"><b>{{=Lottery_DOTA.JackpotItems}}</b> Предметов</div>
+                        <div class="j1"><b id="dota_jackpot">{{=Lottery_DOTA.JackpotPrice_Str}}</b></div>
+                        <div class="j2"><b id="dota_jackpot_items">{{=Lottery_DOTA.JackpotItems}}</b> Предметов</div>
                     </div>
-                    <!--<div class="sp2">
+
+                    <script>
+                        OnMainPage = true;
+                        var dota_use_timer = false;
+                        {{set string dota_timer_go = "display:none;"}}
+                        {{set string dota_info_go = "display:block;"}}
+
+                        {{if(Lottery_DOTA.LeftTime > 0 && Lottery_DOTA.UsersCount > 1)}}
+                            dota_use_timer = true;
+                            {{edit dota_timer_go = "display:block;"}}
+                            {{edit dota_info_go = "display:none;"}}
+                        {{end}}
+
+                        var csgo_use_timer = false;
+                        {{set string csgo_timer_go = "display:none;"}}
+                        {{set string csgo_info_go = "display:block;"}}
+
+                        {{if(Lottery_CSGO.LeftTime > 0 && Lottery_CSGO.UsersCount > 1)}}
+                            csgo_use_timer = true;
+                            {{edit csgo_timer_go = "display:block;"}}
+                            {{edit csgo_info_go = "display:none;"}}
+                        {{end}}
+
+
+                        var dota_left_secs = "{{=Lottery_DOTA.LeftTime}}";
+                        var dota_mins = 0;
+                        var dota_secs = 0;
+
+                        dota_timer();
+                        var def_dota_timer_interval = setInterval(dota_timer, 1000);
+                        function dota_timer()
+                        {
+                            if (dota_left_secs >= 0 && dota_use_timer) {
+                                dota_mins = Math.floor(dota_left_secs / 60);
+                                dota_secs = dota_left_secs - 60 * dota_mins;
+
+                                if (dota_secs < 10) {
+                                    $("#dota_secs").text("0" + dota_secs);
+                                }
+                                else {
+                                    $("#dota_secs").text(dota_secs);
+                                }
+
+                                if (dota_mins < 10) {
+                                    $("#dota_mins").text("0" + dota_mins);
+                                }
+                                else {
+                                    $("#dota_mins").text(dota_mins);
+                                }
+
+                                dota_left_secs = dota_left_secs - 1;
+                            }
+                        }
+
+                        var csgo_left_secs = "{{=Lottery_CSGO.LeftTime}}";
+                        var csgo_mins = 0;
+                        var csgo_secs = 0;
+
+                        csgo_timer();
+                        var def_csgo_timer_interval = setInterval(csgo_timer, 1000);
+                        function csgo_timer()
+                        {
+                            if (csgo_left_secs >= 0 && csgo_use_timer) {
+                                csgo_mins = Math.floor(csgo_left_secs / 60);
+                                csgo_secs = csgo_left_secs - 60 * csgo_mins;
+
+                                if (csgo_secs < 10) {
+                                    $("#csgo_secs").text("0" + csgo_secs);
+                                }
+                                else {
+                                    $("#csgo_secs").text(csgo_secs);
+                                }
+
+                                if (csgo_mins < 10) {
+                                    $("#csgo_mins").text("0" + csgo_mins);
+                                }
+                                else {
+                                    $("#csgo_mins").text(csgo_mins);
+                                }
+
+                                csgo_left_secs = csgo_left_secs - 1;
+                            }
+                        }
+                    </script>
+                    <div class="sp2" id="dota_timer" style="{{=dota_timer_go}}">
                         <span>До старта<br>лотереи:</span>
-                        {{if(Lottery_DOTA.LeftTime < 0)}}
-                            <div><i>05</i>:<i>00</i></div>
-                        {{end}}
-                        {{else if(Lottery_DOTA.LeftTime > 0)}}
-                            {{set int MinutesDOTA = (Lottery_DOTA.LeftTime / 60)}}
-                            {{set int SecDOTA = Lottery_DOTA.LeftTime-60 * MinutesDOTA}}
-                            <div><i>0{{=MinutesDOTA}}</i>:
-                            <i>
-                                {{if(SecDOTA < 10)}}
-                                    0{{=SecDOTA}}
-                                {{end}}
-                                {{else}}
-                                    {{=SecDOTA}}
-                                {{end}}
-                            </i></div>
-                        {{end}}
-                        {{else}}
-                            <div><i>00</i>:<i>00</i></div>
-                        {{end}}
-                    </div>-->
-                    <div class="sp2 sp23">
-                        <b>Игра доступна</b>
+                        {{set int MinutesDOTA = (Lottery_DOTA.LeftTime / 60)}}
+                        {{set int SecDOTA = Lottery_DOTA.LeftTime-60 * MinutesDOTA}}
+                        <div><i id="dota_mins">0{{=MinutesDOTA}}</i>:
+                        <i id="dota_secs">
+                            {{if(SecDOTA < 10)}}
+                                0{{=((SecDOTA < 0) ? 0 : SecDOTA)}}
+                            {{end}}
+                            {{else}}
+                                {{=SecDOTA}}
+                            {{end}}
+                        </i></div>
                     </div>
-                    <div class="sp3"><span>Игроков</span><b>{{=Lottery_DOTA.UsersCount}}</b></div>
+                    <div class="sp2 sp23" id="dota_text" style="{{=dota_info_go}}">
+                        {{if(Lottery_DOTA.LeftTime < 0 && Lottery_DOTA.UsersCount == 0)}}
+                            <b>Ожидание первой ставки</b>
+                        {{end}}
+                        {{else if(Lottery_DOTA.LeftTime != 0)}}
+                            <b>Ожидание второго игрока</b>
+                        {{end}}   
+                        {{else}}
+                            <b>Определение победителя</b>
+                            <script>
+                                var rm_d2_worker = setInterval(function () {
+                                    $("#dota_text").html("<b>Ожидание первой ставки</b>");
+                                    $("#dota_timer").attr("style", "display:none;");
+                                    $("#dota_text").attr("style", "");
+
+                                    $("#dota_users_count").text("0");
+                                    $("#dota_jackpot").text("0");
+                                    $("#dota_jackpot_items").text("0");
+                                    clearInterval(rm_d2_worker);
+                                }, 30000);
+                            </script>
+                        {{end}}                 
+                    </div>
+                    <div class="sp3"><span>Игроков</span><b id="dota_users_count">{{=Lottery_DOTA.UsersCount}}</b></div>
                     <div class="sp4">
                         <div class="ll1">
                             <span>Сегодня сыграно</span>
-                            <div><i>{{=PageData["GameToday_DOTA"]}}</i> игр</div>
+                            <div><i id="dota_today_played">{{=PageData["GameToday_DOTA"]}}</i> игр</div>
                         </div>
                         <div class="rr1">
                             <span>Максимальный джекпот</span>
-                            <div class="">{{=PageData["MaxJackpot_DOTA"]}}</div>
+                            <div class="" id="dota_max_jackpot">{{=PageData["MaxJackpot_DOTA"]}}</div>
                         </div>
                     </div>
                 </div>
@@ -69,44 +165,55 @@
                 <div class="ov-inf1">
                     <div class="sp1">
                         <span>Банк</span>
-                        <div class="j1"><b>{{=Lottery_CSGO.JackpotPrice_Str}}</b></div>
-                        <div class="j2"><b>{{=Lottery_CSGO.JackpotItems}}</b> Предметов</div>
+                        <div class="j1"><b id="csgo_jackpot">{{=Lottery_CSGO.JackpotPrice_Str}}</b></div>
+                        <div class="j2"><b id="csgo_jackpot_items">{{=Lottery_CSGO.JackpotItems}}</b> Предметов</div>
                     </div>
-                    <!--<div class="sp2">
+                    <div class="sp2" id="csgo_timer" style="{{=csgo_timer_go}}">
                         <span>До старта<br>лотереи:</span>
-                        {{if(Lottery_CSGO.LeftTime < 0)}}
-                            <div><i>05</i>:<i>00</i></div>
-                        {{end}}
-                        {{else if(Lottery_CSGO.LeftTime > 0)}}
-                            {{set int MinutesCSGO = (Lottery_CSGO.LeftTime / 60)}}
-                            {{set int SecCSGO = Lottery_CSGO.LeftTime-60 * MinutesCSGO}}
-                            <div><i>0{{=MinutesCSGO}}</i>:
-                            <i>
-                                {{if(SecCSGO < 10)}}
-                                    0{{=SecCSGO}}
-                                {{end}}
-                                {{else}}
-                                    {{=SecCSGO}}
-                                {{end}}
-                            </i></div>
-                        {{end}}
-                        {{else}}
-                            <div><i>00</i>:<i>00</i></div>
-                        {{end}}
-                    </div>-->
-                    <div class="sp2 sp23">
-                        <b>Игра доступна</b>
+                        {{set int MinutesCSGO = (Lottery_CSGO.LeftTime / 60)}}
+                        {{set int SecCSGO = Lottery_CSGO.LeftTime-60 * MinutesCSGO}}
+                        <div><i id="csgo_mins">0{{=MinutesCSGO}}</i>:
+                        <i id="csgo_secs">
+                            {{if(SecCSGO < 10)}}
+                                0{{=((SecCSGO < 0) ? 0 : SecCSGO)}}
+                            {{end}}
+                            {{else}}
+                                {{=SecCSGO}}
+                            {{end}}
+                        </i></div>
                     </div>
+                    <div class="sp2 sp23" id="csgo_text" style="{{=csgo_info_go}}">
+                        {{if(Lottery_CSGO.LeftTime < 0 && Lottery_CSGO.UsersCount == 0)}}
+                            <b>Ожидание первой ставки</b>
+                        {{end}}
+                        {{else if(Lottery_CSGO.LeftTime != 0)}}
+                            <b>Ожидание второго игрока</b>
+                        {{end}}   
+                        {{else}}
+                            <b>Определение победителя</b>
+                            <script>
+                                var rm_cw_worker = setInterval(function () {
+                                    $("#csgo_text").html("<b>Ожидание первой ставки</b>");
+                                    $("#csgo_timer").attr("style", "display:none;");
+                                    $("#csgo_text").attr("style", "");
 
-                    <div class="sp3"><span>Игроков</span><b>{{=Lottery_CSGO.UsersCount}}</b></div>
+                                    $("#csgo_users_count").text("0");
+                                    $("#csgo_jackpot").text("0");
+                                    $("#csgo_jackpot_items").text("0");
+                                    clearInterval(rm_cw_worker);
+                                }, 30000);
+                            </script>
+                        {{end}}                 
+                    </div>
+                    <div class="sp3"><span>Игроков</span><b id="csgo_users_count">{{=Lottery_CSGO.UsersCount}}</b></div>
                     <div class="sp4">
                         <div class="ll1">
                             <span>Сегодня сыграно</span>
-                            <div><i>{{=PageData["GameToday_CSGO"]}}</i> игр</div>
+                            <div><i id="csgo_today_played">{{=PageData["GameToday_CSGO"]}}</i> игр</div>
                         </div>
                         <div class="rr1">
                             <span>Максимальный джекпот</span>
-                            <div class="">{{=PageData["MaxJackpot_CSGO"]}}</div>
+                            <div class="" id="csgo_max_jackpot">{{=PageData["MaxJackpot_CSGO"]}}</div>
                         </div>
                     </div>
                 </div>

@@ -4,6 +4,7 @@
     var GetMyInventoryPage, MyInventoryPage_SteamGameID = false;
     var MyGroupPageConnect, MyGroupPage_GroupID = false;
     var GroupPageConnect, GroupPage_GroupID = false;
+    var OnMainPage = false;
 
     var LotteryPageConnect, LotteryPage_LotteryID = false;
     var LotteryPage_GetInventory, LotteryPage_GetInventory_SteamGameID = false;
@@ -579,6 +580,121 @@
             }
         }
 
+        else if(OnMainPage)
+        {
+            if (data[0] == "MainPageLotteries") {
+
+                var GamersCount = data[2];
+                var Jackpot = data[3];
+                var LotteryLeftTime = data[4];
+                var JackpotItemsNum = data[5];
+                var TodayGamesNum = data[6];
+                var MaxJackPotPrice = data[7];
+
+                if(data[1] == "570")
+                {
+                    $("#dota_users_count").text(GamersCount);
+                    $("#dota_jackpot").text(Jackpot);
+                    $("#dota_jackpot_items").text(JackpotItemsNum);
+                    $("#dota_today_played").text(TodayGamesNum);
+                    $("#dota_max_jackpot").text(MaxJackPotPrice);
+
+                    if (LotteryLeftTime < 0 && GamersCount == 0) {
+                        dota_use_timer = false;
+                        $("#dota_text").html("<b>Ожидание первой ставки</b>");
+                        $("#dota_timer").attr("style", "display:none;");
+                        $("#dota_text").attr("style", "");
+                    }
+                    else if (LotteryLeftTime != 0) {
+
+                        if (GamersCount > 1) {
+                            dota_use_timer = true;
+                            dota_left_secs = LotteryLeftTime;
+                            $("#dota_timer").attr("style", "");
+                            $("#dota_text").attr("style", "display:none;");
+                        }
+                        else {
+                            dota_use_timer = false;
+                            $("#dota_text").html("<b>Ожидание второго игрока</b>");
+                            $("#dota_timer").attr("style", "display:none;");
+                            $("#dota_text").attr("style", "");
+                        }
+                    }
+                    else
+                    {
+                        console.log("ending lottery --dota");
+                        dota_use_timer = false;
+                        $("#dota_text").html("<b>Определение победителя</b>");
+                        $("#dota_timer").attr("style", "display:none;");
+                        $("#dota_text").attr("style", "");
+
+                        var rm_worker = setInterval(function () {
+                            $("#dota_text").html("<b>Ожидание первой ставки</b>");
+                            $("#dota_timer").attr("style", "display:none;");
+                            $("#dota_text").attr("style", "");
+
+                            $("#dota_users_count").text("0");
+                            $("#dota_jackpot").text("0");
+                            $("#dota_jackpot_items").text("0");
+
+                            clearInterval(rm_worker);
+
+                        }, 30000);
+                    }
+                }
+
+                else if (data[1] == "730") {
+                    $("#csgo_users_count").text(GamersCount);
+                    $("#csgo_jackpot").text(Jackpot);
+                    $("#csgo_jackpot_items").text(JackpotItemsNum);
+                    $("#csgo_today_played").text(TodayGamesNum);
+                    $("#csgo_max_jackpot").text(MaxJackPotPrice);
+
+                    if (LotteryLeftTime < 0 && GamersCount == 0) {
+                        csgo_use_timer = false;
+                        $("#csgo_text").html("<b>Ожидание первой ставки</b>");
+                        $("#csgo_timer").attr("style", "display:none;");
+                        $("#csgo_text").attr("style", "");
+                    }
+                    else if (LotteryLeftTime != 0) {
+
+                        if (GamersCount > 1) {
+                            csgo_use_timer = true;
+                            csgo_left_secs = LotteryLeftTime;
+                            $("#csgo_timer").attr("style", "");
+                            $("#csgo_text").attr("style", "display:none;");
+                        }
+                        else {
+                            csgouse_timer = false;
+                            $("#csgo_text").html("<b>Ожидание второго игрока</b>");
+                            $("#csgo_timer").attr("style", "display:none;");
+                            $("#csgo_text").attr("style", "");
+                        }
+                    }
+                    else {
+                        console.log("ending lottery --csgo");
+                        csgo_use_timer = false;
+                        $("#csgo_text").html("<b>Определение победителя</b>");
+                        $("#csgo_timer").attr("style", "display:none;");
+                        $("#csgo_text").attr("style", "");
+
+                        var rmg_worker = setInterval(function () {
+                            $("#csgo_text").html("<b>Ожидание первой ставки</b>");
+                            $("#csgo_timer").attr("style", "display:none;");
+                            $("#csgo_text").attr("style", "");
+
+                            $("#csgo_users_count").text("0");
+                            $("#csgo_jackpot").text("0");
+                            $("#csgo_jackpot_items").text("0");
+
+                            clearInterval(rmg_worker);
+
+                        }, 30000);
+                    }
+                }
+            }
+        }
+
         else if(LotteryPageConnect)
         {
             LoadSteamInventoryData(data);
@@ -885,6 +1001,7 @@
                     }
                 }
             }
+
         }
     };
     function rull_done()

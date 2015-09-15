@@ -1220,10 +1220,9 @@ namespace GameSlot.Helpers
             }
         }
 
-
-        // RECORED: 
         public XLottery[] TodaysGames(uint SteamGameID, out double JackpotPriceRecord, out int JackpotItemsRecord, ushort currency)
         {
+            // TODO: закэшировать эту информацию
             XLottery[] csgo;
             double price = 0d;
             int items = 0;
@@ -1266,6 +1265,7 @@ namespace GameSlot.Helpers
 
         public double MaxJackpot(uint SteamGameID, out int ItemsRecord, ushort currency)
         {
+            // TODO: закэшировать эту информацию
             double price = 0d;
             int JackpotItemsNum = 0;
 

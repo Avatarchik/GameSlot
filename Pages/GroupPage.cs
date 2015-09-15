@@ -30,37 +30,27 @@ namespace GameSlot.Pages
         {
             uint id;
             UGroup Group;
-            XUser User;
-            if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out id) && Helper.GroupHelper.SelectByID(id, out Group, out User, client))
+            XUser Owner;
+            if (uint.TryParse(BaseFuncs.GetAdditionalURLArray(client.URL, this.URL)[0], out id) && Helper.GroupHelper.SelectByID(id, out Group, out Owner, client))
             {
                 Hashtable data = new Hashtable();
-                data.Add("Owner", User);
+                data.Add("Owner", Owner);
 
-                bool InGroup = Helper.UserHelper.GetCurrentUser(client, out User) && User.GroupOwnerID == Group.ID ? true : false;
-                bool InOtherGroup = !InGroup && User.GroupOwnerID >= 0 ? true : false;
+                XUser CurrentUser;
+                bool InGroup = Helper.UserHelper.GetCurrentUser(client, out CurrentUser) && CurrentUser.GroupOwnerID == Group.ID ? true : false;
+                bool InOtherGroup = !InGroup && CurrentUser.GroupOwnerID >= 0 ? true : false;
 
                 data.Add("Group", Group);
                 data.Add("InGroup", InGroup);
                 data.Add("InOtherGroup", InOtherGroup);
 
-                data.Add("Title", "Тусовка пользователя " + User.Name);
+                data.Add("Title", "Тусовка пользователя " + Owner.Name);
                 client.HttpSend(TemplateActivator.Activate(this, client, data));
                 return true;
             }
 
             BaseFuncs.Show404(client);
             return false;
-        }
-
-        public int GetGroupWinrate(uint GroupID)
-        {
-            int winrate = 0;
-            int count = 0;
-            //uint totalprice
-            XLottery[] Lotteries;
-            
-
-            return winrate;
         }
     }
 }
