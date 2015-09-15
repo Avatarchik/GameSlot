@@ -697,6 +697,7 @@ namespace GameSlot.Helpers
                 XSteamBotProcessItems XSteamBotProcessItems = new XSteamBotProcessItems();
                 XSteamBotProcessItems.SteamItemIDs = new uint[24];
                 XSteamBotProcessItems.ItemAssertIDs = new ulong[24];
+                XSteamBotProcessItems.SteamItemsNum = 0;
 
                 string SteamInventory_String = null;
 
@@ -1105,16 +1106,26 @@ namespace GameSlot.Helpers
 
                         // canceling other offer requests
                         XSteamBotProcessItems[] ProcessItems;
-                        while (Helper.SteamBotHelper.Table_Items.SelectArr(data => data.UserSteamID == User.SteamID && (data.Status == 1), out ProcessItems))
+                        while (Helper.SteamBotHelper.Table_Items.SelectArr(data => data.UserSteamID == User.SteamID && (data.Status <= 1), out ProcessItems))
                         {
                             for (int i = 0; i < ProcessItems.Length; i++ )
                             {
-                                Logger.ConsoleLog("Trying to decline offer: " + ProcessItems[i].OfferID);
-                                UpTunnel.Sender.Send(UTSteam.sk, "decline:" + ProcessItems[i].OfferID);
-
-                                while (Helper.SteamBotHelper.Table_Items.SelectByID(ProcessItems[i].ID).Status == 1)
+                                if (ProcessItems[i].Status == 0)
                                 {
-                                    Thread.Sleep(100);
+                                    XSteamBotProcessItems stb = Helper.SteamBotHelper.Table_Items.SelectByID(ProcessItems[i].ID);
+                                    stb.Status = 8;
+                                    stb.StatusChangedTime = Helper.GetCurrentTime();
+                                    Helper.SteamBotHelper.Table_Items.UpdateByID(stb, stb.ID);
+                                }
+                                else
+                                {
+                                    Logger.ConsoleLog("Trying to decline offer: " + ProcessItems[i].OfferID);
+                                    UpTunnel.Sender.Send(UTSteam.sk, "decline:" + ProcessItems[i].OfferID);
+
+                                    while (Helper.SteamBotHelper.Table_Items.SelectByID(ProcessItems[i].ID).Status == 1)
+                                    {
+                                        Thread.Sleep(100);
+                                    }
                                 }
                             }
                         }

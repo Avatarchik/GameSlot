@@ -258,11 +258,11 @@ namespace GameSlot
                                 if (XBotsOffer[i].OfferID == 0)
                                 {
                                     Logger.ConsoleLog("Trying to decline offer with 0 offer_id status:" + XBotsOffer[i].Status + " UserID:" + XBotsOffer[i].UserID
-                                        + " SteamUserID:" + XBotsOffer[i].SteamUserID, ConsoleColor.Yellow, LogLevel.Error);
+                                        + " SteamUserID:" + XBotsOffer[i].SteamUserID + "ItemsNum: " + XBotsOffer[i].BotID, ConsoleColor.Yellow, LogLevel.Error);
 
-                                    XBotsOffer XBotsOffer_fail = Helper.SteamBotHelper.Table_BotsOffer.SelectByID(XBotsOffer[i].ID);
+                                    /*XBotsOffer XBotsOffer_fail = Helper.SteamBotHelper.Table_BotsOffer.SelectByID(XBotsOffer[i].ID);
                                     XBotsOffer_fail.Status = 5;
-                                    Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer_fail, XBotsOffer_fail.ID);
+                                    Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer_fail, XBotsOffer_fail.ID);*/
 
                                     continue;
                                 }

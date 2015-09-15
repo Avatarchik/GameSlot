@@ -34,7 +34,7 @@ namespace GameSlot.Database
         [FieldOffset(304)]
         public ushort SteamItemsNum;
 
-        // 0: standart, 1: sent offer, 2: accepted, 4: user declined, 5: sent_error, 6: system declined, 7: no_offer (losted)
+        // 0: standart, 1: sent offer, 2: accepted, 4: user declined, 5: sent_error, 6: system declined, 7: no_offer (losted); 8: declined_before_sent
         [MarshalAs(UnmanagedType.U2)]
         [FieldOffset(306)]
         public ushort Status;
