@@ -40,6 +40,11 @@ namespace GameSlot.Pages
                 SteamGameID = Configs.CSGO_STEAM_GAME_ID;
                 title = "CSGO";
             }
+            else if (Game.Equals("current"))
+            {
+                SteamGameID = 0;
+                title = "";
+            }
             else
             {
                 BaseFuncs.Show404(client);
@@ -69,7 +74,7 @@ namespace GameSlot.Pages
             {
                 Helper.LotteryHelper.Table.SelectArrFromEnd(data =>
                 {
-                    if (data.SteamGameID == SteamGameID && data.WinnersToken > 0)
+                    if (((SteamGameID == 0) ? true : data.SteamGameID == SteamGameID) && data.WinnersToken > 0)
                     {
                         XLotteryBet b;
                         if (Helper.LotteryHelper.TableBet.SelectOne(bt => bt.LotteryID == data.ID && bt.UserID == user.ID, out b))
@@ -84,7 +89,7 @@ namespace GameSlot.Pages
             }
             else
             {
-                Helper.LotteryHelper.Table.SelectArrFromEnd(data => data.SteamGameID == SteamGameID && data.WinnersToken > 0, out Lots);
+                Helper.LotteryHelper.Table.SelectArrFromEnd(data => ((SteamGameID == 0) ? true : data.SteamGameID == SteamGameID) && data.WinnersToken > 0, out Lots);
             }
 
             if(from >= Lots.Length)
@@ -109,7 +114,7 @@ namespace GameSlot.Pages
             page_data.Add("MyLots", MyLots);
             page_data.Add("Lotteries", LotteryList);
             page_data.Add("SteamGameID", SteamGameID);
-            page_data.Add("GameURL", (SteamGameID == 570) ? "dota2" : "csgo");
+            page_data.Add("GameURL", Game);
             page_data.Add("From", from);
             page_data.Add("ShowNum", ShowNum);
             page_data.Add("Currency", currency);

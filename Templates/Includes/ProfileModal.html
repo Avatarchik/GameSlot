@@ -1,8 +1,19 @@
 ﻿<script>
+    var can_GetUsersProfile = true;
     function GetUsersProfile(id)
     {
-        $("#user_profile_modal #last_games").html("<div style='display:none;' id='last_position'></div>");
-        ws.send("GetProfile{{=BaseFuncs.WSplit}}" + id);
+        if (can_GetUsersProfile) {
+            can_GetUsersProfile = false;
+            $("#user_profile_modal #last_games").html("<div style='display:none;' id='last_position'></div>");
+            ws.send("GetProfile{{=BaseFuncs.WSplit}}" + id);
+        }
+
+        return false;
+    }
+
+    function cancel_get_profiles()
+    {
+        can_GetUsersProfile = true;
         return false;
     }
 </script>
@@ -23,7 +34,7 @@
     <div class="modal-tb">
         <div class="bg-modal"></div>
         <div class="modal-con m2">
-            <div class="close1">Закрыть</div>
+            <div class="close1" onclick="return cancel_get_profiles();">Закрыть</div>
             <div class="people-inf1">
                 <div class="ll1">
                     <a href="" id="profile_url" target="_blank">

@@ -29,6 +29,18 @@
     var local_inventory_getlastpage_disabled = false;
     var local_inventory_getfirstpage_disabled = false;
 
+    function sound_bet_come() {
+        var audio = new Audio(); 
+        audio.src = '/cached_files/audio/bet_come.mp3'; 
+        audio.autoplay = true; 
+    }
+
+    function sound_winner_setted() {
+        var audio = new Audio();
+        audio.src = '/cached_files/audio/winner.mp3';
+        audio.autoplay = true;
+    }
+
     $("document").ready(function () {
         $("input#search_in_steam_inventory").keyup(function ()
         {
@@ -549,6 +561,7 @@
                 horizontalScroll: false,
                 mouseWheelPixels: 300
             });
+            can_GetUsersProfile = true;
         }
 
         if (data[0] == "UpdateOnlineUsers") {
@@ -764,6 +777,8 @@
 
             if (data[0] == "AddedNewLotteryBet")
             {
+                sound_bet_come();
+
                 var html_block = $("div#new_bet").html();
                 html_block = html_block.replace("[BET_ITEMS_NUM]", data[5]);
                 html_block = html_block.replace("[BET_PRICE]", data[10]);
@@ -863,11 +878,6 @@
                     $(this).find('.tiltp').css({ 'margin-left': -($(this).find('.tiltp').width() * 0.5 + 10) })
                 });
 
-                $(".content3." + random_hash).mCustomScrollbar({
-                    horizontalScroll: false,
-                    mouseWheelPixels: 300
-                });
-
                 console.log("extra time: " + data[4] + "; users:" + data[25] + "; left secs: " + data[18]);
                 if (data[25] > 0)
                 {
@@ -920,6 +930,9 @@
 
             else if(data[0] == "LotteryRouletteStarted")
             {
+                sound_bet_come();
+                $("div.modal").removeClass("active");
+
                 var users = data[12].split('↓');
                 var avatars_html = "";
                 for (var i = 0; i < users.length - 1; i++)
@@ -1072,6 +1085,8 @@
     };
     function rull_done()
     {
+        sound_winner_setted();
+
         setTimeout(function ()
         {
             $("div#lottery_roulette_format").attr("style", "display:none;");

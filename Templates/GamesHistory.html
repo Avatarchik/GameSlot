@@ -31,22 +31,36 @@
                             <i>Игры:</i>
                             {{if(!MyLots)}}
                                 {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                                    <a href="/games-history/current">Общая</a>
                                     <a class="active">Dota2</a>
-                                    <a href="/games-history/csgo">Cs go</a>
+                                    <a href="/games-history/csgo">CS GO</a>
                                 {{end}}
                                 {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
-                                <a href="/games-history/dota2">Dota2</a>
-                                <a class="active">Cs go</a>
+                                    <a href="/games-history/current">Общая</a>
+                                    <a href="/games-history/dota2">Dota2</a>
+                                    <a class="active">CSGO</a>
+                                {{end}}
+                                {{else if(SteamGameID == 0)}}
+                                    <a class="active">Общая</a>
+                                    <a href="/games-history/dota2">Dota2</a>
+                                    <a href="/games-history/csgo">CS GO</a>
                                 {{end}}
                             {{end}}
                             {{else}}
                                 {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
-                                    <a class="active">DOTA2</a>
+                                    <a href="/games-history/current/my">Общая</a>
+                                    <a class="active">Dota2</a>
                                     <a href="/games-history/csgo/my">CS GO</a>
                                 {{end}}
                                 {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
-                                <a href="/games-history/dota2/my">DOTA2</a>
-                                <a class="active">CS GO</a>
+                                    <a href="/games-history/current/my">Общая</a>
+                                    <a href="/games-history/dota2/my">Dota2</a>
+                                    <a class="active">CSGO</a>
+                                {{end}}
+                                {{else if(SteamGameID == 0)}}
+                                    <a class="active">Общая</a>
+                                    <a href="/games-history/dota2/my">Dota2</a>
+                                    <a href="/games-history/csgo/my">CS GO</a>
                                 {{end}}
                             {{end}}
                         </div>

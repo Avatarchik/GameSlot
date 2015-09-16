@@ -607,6 +607,10 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\img\icons-sd18a6584c5.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\audio\bet_come.mp3" />
+    <EmbeddedResource Include="Content\Cache\audio\winner.mp3" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

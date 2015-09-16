@@ -141,7 +141,7 @@ namespace GameSlot.Pages
             page_data.Add("GameURL", Game);
             page_data.Add("From", from);
             page_data.Add("ShowNum", ShowNum);
-            page_data.Add("UsersNum", TopPlayers.Count);
+            page_data.Add("UsersNum", Users.Count);
             page_data.Add("Title", title);
             client.HttpSend(TemplateActivator.Activate(this, client, page_data));
             return true;
