@@ -609,8 +609,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\audio\bet_come.mp3" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Content\Cache\audio\winner.mp3" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

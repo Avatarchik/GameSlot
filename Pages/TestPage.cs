@@ -183,6 +183,22 @@ namespace GameSlot.Pages
                         }
                     }
 
+                    Logger.ConsoleLog("All: " + Helper.SteamItemsHelper.Table.SelectAll().Count, ConsoleColor.Cyan);
+
+                }
+
+                else if (client.GetParam("update_price_by_rusname") != null)
+                {
+                    XSteamItem SteamItem;
+                    if (Helper.SteamItemsHelper.Table.SelectOne(data => data.RusName == client.GetParam("update_price_by_rusname"), out SteamItem))
+                    {
+                        SteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(SteamItem.Name, SteamItem.SteamGameID);
+                        Helper.SteamItemsHelper.Table.UpdateByID(SteamItem, SteamItem.ID);
+                        Logger.ConsoleLog("Found" + SteamItem.ID, ConsoleColor.Cyan);
+                    }
+                    else
+                        Logger.ConsoleLog("Not found", ConsoleColor.Cyan);
+
                 }
             }
 
