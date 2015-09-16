@@ -29,6 +29,8 @@
     var local_inventory_getlastpage_disabled = false;
     var local_inventory_getfirstpage_disabled = false;
 
+    var IGNORE_LOTTERY_ROULETTE_AUTO_UPDATE = false;
+
     function sound_bet_come() {
         var audio = new Audio(); 
         audio.src = '/cached_files/audio/bet_come.mp3'; 
@@ -930,79 +932,79 @@
 
             else if(data[0] == "LotteryRouletteStarted")
             {
-                sound_bet_come();
-                $("div.modal").removeClass("active");
+                if (!IGNORE_LOTTERY_ROULETTE_AUTO_UPDATE) {
+                    sound_bet_come();
+                    $("div.modal").removeClass("active");
 
-                var users = data[12].split('↓');
-                var avatars_html = "";
-                for (var i = 0; i < users.length - 1; i++)
-                {
-                    var user = users[i].split('↑');
-                    if (user[2] == "1") {
-                        avatars_html += "<div dt='" + user[1] + "' class='item1 win1'><img src='" + user[0] + "' alt=''></div>";
+                    var users = data[12].split('↓');
+                    var avatars_html = "";
+                    for (var i = 0; i < users.length - 1; i++) {
+                        var user = users[i].split('↑');
+                        if (user[2] == "1") {
+                            avatars_html += "<div dt='" + user[1] + "' class='item1 win1'><img src='" + user[0] + "' alt=''></div>";
+                        }
+                        else {
+                            avatars_html += "<div dt='" + user[1] + "' class='item1'><img src='" + user[0] + "' alt=''></div>";
+                        }
                     }
-                    else {
-                        avatars_html += "<div dt='" + user[1] + "' class='item1'><img src='" + user[0] + "' alt=''></div>";
+
+                    $("div#lottery_roulette_format div#users_ball").html(avatars_html);
+                    $("div#lottery_standart_form").attr("style", "display:none;");
+                    $("div#lottery_started_format").attr("style", "display:none;");
+
+                    $("div#lottery_roulette_format div#raund_number").html($("div#lottery_roulette_format div#raund_number").html() + data[5]);
+
+                    $("div#lottery_roulette_format b#jackpot_items").text(data[1]);
+                    $("div#lottery_roulette_format i#jackpot_price").text(data[2]);
+
+
+                    $("div#lottery_roulette_format").attr("style", "display:block;");
+                    $("div#bet_sys").attr('style', 'display:none;');
+
+                    /* trash code start */
+                    $('.ov-elem1.j1 .item1').each(function () {
+                        $(this).clone().appendTo('.ov-elem1.j3');
+                        $(this).clone().prependTo('.ov-elem1.j2');
+                    });
+                    sp3 = $('.ov-elem1.j2 .item1').length - $('.ov-elem1.j2 .item1.win1').index() - 6;
+                    $('.ov-elem1').width($('.ov-elem1.j1 .item1').length * 108);
+                    sp2 = $('.ov-elem1.j1 .item1').length;
+                    j3 = $('.ov-elem1.j1 .item1').length - 1;
+                    /* trash code end */
+
+                    /* updating end data */
+                    $("div#lottery_end_format own#hash_number").text(data[14]);
+
+                    $("div#lottery_end_format own#raund_number").text(data[5]);
+                    $("div#lottery_end_format own#winners_token").text(data[6]);
+                    $("div#lottery_end_format own#bank_cent").text(data[7]);
+
+                    $("div#lottery_end_format div#jackpot_price").text(data[2]);
+                    $("div#lottery_end_format span#jackpot_items").text(data[1]);
+
+                    $("div#lottery_end_format img#winners_avatar").attr('src', data[8]);
+
+                    $("div#lottery_end_format #won_open_winners_profile").attr('onclick', "return GetUsersProfile(" + data[3] + ");");
+
+                    $("div#lottery_end_format div#winners_name").text(data[4]);
+
+                    $("div#lottery_end_format b#winners_bet_items_num").text(data[10]);
+                    $("div#lottery_end_format b#winners_bet_price").text(data[11]);
+
+                    $("div#lottery_end_format div#winners_wonrate").text(data[9] + "%");
+
+                    if (data[13] == 1) {
+                        $(".fk15").removeClass("fk151");
+                        $(".rr11").removeClass("rr111");
+                        $("#msg_to_winner").removeAttr("style")
                     }
+
+                    /* end updating here */
+
+                    rull();
+                    rrch();
+                    console.log("LotteryRouletteStarted");
                 }
-
-                $("div#lottery_roulette_format div#users_ball").html(avatars_html);
-                $("div#lottery_standart_form").attr("style", "display:none;");
-                $("div#lottery_started_format").attr("style", "display:none;");
-
-                $("div#lottery_roulette_format div#raund_number").html($("div#lottery_roulette_format div#raund_number").html() + data[5]);
-
-                $("div#lottery_roulette_format b#jackpot_items").text(data[1]);
-                $("div#lottery_roulette_format i#jackpot_price").text(data[2]);
-
-
-                $("div#lottery_roulette_format").attr("style", "display:block;");
-                $("div#bet_sys").attr('style', 'display:none;');
-
-                /* trash code start */
-                $('.ov-elem1.j1 .item1').each(function () {
-                    $(this).clone().appendTo('.ov-elem1.j3');
-                    $(this).clone().prependTo('.ov-elem1.j2');
-                });
-                sp3 = $('.ov-elem1.j2 .item1').length - $('.ov-elem1.j2 .item1.win1').index() - 6;
-                $('.ov-elem1').width($('.ov-elem1.j1 .item1').length * 108);
-                sp2 = $('.ov-elem1.j1 .item1').length;
-                j3 = $('.ov-elem1.j1 .item1').length - 1;
-                /* trash code end */
-
-                /* updating end data */
-                $("div#lottery_end_format own#hash_number").text(data[14]);
-
-                $("div#lottery_end_format own#raund_number").text(data[5]);
-                $("div#lottery_end_format own#winners_token").text(data[6]);
-                $("div#lottery_end_format own#bank_cent").text(data[7]);
-
-                $("div#lottery_end_format div#jackpot_price").text(data[2]);
-                $("div#lottery_end_format span#jackpot_items").text(data[1]);
-
-                $("div#lottery_end_format img#winners_avatar").attr('src', data[8]);
-
-                $("div#lottery_end_format #won_open_winners_profile").attr('onclick', "return GetUsersProfile(" + data[3] + ");");
-
-                $("div#lottery_end_format div#winners_name").text(data[4]);
-
-                $("div#lottery_end_format b#winners_bet_items_num").text(data[10]);
-                $("div#lottery_end_format b#winners_bet_price").text(data[11]);
-
-                $("div#lottery_end_format div#winners_wonrate").text(data[9] + "%");
-
-                if (data[13] == 1)
-                {
-                    $(".fk15").removeClass("fk151");
-                    $(".rr11").removeClass("rr111");
-                    $("#msg_to_winner").removeAttr("style")
-                }
-
-                /* end updating here */
-
-                rull();
-                rrch();
-                console.log("LotteryRouletteStarted");
             }
 
             else if (data[0] == "BetDone")

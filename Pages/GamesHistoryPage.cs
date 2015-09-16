@@ -68,13 +68,14 @@ namespace GameSlot.Pages
                     from = 0;
                 }
             }
+            int CurrentTime = Helper.GetCurrentTime();
 
             XUser user;
             if (urls.Length > 1 && urls[1].Equals("my") && Helper.UserHelper.GetCurrentUser(client, out user))
             {
                 Helper.LotteryHelper.Table.SelectArrFromEnd(data =>
                 {
-                    if (((SteamGameID == 0) ? true : data.SteamGameID == SteamGameID) && data.WinnersToken > 0)
+                    if (((SteamGameID == 0) ? true : data.SteamGameID == SteamGameID) && data.WinnersToken > 0 && (data.EndTime + 30) < CurrentTime)
                     {
                         XLotteryBet b;
                         if (Helper.LotteryHelper.TableBet.SelectOne(bt => bt.LotteryID == data.ID && bt.UserID == user.ID, out b))
@@ -89,7 +90,7 @@ namespace GameSlot.Pages
             }
             else
             {
-                Helper.LotteryHelper.Table.SelectArrFromEnd(data => ((SteamGameID == 0) ? true : data.SteamGameID == SteamGameID) && data.WinnersToken > 0, out Lots);
+                Helper.LotteryHelper.Table.SelectArrFromEnd(data => ((SteamGameID == 0) ? true : data.SteamGameID == SteamGameID) && data.WinnersToken > 0 && (data.EndTime + 30) < CurrentTime, out Lots);
             }
 
             if(from >= Lots.Length)

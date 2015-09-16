@@ -103,14 +103,14 @@ namespace GameSlot.Pages.Includes
                         }
 
                         string Games = "";
-
+                        int CurrentTime = Helper.GetCurrentTime();
                         XLottery[] Lots = new XLottery[0];
                         Helper.LotteryHelper.Table.SelectArrFromEnd(data =>
                         {
                             if (data.WinnersToken > 0)
                             {
                                 XLotteryBet b;
-                                if (Helper.LotteryHelper.TableBet.SelectOne(bt => bt.LotteryID == data.ID && bt.UserID == user.ID, out b))
+                                if (Helper.LotteryHelper.TableBet.SelectOne(bt => bt.LotteryID == data.ID && bt.UserID == user.ID && (data.EndTime + 30) <= CurrentTime, out b))
                                 {
                                     int wr = Convert.ToInt32(Math.Round((100 * data.WinnersBetPrice) / data.JackpotPrice));
                                     string jc = "";

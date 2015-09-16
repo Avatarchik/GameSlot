@@ -34,6 +34,8 @@ namespace GameSlot.Helpers
         private static readonly object _RUB_MaxJackpotPrice = new object();
         private static readonly object _ItemsRecord = new object();
 
+        private static Dictionary<uint, List<LotteryRouletteData>> LotteryRouletteData = new Dictionary<uint, List<LotteryRouletteData>>();
+
         public LotteryHelper()
         {
             new Thread(delegate()
@@ -57,6 +59,15 @@ namespace GameSlot.Helpers
             }).Start();
         }
 
+        public List<LotteryRouletteData> GetLotteryRouletteData(uint SteamGameID)
+        {
+            if(LotteryHelper.LotteryRouletteData.ContainsKey(SteamGameID))
+            {
+                return LotteryHelper.LotteryRouletteData[SteamGameID];
+            }
+
+            return new List<LotteryRouletteData>();
+        }
         public void UpdateRecords(uint SteamGameID)
         {
             int ItemsRecord;
@@ -241,6 +252,15 @@ namespace GameSlot.Helpers
                         winners_data.Token = XLottery.WinnersToken;
                         winners_data.Winner = 1;
                         RouletteData.Insert(RouletteData.Count - 20, winners_data);
+
+                        if (LotteryHelper.LotteryRouletteData.ContainsKey(SteamGameID))
+                        {
+                            LotteryHelper.LotteryRouletteData[SteamGameID] = RouletteData;
+                        }
+                        else
+                        {
+                            LotteryHelper.LotteryRouletteData.Add(SteamGameID, RouletteData);
+                        }
 
                         XLottery.Wonrate = (int)Math.Round(TotalPrice_WinnersBets / (XLottery.JackpotPrice / 100));
                         XLottery.WinnerGroupID = WinnerUser.GroupOwnerID;
@@ -554,7 +574,7 @@ namespace GameSlot.Helpers
         public Lottery GetCurrent(uint SteamGameID, Client client)
         {
             List<XLottery> xlots;
-            this.Table.Select(data => data.SteamGameID == SteamGameID && (data.StartTime <= Helper.GetCurrentTime() || data.StartTime == 0), out xlots);
+            this.Table.Select(data => data.SteamGameID == SteamGameID && (data.StartTime < Helper.GetCurrentTime() || data.StartTime == 0), out xlots);
 
             Lottery lot;
             this.GetLottery(xlots[xlots.Count - 1].ID, client, out lot);

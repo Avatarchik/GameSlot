@@ -246,7 +246,87 @@
             </div>
         {{end}}
         {{else}}
-            <div class="pl-big-st1 pl-big-st11 pl-big-st112">
+            {{set string LOT_DONE = "display:block;"}}
+            {{if(Lottery.LeftTimeNextGame > 0)}}
+                {{edit LOT_DONE = "display:none;"}}
+                <script>
+                    IGNORE_LOTTERY_ROULETTE_AUTO_UPDATE = true;
+                    sound_bet_come();
+                </script>
+                <div id="lottery_roulette_format">
+                    <div class="pl-big-st1 pl-big-st13">
+                        <div class="bg-dsk1">
+                            <i></i>
+                            <div></div>
+                        </div>
+                        <div class="fk4 fk41"></div>
+                        <div class="fk5"></div>
+                        <div class="fk6 fk61"></div>
+                        <div class="fk10"></div>
+                        <div class="cont-pl1">
+                            <div class="bt-con-numb1">
+                                <div class="numb1">
+                                    <div><span>Номер<br>Игры</span></div>
+                                    <i>{{=Lottery.IDStr}}</i>
+                                </div>
+                                <div class="dj1">
+                                    <div><span>Джек<br>пот</span></div>
+                                    <i class="numb2"><b>{{=Lottery.JackpotItems}}</b> предметов</i>
+                                </div>
+                                <div class="dj2">
+                                    <div><span></span></div>
+                                    <i class="rub1">{{=Lottery.JackpotPrice_Str}}</i>
+                                </div>
+                            </div>
+                            <div class="bg-stl1">
+                                <div class="line1">
+                                    <div class="ov-elem1 j1">
+                                        {{foreach(LotteryRouletteData RouData in Helper.LotteryHelper.GetLotteryRouletteData(Lottery.SteamGameID))}}
+                                            {{if(RouData.Winner == 1)}}
+                                                <div dt='{{=RouData.Token.ToString("00000000")}}' class='item1 win1'><img src='{{=RouData.UsersAvatar}}'></div>
+                                            {{end}}
+                                            {{else}}
+                                                <div dt='{{=RouData.Token.ToString("00000000")}}' class='item1'><img src='{{=RouData.UsersAvatar}}'></div>
+                                            {{end}}
+                                        {{end}}
+                                    </div>
+                                </div>
+                                <div class="line2">
+                                    <div class="ov-elem1 j2"></div>
+                                </div>
+                                <div class="line3">
+                                    <div class="ov-elem1 j3"></div>
+                                </div>
+                                <div class="win-bl1"></div>
+                            </div>
+                            <div class="rt-con-bottom1">
+                                <div class="lt-l1">
+                                    <div><span>Число судьбы: {{=Lottery.RaundNumber}}</span></div>
+                                    <a href="/fair-play" target="_blank" class="lnk1">Принципы честной игры</a>
+                                </div>
+                                <div class="rr-chet1">00000000</div>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    /* trash code start */
+                    $('.ov-elem1.j1 .item1').each(function () {
+                        $(this).clone().appendTo('.ov-elem1.j3');
+                        $(this).clone().prependTo('.ov-elem1.j2');
+                    });
+                    sp3 = $('.ov-elem1.j2 .item1').length - $('.ov-elem1.j2 .item1.win1').index() - 6;
+                    $('.ov-elem1').width($('.ov-elem1.j1 .item1').length * 108);
+                    sp2 = $('.ov-elem1.j1 .item1').length;
+                    j3 = $('.ov-elem1.j1 .item1').length - 1;
+                    /* trash code end */
+                    rull();
+                    rrch();
+                </script>
+            {{end}}
+
+            <div class="pl-big-st1 pl-big-st11 pl-big-st112" id="lottery_end_format" style="{{=LOT_DONE}}">
                 <div class="bg-dsk1">
                     <i></i>
                     <div></div>
@@ -305,30 +385,11 @@
                                     <div class="win-bl1"><div><img src="{{=Lottery.Winner.Avatar}}" alt="{{=Lottery.Winner.Name}}"></div></div>
                                 </a>
                                 <div class="np-ett1">{{=Lottery.Winner.Name}}</div>
-                                {{if(Lottery.LeftTimeNextGame > 0)}}
-                                    <div id="ower_timer">
-                                        <div class="ep-nt-text1">Следующая игра<br>начнётся через</div>
-                                        {{set int Minutes_ower = (Lottery.LeftTimeNextGame / 60)}}
-                                        {{set int Sec_ower = Lottery.LeftTimeNextGame-60 * Minutes_ower}}
-                                        <div class="ch-tt1"><span id="ower_mins">00</span><i>:</i>
-                                            <span id="ower_secs">
-                                                {{if(Sec_ower < 10)}}
-                                                    0{{=Sec_ower}}
-                                                {{end}}
-                                                {{else}}
-                                                    {{=Sec_ower}}
-                                                {{end}}
-                                            </span>
-                                        </div>
-                                    </div>
+                                {{if(ItsHistory)}}
+                                    <a href="/games-history/{{=Game}}" class="new-game">НАЗАД</a>
                                 {{end}}
                                 {{else}}
-                                    {{if(ItsHistory)}}
-                                        <a href="/games-history/{{=Game}}" class="new-game">НАЗАД</a>
-                                    {{end}}
-                                    {{else}}
-                                        <a href="/game/{{=Game}}" class="new-game">Новая игра</a>
-                                    {{end}}
+                                    <a href="/game/{{=Game}}" class="new-game">Новая игра</a>
                                 {{end}}
                             </div>
                         </div>
@@ -337,70 +398,177 @@
             </div>
         {{end}}
 
-        <div style="display:none;" id="lottery_started_format">
-            <div class="pl-big-st1 pl-big-st11 pl-big-st112">
+        {{if(Lottery.WinnersToken <= 0)}}
+            <div style="display:none;" id="lottery_started_format">
+                <div class="pl-big-st1 pl-big-st11 pl-big-st112">
+                    <div class="bg-dsk1">
+                        <i></i>
+                        <div></div>
+                    </div>
+                    <div class="fk1"></div>
+                    <div class="fk4"></div>
+                    <div class="fk5"></div>
+                    <div class="fk6"></div>
+                    <div class="cont-pl1">
+                        <div class="tb-m1">
+                            <div class="numb1">
+                                <div><span>Номер<br>Игры</span></div>
+                                <i>#{{=Lottery.IDStr}}</i>
+                            </div>
+                            <div class="dj1">
+                                <div><span>Джек<br>пот</span></div>
+                                <i class="numb2"><b id="jackpot_items_num">0</b> предметов</i>
+                                <b class="eft-pl1 items_jackpot_alert"></b>
+                            </div>
+                            <div class="dj2">
+                                <div><span></span></div>
+                                <i class="" id="jackpot_price">0</i>
+                                <b class="eft-pl1 price_jackpot_alert"></b>
+                            </div>
+                            <div class="action-chet1">
+                                <div class="tit-chet1">Начнется через:</div>
+                                <div class="ch-tt1"><span id="lot_mins">03</span><i>:</i>
+                                <span id="lot_secs">00</span></div>
+                                <b class="eft-pl1 lottery_time_alert"></b>
+                                {{if(!Helper.UserHelper.Authorized(client))}}
+                                    <a href="/login" class="start-game1 start-game11">Принять участие</a>
+                                {{end}}
+                                {{else}}
+                                    <a href="" class="start-game1 start-game11" onclick="return open_bet();">Принять участие</a>
+                                {{end}}
+                            </div>
+                            <div class="r-text1">
+                                <div class="ep-tit1"><span>Правила:</span><a href="/bet-info" target="_blank">Подробнее</a></div>
+                                <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
+                                <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
+                                <p class="j3">Максимальная разовая ставка — 24 предмета</p>
+                                <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 3 минуты.</p>
+                            </div>
+                        </div>
+
+                        <div class="nav-st1">
+                            <a href="/fair-play" target="_blank">Принципы честной игры</a>
+                            <span>Хэш раунда:</span>
+                            <i>{{=Lottery.RaundNumber_MD5}}</i>
+                        </div>
+
+                        <div class="bl-sld-bi1">
+                            <div class="tt1">Самые крутые предметы розыгрыша:</div>
+                            <div class="tt2">Топ</div>
+                            <div class="owl1 owl-carousel owl-theme" id="best_items_list">
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="lottery_roulette_format" style="display:none;">
+                <div class="pl-big-st1 pl-big-st13">
+                    <div class="bg-dsk1">
+                        <i></i>
+                        <div></div>
+                    </div>
+                    <div class="fk4 fk41"></div>
+                    <div class="fk5"></div>
+                    <div class="fk6 fk61"></div>
+                    <div class="fk10"></div>
+                    <div class="cont-pl1">
+                        <div class="bt-con-numb1">
+                            <div class="numb1">
+                                <div><span>Номер<br>Игры</span></div>
+                                <i>{{=Lottery.IDStr}}</i>
+                            </div>
+                            <div class="dj1">
+                                <div><span>Джек<br>пот</span></div>
+                                <i class="numb2"><b id="jackpot_items">0</b> предметов</i>
+                            </div>
+                            <div class="dj2">
+                                <div><span></span></div>
+                                <i class="rub1" id="jackpot_price">0</i>
+                            </div>
+                        </div>
+                        <div class="bg-stl1">
+                            <div class="line1">
+                                <div class="ov-elem1 j1" id="users_ball">
+                                
+                                </div>
+                            </div>
+                            <div class="line2">
+                                <div class="ov-elem1 j2"></div>
+                            </div>
+                            <div class="line3">
+                                <div class="ov-elem1 j3"></div>
+                            </div>
+                            <div class="win-bl1"></div>
+                        </div>
+                        <div class="rt-con-bottom1">
+                            <div class="lt-l1">
+                                <div id="raund_number"><span>Число судьбы: </span></div>
+                                <a href="/fair-play" target="_blank" class="lnk1">Принципы честной игры</a>
+                            </div>
+                            <div class="rr-chet1">00000000</div>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pl-big-st1 pl-big-st11 pl-big-st112" id="lottery_end_format" style="display:none">
                 <div class="bg-dsk1">
                     <i></i>
                     <div></div>
                 </div>
-                <div class="fk1"></div>
-                <div class="fk4"></div>
+                <div class="fk1 fk111"></div>
                 <div class="fk5"></div>
-                <div class="fk6"></div>
+                <div class="fk14"></div>
+                <div class="fk15 fk151"></div>
                 <div class="cont-pl1">
-                    <div class="tb-m1">
-                        <div class="numb1">
-                            <div><span>Номер<br>Игры</span></div>
-                            <i>#{{=Lottery.IDStr}}</i>
+                    <div class="game-over-s1">
+                        <div class="ll1">
+                            <div class="tl1"><span>Номер<br>Игры</span><div>#{{=Lottery.IDStr}}</div></div>
+                            <div class="tl3">Хэш раунда: <span><own id="hash_number"></own></span></div>
+                            <div class="tl2"><span>Победный<br>жетон</span><i><own id="winners_token"></own></i></div>
+                            <div class="tl4">
+                                <div>Честная игра</div>
+                                <p><i></i><own id="raund_number"></own> <span>(Число судьбы)</span></p>
+                                <p><i>х</i><own id="bank_cent"></own> <span>(Банк в центах)</span></p>
+                                <p><i>=</i><own id="winners_token"></own> <span>(Победный жетон)</span></p>
+                            </div>
                         </div>
-                        <div class="dj1">
-                            <div><span>Джек<br>пот</span></div>
-                            <i class="numb2"><b id="jackpot_items_num">0</b> предметов</i>
-                            <b class="eft-pl1 items_jackpot_alert"></b>
+                        <div class="rr1 rr11 rr111">
+                            <div class="tf1 tf11">
+                                <div class="tfs1">Сорвал джекпот</div>
+                                <div class="tf2"><span id="jackpot_items"></span>предметов</div>
+                                <div class="tf3" id="jackpot_price"></div>
+                                <p id="msg_to_winner" style="display:none;">Все предметы перемещены<br>в ваш временный <a href="/inventory/{{=PageData["Game"]}}">инвентарь</a></p>
+                            </div>
+                            <div class="td1">
+                                <div class="eo1">
+                                    <span>победил<br>с шансом:</span>
+                                    <div id="winners_wonrate"></div>
+                                </div>
+                                <div class="eo2">
+                                    <span>Поставил:</span>
+                                    <div><i class="j1"><b id="winners_bet_items_num"></b> предметов</i><i class="j2"><b id="winners_bet_price"></b></i></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="dj2">
-                            <div><span></span></div>
-                            <i class="" id="jackpot_price">0</i>
-                            <b class="eft-pl1 price_jackpot_alert"></b>
-                        </div>
-                        <div class="action-chet1">
-                            <div class="tit-chet1">Начнется через:</div>
-                            <div class="ch-tt1"><span id="lot_mins">03</span><i>:</i>
-                            <span id="lot_secs">00</span></div>
-                            <b class="eft-pl1 lottery_time_alert"></b>
-                            {{if(!Helper.UserHelper.Authorized(client))}}
-                                <a href="/login" class="start-game1 start-game11">Принять участие</a>
-                            {{end}}
-                            {{else}}
-                                <a href="" class="start-game1 start-game11" onclick="return open_bet();">Принять участие</a>
-                            {{end}}
-                        </div>
-                        <div class="r-text1">
-                            <div class="ep-tit1"><span>Правила:</span><a href="/bet-info" target="_blank">Подробнее</a></div>
-                            <p class="j1">Чем выше стоимость ставки, тем больше<br>шанс победы</p>
-                            <p class="j2">Минимальная цена предмета — {{=Configs.MIN_ITEMS_PRICE * Helper.Rub_ExchangeRate}} руб.</p>
-                            <p class="j3">Максимальная разовая ставка — 24 предмета</p>
-                            <p class="j4">Когда поступает новый взнос, то к таймеру прибавляется дополнительное время в процентном соотношении внесенной суммы от суммы банка.<br />Максимальный лимит времени — 3 минуты.</p>
-                        </div>
-                    </div>
-
-                    <div class="nav-st1">
-                        <a href="/fair-play" target="_blank">Принципы честной игры</a>
-                        <span>Хэш раунда:</span>
-                        <i>{{=Lottery.RaundNumber_MD5}}</i>
-                    </div>
-
-                    <div class="bl-sld-bi1">
-                        <div class="tt1">Самые крутые предметы розыгрыша:</div>
-                        <div class="tt2">Топ</div>
-                        <div class="owl1 owl-carousel owl-theme" id="best_items_list">
-
+                        <div class="ct-game-over1 ct-game-over11">
+                            <div class="ev-ft1">
+                                <div class="tit-game-over1">Игра окончена</div>
+                                <a href="" id="won_open_winners_profile">
+                                    <div class="win-bl1"><div><img src="" alt="" id="winners_avatar"></div></div>
+                                </a>
+                                <div class="np-ett1" id="winners_name"></div>
+                                <a href="" class="new-game">Новая игра</a>
+                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
-        </div>
+        {{end}}
 
         <div id="best_items_html" style="display:none;">
             <div class="item">
@@ -412,112 +580,13 @@
                 </div>
             </div>
         </div>
-
-        <div id="lottery_roulette_format" style="display:none;">
-            <div class="pl-big-st1 pl-big-st13">
-                <div class="bg-dsk1">
-                    <i></i>
-                    <div></div>
-                </div>
-                <div class="fk4 fk41"></div>
-                <div class="fk5"></div>
-                <div class="fk6 fk61"></div>
-                <div class="fk10"></div>
-                <div class="cont-pl1">
-                    <div class="bt-con-numb1">
-                        <div class="numb1">
-                            <div><span>Номер<br>Игры</span></div>
-                            <i>{{=Lottery.IDStr}}</i>
-                        </div>
-                        <div class="dj1">
-                            <div><span>Джек<br>пот</span></div>
-                            <i class="numb2"><b id="jackpot_items">0</b> предметов</i>
-                        </div>
-                        <div class="dj2">
-                            <div><span></span></div>
-                            <i class="rub1" id="jackpot_price">0</i>
-                        </div>
-                    </div>
-                    <div class="bg-stl1">
-                        <div class="line1">
-                            <div class="ov-elem1 j1" id="users_ball">
-                                
-                            </div>
-                        </div>
-                        <div class="line2">
-                            <div class="ov-elem1 j2"></div>
-                        </div>
-                        <div class="line3">
-                            <div class="ov-elem1 j3"></div>
-                        </div>
-                        <div class="win-bl1"></div>
-                    </div>
-                    <div class="rt-con-bottom1">
-                        <div class="lt-l1">
-                            <div id="raund_number"><span>Число судьбы: </span></div>
-                            <a href="/fair-play" target="_blank" class="lnk1">Принципы честной игры</a>
-                        </div>
-                        <div class="rr-chet1">00000000</div>
-                    </div>
-                    <div class="clear"></div>
-                </div>
+        <div id="new_bets_items" style="display:none;">
+            <div class="item1">
+                <img src="/[items_image]" alt="[items_name]">
+                <span class="">[items_price]</span>
+                <div class="tiltp">[items_name]</div>
             </div>
         </div>
-
-        <div class="pl-big-st1 pl-big-st11 pl-big-st112" id="lottery_end_format" style="display:none">
-            <div class="bg-dsk1">
-                <i></i>
-                <div></div>
-            </div>
-            <div class="fk1 fk111"></div>
-            <div class="fk5"></div>
-            <div class="fk14"></div>
-            <div class="fk15 fk151"></div>
-            <div class="cont-pl1">
-                <div class="game-over-s1">
-                    <div class="ll1">
-                        <div class="tl1"><span>Номер<br>Игры</span><div>#{{=Lottery.IDStr}}</div></div>
-                        <div class="tl3">Хэш раунда: <span><own id="hash_number"></own></span></div>
-                        <div class="tl2"><span>Победный<br>жетон</span><i><own id="winners_token"></own></i></div>
-                        <div class="tl4">
-                            <div>Честная игра</div>
-                            <p><i></i><own id="raund_number"></own> <span>(Число судьбы)</span></p>
-                            <p><i>х</i><own id="bank_cent"></own> <span>(Банк в центах)</span></p>
-                            <p><i>=</i><own id="winners_token"></own> <span>(Победный жетон)</span></p>
-                        </div>
-                    </div>
-                    <div class="rr1 rr11 rr111">
-                        <div class="tf1 tf11">
-                            <div class="tfs1">Сорвал джекпот</div>
-                            <div class="tf2"><span id="jackpot_items"></span>предметов</div>
-                            <div class="tf3" id="jackpot_price"></div>
-                            <p id="msg_to_winner" style="display:none;">Все предметы перемещены<br>в ваш временный <a href="/inventory/{{=PageData["Game"]}}">инвентарь</a></p>
-                        </div>
-                        <div class="td1">
-                            <div class="eo1">
-                                <span>победил<br>с шансом:</span>
-                                <div id="winners_wonrate"></div>
-                            </div>
-                            <div class="eo2">
-                                <span>Поставил:</span>
-                                <div><i class="j1"><b id="winners_bet_items_num"></b> предметов</i><i class="j2"><b id="winners_bet_price"></b></i></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ct-game-over1 ct-game-over11">
-                        <div class="ev-ft1">
-                            <div class="tit-game-over1">Игра окончена</div>
-                            <a href="" id="won_open_winners_profile">
-                                <div class="win-bl1"><div><img src="" alt="" id="winners_avatar"></div></div>
-                            </a>
-                            <div class="np-ett1" id="winners_name"></div>
-                            <a href="" class="new-game">Новая игра</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div id="new_bet" style="display:none;">
             <div class="bl-ov-et1 ya2" id="user_id_[USER_ID]">
                 <div class="bg-bl-ov1">
@@ -562,13 +631,6 @@
             </div>
         </div>
 
-        <div id="new_bets_items" style="display:none;">
-            <div class="item1">
-                <img src="/[items_image]" alt="[items_name]">
-                <span class="">[items_price]</span>
-                <div class="tiltp">[items_name]</div>
-            </div>
-        </div>
         {{if(Bets.Count > 0)}}
             <section id="content2" class="mb-t1">
         {{end}}
