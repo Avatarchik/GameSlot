@@ -472,6 +472,11 @@ namespace GameSlot.Helpers
                                     SteamItem = new USteamItem();
 
                                     SteamItem.Price = XSteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(XSteamItem.Name, SteamGameID);
+                                    if (XSteamItem.Price < 0)
+                                    {
+                                        SteamItem.Price = XSteamItem.Price = 0;
+                                    }
+
                                     SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
 
                                     XSteamItem.Rarity = Regex.Split(ItemContent, "internal_name\":\"Rarity_")[1].Split('"')[0];

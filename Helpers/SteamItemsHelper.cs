@@ -269,16 +269,16 @@ namespace GameSlot.Helpers
                         {
                             price = Regex.Split(data, "\"lowest_price\":\"")[1].Split('"')[0].Replace("$", "");
                         }
-                        else
-                        {
-                            XSteamItem XSteamItem;
-                            if(this.SelectByName(ItemName, SteamGameID, out XSteamItem))
-                            {
-                                return XSteamItem.Price;
-                            }
-                        }
 
                         return Convert.ToDouble(price);
+                    }
+                    else
+                    {
+                        XSteamItem XSteamItem;
+                        if (this.SelectByName(ItemName, SteamGameID, out XSteamItem))
+                        {
+                            return XSteamItem.Price;
+                        }
                     }
                 }
 
@@ -288,7 +288,7 @@ namespace GameSlot.Helpers
                 }
             }
 
-            return 0d;
+            return -1;
         }
 
         private void UpdatePrices()
@@ -303,7 +303,10 @@ namespace GameSlot.Helpers
                     {
                         XSteamItem XSteamItem = Items[i];
                         XSteamItem.Price = this.GetMarketPrice(XSteamItem.Name, XSteamItem.SteamGameID);
-                        this.Table.UpdateByID(XSteamItem, XSteamItem.ID);
+                        if (XSteamItem.Price >= 0)
+                        {
+                            this.Table.UpdateByID(XSteamItem, XSteamItem.ID);
+                        }
                         //this.DownloadItemsImage(XSteamItem.ID, XSteamItem.SteamGameID);
                     }
 
