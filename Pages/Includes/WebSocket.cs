@@ -406,17 +406,17 @@ namespace GameSlot.Pages.Includes
                                 }
                             }
 
+                            if (!UTSteam.SendClientOffer.ContainsKey(user.SteamID))
+                            {
+                                UTSteam.SendClientOffer.Add(user.SteamID, client);
+                            }
+                            else if (UTSteam.SendClientOffer[user.SteamID] != client)
+                            {
+                                UTSteam.SendClientOffer[user.SteamID] = client;
+                            }
+
                             foreach (uint key in BotsRequests.Keys)
                             {
-                                if (!UTSteam.SendClientOffer.ContainsKey(user.SteamID))
-                                {
-                                    UTSteam.SendClientOffer.Add(user.SteamID, client);
-                                }
-                                else if (UTSteam.SendClientOffer[user.SteamID] != client)
-                                {
-                                    UTSteam.SendClientOffer[user.SteamID] = client;
-                                }
-
                                 XBotsOffer XBotsOffer;
                                 while (!Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.SteamUserID == user.SteamID && bt.Status == 0, out XBotsOffer))
                                 {

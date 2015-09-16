@@ -808,12 +808,9 @@ namespace GameSlot.Helpers
                         // check in steam inventory
                         else
                         {
-                            if(SteamInventory_String == null)
+                            while (SteamInventory_String == null)
                             {
-                                while (SteamInventory_String == null)
-                                {
-                                    Helper.UserHelper.GetUsersSteamInventory_Json(User.ID, XLottery.SteamGameID, out SteamInventory_String);
-                                }
+                                Helper.UserHelper.GetUsersSteamInventory_Json(User.ID, XLottery.SteamGameID, out SteamInventory_String);
                             }
 
                             if (Helper.UserHelper.IsUserHaveSteamItem_SteamInventory(SteamItem.AssertID, SteamItem.ID, User, XLottery.SteamGameID, SteamInventory_String))

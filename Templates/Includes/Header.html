@@ -9,7 +9,7 @@
                     <a href="/login" class="steam1">Зайти через steam</a>
                 {{end}}
                 {{else}}
-                    <div class="av-s1"><a href=""> <img src="{{=client.Session["Avatar"]}}" alt=""> <span>{{=client.Session["Name"]}}</span></a></div>
+                    <div class="av-s1"><a href="" onclick='return GetUsersProfile({{=client.Session["User"]}});'> <img src="{{=client.Session["Avatar"]}}" alt=""> <span>{{=client.Session["Name"]}}</span></a></div>
                     <ul class="tt-ul1">
                         <li><a href="/my.hangout">Моя тусовка</a></li>
                         <li><a href="/inventory/dota2">Инвентарь</a></li>
@@ -49,3 +49,4 @@
         </div>
     </div>
 </header>
+{{include GameSlot ProfileModal}}

@@ -20,7 +20,7 @@
                 <img src="/cached_files/img/b3.png" alt="">
             {{end}}
         </span></div>
-        {{include GameSlot ProfileModal}}
+
         {{include GameSlot Header}}
         <section id="content">
             <div class="ct">
@@ -85,13 +85,17 @@
                         <div class="item1">
                             <div class="over-st1">
                                 <div class="et j1">
+                                    <span class="dc1">
+                                        <span class="ep-sml-y2">#{{=Lottery.ID.ToString("000-000-000")}}</span>
+                                    </span>
+                                </div>
+                                <div class="et j2">
                                     <a href="" onclick="return GetUsersProfile({{=User.ID}});">
-                                        <span class="dc1">
-                                            <span class="ep-sml-y2">#{{=Lottery.ID.ToString("000-000-000")}}</span>
-                                        </span>
+                                    <span class="dc1">
+                                        <span class="ev-avt1"><img src="{{=User.Avatar}}" alt=""></span><span class="ov-text-avt1"><span>{{=User.Name}}</span></span>
+                                    </span>
                                     </a>
                                 </div>
-                                <div class="et j2"><span class="dc1"><span class="ev-avt1"><img src="{{=User.Avatar}}" alt=""></span><span class="ov-text-avt1"><span>{{=User.Name}}</span></span></span></div>
                                 <div class="et j3"><span class="dc1">{{=Lottery.Wonrate}}%</span></div>
                                 <div class="et j4"><span class="dc1">{{=Lottery.JackpotItemsNum.ToString("##,###")}}</span></div>
                                 <div class="et j5"><span class="dc1 dc11">

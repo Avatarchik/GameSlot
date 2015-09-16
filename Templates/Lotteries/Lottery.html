@@ -11,7 +11,6 @@
     {{set bool ItsWinner = (bool) PageData["ItsWinner"]}}
     {{set bool ItsHistory = (bool) PageData["ItsHistory"]}}
     {{set string Game = (string) PageData["Game"]}}
-     {{include GameSlot ProfileModal}}
     <script>
         var jackpot_price_str = "{{=Lottery.JackpotPrice_Str}}";
         var auth = false;
@@ -302,7 +301,7 @@
                         <div class="ct-game-over1 ct-game-over11">
                             <div class="ev-ft1">
                                 <div class="tit-game-over1">Игра окончена</div>
-                                <a href="" onclick="return GetUsersProfile({{=Lottery.Winner}});">
+                                <a href="" onclick="return GetUsersProfile({{=Lottery.Winner.ID}});">
                                     <div class="win-bl1"><div><img src="{{=Lottery.Winner.Avatar}}" alt="{{=Lottery.Winner.Name}}"></div></div>
                                 </a>
                                 <div class="np-ett1">{{=Lottery.Winner.Name}}</div>
