@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Types
 {
-    public struct TopPlayer
+    public class TopPlayer
     {
         public uint ID;
+        public int Position;
+
         public string Name;
         public string Avatar;
 

@@ -32,22 +32,25 @@ namespace GameSlot.Pages
             string[] urls = BaseFuncs.GetAdditionalURLArray(client.URL, this.URL);
             string Game = urls[0];
 
-            List<XUser> Users = Helper.UserHelper.Table.SelectAll();
+            List<XUser> Users = new List<XUser>();
             string title = "";
             if (Game.Equals("dota2"))
             {
+                Helper.UserHelper.Table.Select(data => data.DOTA_WonTotalPrice > 0, out Users);
                 SteamGameID = Configs.DOTA2_STEAM_GAME_ID;
                 Users = (from it in Users orderby it.DOTA_RUB_WonTotalPrice descending select it).ToList();
                 title = "Топ победителей DOTA2";
             }
             else if (Game.Equals("csgo"))
             {
+                Helper.UserHelper.Table.Select(data => data.CSGO_WonTotalPrice > 0, out Users);
                 SteamGameID = Configs.CSGO_STEAM_GAME_ID;
                 Users = (from it in Users orderby it.CSGO_RUB_WonTotalPrice descending select it).ToList();
                 title = "Топ победителей CSGO";
             }
             else if (Game.Equals("current"))
             {
+                Helper.UserHelper.Table.Select(data => (data.DOTA_WonTotalPrice + data.CSGO_WonTotalPrice) > 0, out Users);
                 Users = (from it in Users orderby (it.CSGO_RUB_WonTotalPrice + it.DOTA_RUB_WonTotalPrice) descending select it).ToList();
                 title = "Топ победителей";
             }
@@ -74,29 +77,9 @@ namespace GameSlot.Pages
             List<TopPlayer> TopPlayers = new List<TopPlayer>();
             for (int i = from; i < Math.Min(from + ShowNum, Users.Count); i++)
             {
-                if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)
-                {
-                    if(Users[i].CSGO_WonTotalPrice <= 0)
-                    {
-                        continue;
-                    }
-                }
-                else if (SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
-                {
-                    if (Users[i].DOTA_WonTotalPrice <= 0)
-                    {
-                        continue;
-                    }
-                }
-                else if (SteamGameID == 0)
-                {
-                    if ((Users[i].CSGO_WonTotalPrice + Users[i].DOTA_WonTotalPrice) <= 0)
-                    {
-                        continue;
-                    }
-                }
                 TopPlayer TopPlayer = new TopPlayer();
                 TopPlayer.ID = Users[i].ID;
+                TopPlayer.Position = i + 1;
                 TopPlayer.Name = Users[i].Name;
                 TopPlayer.Avatar = Users[i].Avatar;
 
@@ -151,16 +134,16 @@ namespace GameSlot.Pages
                 TopPlayers.Add(TopPlayer);
             }
 
-            Hashtable data = new Hashtable();
+            Hashtable page_data = new Hashtable();
 
-            data.Add("SteamGameID", SteamGameID);
-            data.Add("Users", TopPlayers);
-            data.Add("GameURL", Game);
-            data.Add("From", from);
-            data.Add("ShowNum", ShowNum);
-            data.Add("UsersNum", TopPlayers.Count);
-            data.Add("Title", title);
-            client.HttpSend(TemplateActivator.Activate(this, client, data));
+            page_data.Add("SteamGameID", SteamGameID);
+            page_data.Add("Users", TopPlayers);
+            page_data.Add("GameURL", Game);
+            page_data.Add("From", from);
+            page_data.Add("ShowNum", ShowNum);
+            page_data.Add("UsersNum", TopPlayers.Count);
+            page_data.Add("Title", title);
+            client.HttpSend(TemplateActivator.Activate(this, client, page_data));
             return true;
         }
     }

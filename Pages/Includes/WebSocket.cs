@@ -62,7 +62,86 @@ namespace GameSlot.Pages.Includes
                 //Logger.ConsoleLog(client.WSData, ConsoleColor.Yellow);
                 string[] wsdata = Regex.Split(client.WSData, BaseFuncs.WSplit);
 
-                if (wsdata[0].Equals("GroupPage"))
+                if (wsdata[0].Equals("GetProfile"))
+                {
+                    XUser user;
+                    uint userID;
+                    if (uint.TryParse(wsdata[1], out userID) && Helper.UserHelper.Table.SelectByID(userID, out user))
+                    {
+                        int Winrate;
+                        int GamesCount = user.CSGO_GamesCount + user.DOTA_GamesCount;
+                        int WonCount = user.DOTA_WonCount + user.CSGO_WonCount;
+
+                        if (WonCount > 0)
+                        {
+                            Winrate = (int)(WonCount / ((double)GamesCount / 100d));
+                        }
+                        else
+                        {
+                            Winrate = 0;
+                        }
+
+                        string BetPrice = "";
+                        string WonPrice = "";
+                        ushort currency = Helper.UserHelper.GetCurrency(client);
+                        if(currency == 1)
+                        {
+                            BetPrice = (user.CSGO_RUB_TotalBetPrice + user.DOTA_RUB_TotalBetPrice).ToString("###,###,##0");
+                            WonPrice = (user.CSGO_RUB_WonTotalPrice + user.DOTA_RUB_WonTotalPrice).ToString("###,###,##0");
+                        }
+                        else if(currency == 0)
+                        {
+                            BetPrice = (user.CSGO_TotalBetPrice + user.DOTA_TotalBetPrice).ToString("###,##0.00");
+                            WonPrice = (user.CSGO_WonTotalPrice + user.DOTA_WonTotalPrice).ToString("###,##0.00");
+                        }
+
+                        string GroupName = "";
+                        XUser owner;
+                        if(user.GroupOwnerID >= 0 && Helper.UserHelper.Table.SelectByID((uint)user.GroupOwnerID, out owner))
+                        {
+                            GroupName = (owner.GroupName.Length > 0) ? owner.GroupName : owner.Name;
+                        }
+
+                        string Games = "";
+
+                        XLottery[] Lots = new XLottery[0];
+                        Helper.LotteryHelper.Table.SelectArrFromEnd(data =>
+                        {
+                            if (data.WinnersToken > 0)
+                            {
+                                int wr = Convert.ToInt32(Math.Round((100 * data.WinnersBetPrice) / data.JackpotPrice));
+                                string jc = "";
+
+                                if (currency == 1)
+                                {
+                                    jc = (data.JackpotPrice * data.RubCurrency).ToString("###,###,##0");
+                                }
+                                else if (currency == 0)
+                                {
+                                    jc = data.JackpotPrice.ToString("###,##0.00");
+                                }
+
+                                ushort wnr = 0;
+                                if(data.Winner == user.ID)
+                                {
+                                    wnr = 1;
+                                }
+
+                                Games += data.ID + ";" + data.ID.ToString("000-000-000") + ";" + wr + ";" + data.JackpotItemsNum + ";" + jc + ";" + wnr + "↑";
+                            }
+                            return false;
+                        }, out Lots, 0, 50);
+
+
+                        client.SendWebsocket("GetProfile" + BaseFuncs.WSplit + user.Name + BaseFuncs.WSplit + user.Avatar + BaseFuncs.WSplit + GamesCount
+                            + BaseFuncs.WSplit + WonCount + BaseFuncs.WSplit + Winrate + BaseFuncs.WSplit + (user.CSGO_TotalBetItemsCount + user.DOTA_TotalBetItemsCount)
+                            + BaseFuncs.WSplit + (user.CSGO_WonItemsCount + user.DOTA_WonItemsCount) + BaseFuncs.WSplit + BetPrice
+                            + BaseFuncs.WSplit + WonPrice + BaseFuncs.WSplit + user.ProfileURL + BaseFuncs.WSplit + user.GroupOwnerID + BaseFuncs.WSplit + GroupName + BaseFuncs.WSplit + Games
+                            + BaseFuncs.WSplit + ((Lots.Length < 50) ? 0 : 1));
+                    }
+                }
+
+                else if (wsdata[0].Equals("GroupPage"))
                 {
                     //ws.send("GroupPage{{=BaseFuncs.WSplit}}EntryToGroup{{=BaseFuncs.WSplit}}{{=Group.ID}}");
                     uint GroupID;
@@ -427,7 +506,7 @@ namespace GameSlot.Pages.Includes
             {
                 for (int i = 0; i < WebSocketPage.ClientsGroupPage[group.ID].Count; i++)
                 {
-                    if (WebSocketPage.ClientsGroupPage[group.ID][i].Closed)
+                    if (WebSocketPage.ClientsGroupPage[group.ID] == null || WebSocketPage.ClientsGroupPage[group.ID][i].Closed)
                     {
                         WebSocketPage.ClientsGroupPage[group.ID].Remove(WebSocketPage.ClientsGroupPage[group.ID][i--]);
                         continue;
@@ -522,8 +601,7 @@ namespace GameSlot.Pages.Includes
 
                 for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XBet.LotteryID].Count; i++)
                 {
-
-                    if (WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i].Closed)
+                    if (WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i] == null || WebSocketPage.ClientsLotteryPage[XBet.LotteryID][i].Closed)
                     {
                         WebSocketPage.ClientsLotteryPage[XBet.LotteryID].RemoveAt(i--);
                         continue;
@@ -761,6 +839,11 @@ namespace GameSlot.Pages.Includes
 
                 for (int i = 0; i < WebSocketPage.ClientsLotteryPage[XLottery.ID].Count; i++)
                 {
+                    if (WebSocketPage.ClientsLotteryPage[XLottery.ID][i] == null || WebSocketPage.ClientsLotteryPage[XLottery.ID][i].Closed)
+                    {
+                        WebSocketPage.ClientsLotteryPage[XLottery.ID].RemoveAt(i--);
+                        continue;
+                    }
 
                     string extra = XLottery.JackpotItemsNum + BaseFuncs.WSplit;
 
@@ -798,7 +881,10 @@ namespace GameSlot.Pages.Includes
                     Logger.ConsoleLog("User:" + CurrentUser.ID, ConsoleColor.Yellow);
                     WebSocketPage.ClientsLotteryPage[XLottery.ID][i].SendWebsocket("LotteryRouletteStarted" + BaseFuncs.WSplit + extra);
                 }
+
+                WebSocketPage.ClientsLotteryPage.Remove(XLottery.ID);
             }
+
 
             WebSocketPage.UpdateMainPageLotteries(XLottery);
         }

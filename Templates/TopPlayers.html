@@ -29,6 +29,7 @@
         {{end}}
 
         {{include GameSlot Header}}
+        {{include GameSlot ProfileModal}}
         <section id="content">
             <div class="ct">
                 <div class="et-title1">
@@ -63,14 +64,18 @@
                         <div class="j5"><a href=""><span>Процент побед</span></a></div>
                         <div class="j6"><a href=""><span>Поставил<br>предметов</span></a></div>
                         <div class="j7"><a href=""><span>Выиграл<br>предметов</span></a></div>
-                        <div class="j8"><a href=""><span>Сумма ставок</span></a></div>
+                        <div class="j8"><a href=""><span>Сумма ставки</span></a></div>
                         <div class="j9"><a href=""><span>Сумма выигрышей</span></a></div>
                     </div>
                     <div class="ov-sp1">
                         {{for(int i = 0; i < Users.Count; i++)}}
                             <div class="item1 j{{=(i+1)}}">
                                 <div class="over-st1 j1">
-                                    <div class="et j1"><span class="dc1"><img src="{{=Users[i].Avatar}}" alt=""><span>{{=Users[i].Name}}</span></span></div>
+                                    <div class="et j1">
+                                        <a href="" onclick="return GetUsersProfile({{=Users[i].ID}});">
+                                           <span class="dc1"><img src="{{=Users[i].Avatar}}" alt=""><span>{{=Users[i].Name}}</span></span>
+                                        </a>
+                                    </div>
                                     <div class="et j2"><span class="dc1"><span class="md">{{=(i+1)}}</span></span></div>
                                     <div class="et j3"><span class="dc1">{{=Users[i].GamesCount}}</span></div>
                                     <div class="et j4"><span class="dc1">{{=Users[i].WonCount}}</span></div>

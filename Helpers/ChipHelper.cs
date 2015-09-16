@@ -44,6 +44,13 @@ namespace GameSlot.Helpers
             ChipHelper.Chips.Add(chip);
         }
 
+        public Chip SelectByID(uint ID)
+        {
+            Chip chip;
+            this.SelectByID(ID, out chip);
+            return chip;
+        }
+
         public bool SelectByID(uint ID, out Chip chip)
         {
             for (int i = 0; i < ChipHelper.Chips.Count; i++)
@@ -57,7 +64,7 @@ namespace GameSlot.Helpers
             
 
             chip = new Chip();
-            return true;
+            return false;
         }
 
         public void AddChipToUser(uint ChipID, uint UserID)

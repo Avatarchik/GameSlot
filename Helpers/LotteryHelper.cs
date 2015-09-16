@@ -1381,7 +1381,7 @@ namespace GameSlot.Helpers
             for (int i = 0; i < Math.Min(num, BankChips.Count); i++)
             {
                 TopItem TopItem = new TopItem();
-                TopItem.Name = "Фишка на сумму " + (BankChips[i].Cost / Helper.Rub_ExchangeRate) + "$";
+                TopItem.Name = "Фишка на сумму " + Helper.ChipHelper.SelectByID(BankChips[i].ID).Cost + "$";
                 TopItem.Price = BankChips[i].Cost;
                 TopItem.Price_Str = BankChips[i].Cost_Str;
                 TopItem.Image = "/chip-image/" + BankChips[i].ID;

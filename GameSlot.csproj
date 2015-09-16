@@ -83,6 +83,7 @@
     <Compile Include="Helpers\SteamBotHelper.cs" />
     <Compile Include="Helpers\SteamItemsHelper.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
+    <Compile Include="Pages\Includes\ProfileModal.cs" />
     <Compile Include="Pages\Prof.cs" />
     <Compile Include="Pages\TopPlayersPage.cs" />
     <Compile Include="Pages\Store\StoreMainPage.cs" />
@@ -599,6 +600,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\css\screen.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\ProfileModal.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

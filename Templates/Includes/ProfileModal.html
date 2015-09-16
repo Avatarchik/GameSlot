@@ -1,0 +1,60 @@
+﻿<script>
+    function GetUsersProfile(id)
+    {
+        $("#user_profile_modal #last_games").html("<div style='display:none;' id='last_position'></div>");
+        ws.send("GetProfile{{=BaseFuncs.WSplit}}" + id);
+        return false;
+    }
+</script>
+<div class="modal" id="user_profile_modal">
+    <div id="games_html" style="display:none">
+        <div class="item1">
+            <div class="st-pl1">
+                <span class="j1"><i>#[str_id]</i></span>
+                <span class="j2"><i>[winrate]%</i></span>
+                <span class="j3"><i>[jackpot_items]</i></span>
+                <span class="j4"><i>[jackpot_price]</i></span>
+                <div class="[won_or_lost_class]">[won_or_lost]</div>
+                <a href="/game/id/[id]" target="_blank" class="viev-game1">Посмотреть игру</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-tb">
+        <div class="bg-modal"></div>
+        <div class="modal-con m2">
+            <div class="close1">Закрыть</div>
+            <div class="people-inf1">
+                <div class="ll1">
+                    <a href="" id="profile_url" target="_blank">
+                        <div class="vt-img1"><img src="" id="users_avatar"></div>
+                    </a>
+                    <div id="lobby_block" style="display:none;">
+                        <span>Находится в лобби:</span>
+                        <a href="" target="_blank" id="lobby_name"></a>
+                    </div>
+                </div>
+                <div class="rr-inf-pl1">
+                    <p><span>Ник:</span><i id="user_name"></i><b></b></p>
+                    <p><span>Побед:</span><i id="won_count"></i><b></b></p>
+                    <p><span>Сыграно:</span><i id="played"></i><b></b></p>
+                    <p><span>Процент побед:</span><i id="winrate"></i><b></b></p>
+                    <p><span>Поставил предметов:</span><i id="total_bets_items"></i><b></b></p>
+                    <p><span>Выиграл предметов:</span><i id="total_won_items"></i><b></b></p>
+                    <p><span>Сумма ставок:</span><i id="bets_total_price"></i><b></b></p>
+                    <p><span>Сумма джекпота:</span><i id="jackpot_total_price"></i><b></b></p>
+                </div>
+            </div>
+            <div class="tit-mp1" id="game_h_title">Последние игры</div>
+            <div class="np-vt-tb1">
+                <span class="j1"><i><i>Игра №</i></i></span>
+                <span class="j2"><i><i>Выиграл<br>с шансом</i></i></span>
+                <span class="j3"><i><i>Кол-во<br>предметов</i></i></span>
+                <span class="j4"><i><i>Сумма<br>джекпота</i></i></span>
+            </div>
+            <div class="content-modal1" id="last_games">
+                
+            </div>
+        </div>
+    </div>
+</div>

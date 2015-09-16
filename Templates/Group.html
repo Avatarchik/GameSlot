@@ -7,6 +7,8 @@
         <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
         {{include GameSlot UpHeader}}
         {{include GameSlot Header}}
+        {{include GameSlot ProfileModal}}
+
         {{using GameSlot.Types}}
 
         {{set UGroup Group = (UGroup) PageData["Group"]}}
@@ -31,12 +33,14 @@
                         {{if(!Helper.UserHelper.Authorized(client))}}
                             <div class="item1 j3">
                                 <div class="dc-vm1">
-                                    <div class="ln1">
-                                        <span>Хозяин<br>тусовки:</span>
-                                        <img src="{{=Owner.Avatar}}" alt="">
-                                        <div><i><i>{{=Owner.Name}}</i></i></div>
-                                        <a href="/login" class="stm1">Авторизоваться через steam</a>
-                                    </div>
+                                    <a href="" onclick="return GetUsersProfile({{=Owner.ID}});">
+                                        <div class="ln1">
+                                            <span>Хозяин<br>тусовки:</span>
+                                            <img src="{{=Owner.Avatar}}" alt="">
+                                            <div><i><i>{{=Owner.Name}}</i></i></div>
+                                            <a href="/login" class="stm1">Авторизоваться через steam</a>
+                                        </div>
+                                    </a>
                                     <div class="ln2">Чтобы вступить в эту тусовку вам необходимо авторизоваться</div>
                                 </div>
                             </div>
@@ -44,12 +48,14 @@
                         {{else if(!InGroup)}}
                             <div class="item1 j3">
                                 <div class="dc-vm1">
-                                    <div class="ln1">
-                                        <span>Хозяин<br>тусовки:</span>
-                                         <img src="{{=Owner.Avatar}}" alt="">
-                                        <div><i><i>{{=Owner.Name}}</i></i></div>
-                                        <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
-                                    </div>
+                                    <a href="" onclick="return GetUsersProfile({{=Owner.ID}});">
+                                        <div class="ln1">
+                                            <span>Хозяин<br>тусовки:</span>
+                                             <img src="{{=Owner.Avatar}}" alt="">
+                                            <div><i><i>{{=Owner.Name}}</i></i></div>
+                                            <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
+                                        </div>
+                                    </a>
                                     {{if(InOtherGroup)}}
                                         <div class="ln2">Вступив в текущую тусовку, вы автоматически выйдите из предыдущей</div>
                                     {{end}}
@@ -59,12 +65,14 @@
                         {{else}}
                             <div class="item1 j3">
                                 <div class="dc-vm1">
-                                    <div class="ln1" >
-                                        <span>Хозяин<br>тусовки:</span>
-                                        <img src="{{=Owner.Avatar}}" alt="">
-                                        <div><i><i>{{=Owner.Name}}</i></i></div>
-                                        <a href="" class="link-autr" onclick="return exit();">Покинуть тусовку</a>
-                                    </div>
+                                    <a href="" onclick="return GetUsersProfile({{=Owner.ID}});">
+                                        <div class="ln1" >
+                                            <span>Хозяин<br>тусовки:</span>
+                                            <img src="{{=Owner.Avatar}}" alt="">
+                                            <div><i><i>{{=Owner.Name}}</i></i></div>
+                                            <a href="" class="link-autr" onclick="return exit();">Покинуть тусовку</a>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         {{end}}
@@ -72,12 +80,14 @@
                     <div id="entry_to_group" style="display:none">
                         <div class="item1 j3">
                             <div class="dc-vm1">
-                                <div class="ln1">
-                                    <span>Хозяин<br>тусовки:</span>
-                                    <img src="{{=Owner.Avatar}}" alt="">
-                                    <div><i><i>{{=Owner.Name}}</i></i></div>
-                                    <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
-                                </div>
+                                <a href="" onclick="return GetUsersProfile({{=Owner.ID}});">
+                                    <div class="ln1">
+                                        <span>Хозяин<br>тусовки:</span>
+                                        <img src="{{=Owner.Avatar}}" alt="">
+                                        <div><i><i>{{=Owner.Name}}</i></i></div>
+                                        <a href="" class="link-autr" onclick="return entry();">Вступить в тусовку</a>
+                                    </div>
+                                </a>
                                 {{if(InOtherGroup)}}
                                     <div class="ln2">Вступив в текущую тусовку, вы автоматически выйдите из предыдущей</div>
                                 {{end}}
@@ -88,12 +98,14 @@
                     <div id="exit_from_group" style="display:none">
                         <div class="item1 j3">
                             <div class="dc-vm1">
-                                <div class="ln1">
-                                    <span>Хозяин<br>тусовки:</span>
-                                    <img src="{{=Owner.Avatar}}" alt="">
-                                    <div><i><i>{{=Owner.Name}}</i></i></div>
-                                    <a href="" class="link-autr" onclick="return exit();">Покинуть тусовку</a>
-                                </div>
+                                <a href="" onclick="return GetUsersProfile({{=Owner.ID}});">
+                                    <div class="ln1">
+                                        <span>Хозяин<br>тусовки:</span>
+                                        <img src="{{=Owner.Avatar}}" alt="">
+                                        <div><i><i>{{=Owner.Name}}</i></i></div>
+                                        <a href="" class="link-autr" onclick="return exit();">Покинуть тусовку</a>
+                                    </div>
+                                </a>
                             </div>
                         </div>
                     </div>

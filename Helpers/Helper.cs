@@ -39,11 +39,15 @@ namespace GameSlot
             {
                 try
                 {
-                    using (WebClient wc = new WebClient())
+                    while (true)
                     {
-                        Rub_ExchangeRate = Math.Round(double.Parse(Regex.Split(wc.DownloadString("http://www.cbr.ru/scripts/XML_daily.asp"), "R01235")[1].Split('>')[10].Split('<')[0].Replace(',', '.')));
+                        using (WebClient wc = new WebClient())
+                        {
+                            Rub_ExchangeRate = Math.Round(double.Parse(Regex.Split(wc.DownloadString("http://www.cbr.ru/scripts/XML_daily.asp"), "R01235")[1].Split('>')[10].Split('<')[0].Replace(',', '.')));
+                        }
+
+                        Thread.Sleep(TimeSpan.FromHours(12));
                     }
-                    Thread.Sleep(TimeSpan.FromHours(12));
                 }
                 catch { }
             }).Start();

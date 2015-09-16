@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Types
 {
-    public struct SteamItemImageQueue
+    public class SteamItemImageQueue
     {
         public uint ID;
         public uint SteamGameID;

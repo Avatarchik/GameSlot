@@ -7,7 +7,7 @@ using UpServer;
 
 namespace GameSlot.Types
 {
-    public struct InventoryWaitingClients
+    public class InventoryWaitingClients
     {
         public Client Client;
         public int ItemNum;

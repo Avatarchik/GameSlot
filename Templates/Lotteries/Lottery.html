@@ -11,7 +11,7 @@
     {{set bool ItsWinner = (bool) PageData["ItsWinner"]}}
     {{set bool ItsHistory = (bool) PageData["ItsHistory"]}}
     {{set string Game = (string) PageData["Game"]}}
-
+     {{include GameSlot ProfileModal}}
     <script>
         var jackpot_price_str = "{{=Lottery.JackpotPrice_Str}}";
         var auth = false;
@@ -302,7 +302,9 @@
                         <div class="ct-game-over1 ct-game-over11">
                             <div class="ev-ft1">
                                 <div class="tit-game-over1">Игра окончена</div>
-                                <div class="win-bl1"><div><img src="{{=Lottery.Winner.Avatar}}" alt="{{=Lottery.Winner.Name}}"></div></div>
+                                <a href="" onclick="return GetUsersProfile({{=Lottery.Winner}});">
+                                    <div class="win-bl1"><div><img src="{{=Lottery.Winner.Avatar}}" alt="{{=Lottery.Winner.Name}}"></div></div>
+                                </a>
                                 <div class="np-ett1">{{=Lottery.Winner.Name}}</div>
                                 {{if(Lottery.LeftTimeNextGame > 0)}}
                                     <div id="ower_timer">
@@ -506,7 +508,9 @@
                     <div class="ct-game-over1 ct-game-over11">
                         <div class="ev-ft1">
                             <div class="tit-game-over1">Игра окончена</div>
-                            <div class="win-bl1"><div><img src="" alt="" id="winners_avatar"></div></div>
+                            <a href="" id="won_open_winners_profile">
+                                <div class="win-bl1"><div><img src="" alt="" id="winners_avatar"></div></div>
+                            </a>
                             <div class="np-ett1" id="winners_name"></div>
                             <a href="" class="new-game">Новая игра</a>
                         </div>
@@ -522,17 +526,18 @@
                 </div>
                 <div></div>
                 <div class="head-bl-et1">
-                    <div class="av-ll1">
-                        <img [user_avatar] alt="[USER_NAME_2]">
-                        <div>
+                    <a href="" onclick="return GetUsersProfile([USER_ID]);">
+                        <div class="av-ll1">
+                            <img [user_avatar] alt="[USER_NAME_2]">
                             <div>
-                                <span>[USER_NAME]</span>
-                                <i>[hangout_text]</i>
-                                <b id="hangout_user">[hangout_user]</b>
+                                <div>
+                                    <span>[USER_NAME]</span>
+                                    <i>[hangout_text]</i>
+                                    <b id="hangout_user">[hangout_user]</b>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
+                    </a>
                     <div class="bl-st2">
                         <div class="evr1">
                             <a class="j1" style="margin-left:30px;">[BET_ITEMS_NUM]</a>
@@ -580,19 +585,20 @@
                         </div>
                         <div></div>
                         <div class="head-bl-et1">
-                            <div class="av-ll1">
-                                <img src="{{=bet.XUser.Avatar}}" alt="{{=bet.XUser.Name}}">
-                                <div>
+                            <a href="" onclick="return GetUsersProfile({{=bet.XUser.ID}});">
+                                <div class="av-ll1">
+                                    <img src="{{=bet.XUser.Avatar}}" alt="{{=bet.XUser.Name}}">
                                     <div>
-                                        <span>{{=bet.XUser.Name}}</span>
-                                        {{if(bet.XUser.GroupOwnerID >= 0)}}
-                                            <i>Тусовка:</i>
-                                            <b>{{=Helper.GroupHelper.SelectByID((uint)bet.XUser.GroupOwnerID).Name}}</b>
-                                        {{end}}
+                                        <div>
+                                            <span>{{=bet.XUser.Name}}</span>
+                                            {{if(bet.XUser.GroupOwnerID >= 0)}}
+                                                <i>Тусовка:</i>
+                                                <b>{{=Helper.GroupHelper.SelectByID((uint)bet.XUser.GroupOwnerID).Name}}</b>
+                                            {{end}}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
+                            </a>
                             <div class="bl-st2">
                                 <div class="evr1">
                                     <a class="j1">{{=bet.ItemsNum}}</a>
@@ -620,7 +626,7 @@
                                 <div class="item1">
                                     <img src="/chip-image/{{=chip.ID}}">
                                     <span class="">{{=chip.Cost_Str}}</span>
-                                    <div class="tiltp">Фишка на сумму {{=chip.Cost / Helper.Rub_ExchangeRate}}$</div>
+                                    <div class="tiltp">Фишка на сумму {{=Helper.ChipHelper.SelectByID(chip.ID).Cost}}$</div>
                                 </div>
                             {{end}}
 

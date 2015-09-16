@@ -45,9 +45,9 @@ namespace GameSlot.Helpers
                 {
                     List<XSteamBotProcessItems> processes;
 
-                    if (this.Table_Items.Select(data => data.SteamBotID == Bot.ID && data.Status > 0, out processes))
+                    if (this.Table_Items.Select(data => data.SteamBotID == Bot.ID && data.Status < 1, out processes))
                     {
-                        if (processes.Count > count)
+                        if (processes.Count < count)
                         {
                             count = processes.Count;
                             XSteamBot = Bot;

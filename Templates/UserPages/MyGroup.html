@@ -7,6 +7,7 @@
         <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
         {{include GameSlot UpHeader}}
         {{include GameSlot Header}}
+        {{include GameSlot ProfileModal}}
 
         {{using GameSlot.Types}}
         {{set UGroup Group = (UGroup) PageData["Group"]}}
@@ -65,7 +66,6 @@
                     ws.send("MyGroupPage{{=BaseFuncs.WSplit}}ChangeName{{=BaseFuncs.WSplit}}" + name);
 
                     GroupName = name;
-                    alert("name updated!")
                 }
                 return false;
             }
