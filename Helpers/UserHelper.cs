@@ -483,7 +483,7 @@ namespace GameSlot.Helpers
                                     SteamItem.Color = XSteamItem.Color = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0]; ;
 
                                     string RusName = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
-                                    XSteamItem.RusName = BaseFuncs.XSSReplacer(Helper.SteamItemsHelper.MakeTextFromRealDich(RusName));
+                                    XSteamItem.RusName = Helper.SteamItemsHelper.MakeTextFromRealDich(RusName);
 
                                     if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)
                                     {

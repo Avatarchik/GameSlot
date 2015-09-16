@@ -260,7 +260,13 @@ namespace GameSlot.Helpers
             {
                 try
                 {
-                    string name = ItemName.Replace("\\u2122", "%E2%84%A2").Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("|", "%27");
+                    string name = ItemName.Replace("\\u2122", "%E2%84%A2").Replace("\\u2605", "★").Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("|", "%27");
+
+                    if (SteamGameID == 730)
+                    {
+                        Logger.ConsoleLog(ItemName);
+                        Logger.ConsoleLog(name);
+                    }
                     string data = webClient.DownloadString("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name);
                     if (data.Contains("\"success\":true") && (data.Contains("\"median_price\":\"") && data.Contains("\"lowest_price\":\"")))
                     {

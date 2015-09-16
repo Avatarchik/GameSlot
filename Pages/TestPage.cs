@@ -154,10 +154,10 @@ namespace GameSlot.Pages
                     for(int i = 0; i < SteamItems.Count; i++)
                     {
                         XSteamItem item = Helper.SteamItemsHelper.Table.SelectByID(SteamItems[i].ID);
-                        if (item.Name.Contains("&#39;"))
+                        if (item.Name.Contains("&#39;") || item.RusName.Contains("&#39;"))
                         {
                             item.Name = item.Name.Replace("&#39;", "'");
-                            item.RusName = BaseFuncs.XSSReplacer(item.RusName);
+                            item.RusName = item.RusName.Replace("&#39;", "'");
                             Helper.SteamItemsHelper.Table.UpdateByID(item, item.ID);
                             co++;
                         }
