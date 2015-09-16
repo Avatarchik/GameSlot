@@ -154,10 +154,10 @@ namespace GameSlot.Pages
                     for(int i = 0; i < SteamItems.Count; i++)
                     {
                         XSteamItem item = Helper.SteamItemsHelper.Table.SelectByID(SteamItems[i].ID);
-                        if (item.Name.Contains("&#39;") || item.RusName.Contains("&#39;"))
+                        if (item.Name.Contains("&amp;#39;") || item.RusName.Contains("&amp;#39;"))
                         {
-                            item.Name = item.Name.Replace("&#39;", "'");
-                            item.RusName = item.RusName.Replace("&#39;", "'");
+                            item.Name = item.Name.Replace("&amp;#39;", "'");
+                            item.RusName = item.RusName.Replace("&amp;#39;", "'");
                             Helper.SteamItemsHelper.Table.UpdateByID(item, item.ID);
                             co++;
                         }
@@ -177,7 +177,7 @@ namespace GameSlot.Pages
                 {
                     foreach (XSteamItem itm in Helper.SteamItemsHelper.Table.SelectAll())
                     {
-                        if (itm.Name.Contains("&#39;"))
+                        if (itm.Name.Contains("&amp;#39;"))
                         {
                             Logger.ConsoleLog(itm.Name, ConsoleColor.Cyan);
                         }
