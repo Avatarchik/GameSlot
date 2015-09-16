@@ -37,6 +37,9 @@ $(document).ready(function() {
 		$('.modal-tb').width($(window).width()).height($(window).height());
 		$('.bf-tt2').css({'min-height':$(window).height()});
 		$('.bf-tt3').height($('#page').height()).css({'min-height':$(window).height()});
+		if($('.bf-tt4').length>0) {
+			$('.bf-tt4').height($('#content').offset().top);
+		}
 	}
 	ress();
 	if($('#content').length>0) {

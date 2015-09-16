@@ -504,7 +504,7 @@
             $("#user_profile_modal #profile_url").attr("href", data[10]);
 
             if (data[14] == 1) {
-                $("#user_profile_modal #game_h_title").text("Последние 50 игр");
+                $("#user_profile_modal #game_h_title").text("Последние 15 игр");
             }
             else {
                 $("#user_profile_modal #game_h_title").text("Последние игры");
@@ -545,7 +545,10 @@
                 $("#user_profile_modal #last_games #last_position").before(block);
             }
 
-
+            $(".content-modal1").mCustomScrollbar({
+                horizontalScroll: false,
+                mouseWheelPixels: 300
+            });
         }
 
         if (data[0] == "UpdateOnlineUsers") {

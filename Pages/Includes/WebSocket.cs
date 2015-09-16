@@ -109,35 +109,41 @@ namespace GameSlot.Pages.Includes
                         {
                             if (data.WinnersToken > 0)
                             {
-                                int wr = Convert.ToInt32(Math.Round((100 * data.WinnersBetPrice) / data.JackpotPrice));
-                                string jc = "";
-
-                                if (currency == 1)
+                                XLotteryBet b;
+                                if (Helper.LotteryHelper.TableBet.SelectOne(bt => bt.LotteryID == data.ID && bt.UserID == user.ID, out b))
                                 {
-                                    jc = (data.JackpotPrice * data.RubCurrency).ToString("###,###,##0");
-                                }
-                                else if (currency == 0)
-                                {
-                                    jc = data.JackpotPrice.ToString("###,##0.00");
-                                }
+                                    int wr = Convert.ToInt32(Math.Round((100 * data.WinnersBetPrice) / data.JackpotPrice));
+                                    string jc = "";
 
-                                ushort wnr = 0;
-                                if(data.Winner == user.ID)
-                                {
-                                    wnr = 1;
-                                }
+                                    if (currency == 1)
+                                    {
+                                        jc = (data.JackpotPrice * data.RubCurrency).ToString("###,###,##0");
+                                    }
+                                    else if (currency == 0)
+                                    {
+                                        jc = data.JackpotPrice.ToString("###,##0.00");
+                                    }
 
-                                Games += data.ID + ";" + data.ID.ToString("000-000-000") + ";" + wr + ";" + data.JackpotItemsNum + ";" + jc + ";" + wnr + "↑";
+                                    ushort wnr = 0;
+                                    if (data.Winner == user.ID)
+                                    {
+                                        wnr = 1;
+                                    }
+
+                                    Games += data.ID + ";" + data.ID.ToString("000-000-000") + ";" + wr + ";" + data.JackpotItemsNum + ";" + jc + ";" + wnr + "↑";
+
+                                    return true;
+                                }
                             }
                             return false;
-                        }, out Lots, 0, 50);
+                        }, out Lots, 0, 15);
 
 
                         client.SendWebsocket("GetProfile" + BaseFuncs.WSplit + user.Name + BaseFuncs.WSplit + user.Avatar + BaseFuncs.WSplit + GamesCount
                             + BaseFuncs.WSplit + WonCount + BaseFuncs.WSplit + Winrate + BaseFuncs.WSplit + (user.CSGO_TotalBetItemsCount + user.DOTA_TotalBetItemsCount)
                             + BaseFuncs.WSplit + (user.CSGO_WonItemsCount + user.DOTA_WonItemsCount) + BaseFuncs.WSplit + BetPrice
                             + BaseFuncs.WSplit + WonPrice + BaseFuncs.WSplit + user.ProfileURL + BaseFuncs.WSplit + user.GroupOwnerID + BaseFuncs.WSplit + GroupName + BaseFuncs.WSplit + Games
-                            + BaseFuncs.WSplit + ((Lots.Length < 50) ? 0 : 1));
+                            + BaseFuncs.WSplit + ((Lots.Length < 15) ? 0 : 1));
                     }
                 }
 

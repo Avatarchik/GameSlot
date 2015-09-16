@@ -586,9 +586,6 @@
     <EmbeddedResource Include="Templates\Includes\UpHeader.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\js\common.js" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Content\Cache\wm\wm_our.png" />
   </ItemGroup>
   <ItemGroup>
@@ -599,10 +596,16 @@
     <EmbeddedResource Include="Templates\TopPlayers.html" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\ProfileModal.html" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Content\Cache\css\screen.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Templates\Includes\ProfileModal.html" />
+    <EmbeddedResource Include="Content\Cache\js\common.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\img\icons-sd18a6584c5.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
