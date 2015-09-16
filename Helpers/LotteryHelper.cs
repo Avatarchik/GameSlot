@@ -810,7 +810,7 @@ namespace GameSlot.Helpers
                         {
                             if(SteamInventory_String == null)
                             {
-                                while (SteamInventory_String != null)
+                                while (SteamInventory_String == null)
                                 {
                                     Helper.UserHelper.GetUsersSteamInventory_Json(User.ID, XLottery.SteamGameID, out SteamInventory_String);
                                 }
