@@ -260,7 +260,7 @@ namespace GameSlot.Helpers
             {
                 try
                 {
-                    string name = ItemName.Replace("\\u2122", "%E2%84%A2").Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("-", "%27");
+                    string name = ItemName.Replace("\\u2122", "%E2%84%A2").Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("|", "%27");
                     string data = webClient.DownloadString("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name);
                     if (data.Contains("\"success\":true") && (data.Contains("\"median_price\":\"") && data.Contains("\"lowest_price\":\"")))
                     {
@@ -282,10 +282,7 @@ namespace GameSlot.Helpers
                     }
                 }
 
-                catch {
-                    //string name = ItemName.Replace(" ", "%20").Replace("|", "%7C").Replace("(", "%28").Replace(")", "%29").Replace("™", "%E2%84%A2");
-                    //Logger.ConsoleLog("http://steamcommunity.com/market/priceoverview/?appid=" + SteamGameID + "&currency=1&market_hash_name=" + name, ConsoleColor.Red, LogLevel.Error);
-                }
+                catch {}
             }
 
             return -1;

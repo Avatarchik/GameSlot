@@ -39,7 +39,7 @@ namespace GameSlot.Helpers
         private static List<uint> OnlineUsers = new List<uint>();
         private static List<uint> UpdatingInventoryThreads = new List<uint>();
 
-        private static readonly object _OnlineUsers = new object();
+        //private static readonly object _OnlineUsers = new object();
         private static readonly object _UsersSteamInventories = new object();
         private static readonly object _UpdatingInventories = new object();
 
@@ -182,7 +182,7 @@ namespace GameSlot.Helpers
                             WebSocketPage.UpdateOnlineUsers(this.GetOnlineNum());
                         }
 
-                        Thread.Sleep(1);
+                        Thread.Sleep(100);
                     }
                     catch (Exception ex){
                         Logger.ConsoleLog(ex, ConsoleColor.Red, LogLevel.Error);
@@ -461,7 +461,7 @@ namespace GameSlot.Helpers
                                 string ItemContent = Regex.Split(data, "{\"appid\":\"" + SteamGameID + "\",\"classid\":\"" + classid + "\"")[1];
 
                                 string name = Regex.Split(ItemContent, "\"market_hash_name\":\"")[1].Split('"')[0];
-                                name = BaseFuncs.XSSReplacer(Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(name)));
+                                name = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(name));
 
                                 USteamItem SteamItem;
                                 if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem, User.Currency))

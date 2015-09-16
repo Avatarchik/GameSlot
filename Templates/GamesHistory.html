@@ -11,15 +11,21 @@
 
 <body class="vn1">
 	<div id="page">
+        {{if(SteamGameID == 0)}}
+            <img src="/cached_files/img/b4.jpg" alt="" class="bf-tt1">
+        {{end}}
+
        {{include GameSlot UpHeader}}
-       <div class="ft-img1"><span>
-            {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
-                <img src="/cached_files/img/b2.png" alt="">
-            {{end}}
-            {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
-                <img src="/cached_files/img/b3.png" alt="">
-            {{end}}
-        </span></div>
+       {{if(SteamGameID > 0)}}
+            <div class="ft-img1"><span>
+                {{if(SteamGameID == Configs.DOTA2_STEAM_GAME_ID)}}
+                    <img src="/cached_files/img/b2.png" alt="">
+                {{end}}
+                {{else if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)}}
+                    <img src="/cached_files/img/b3.png" alt="">
+                {{end}}
+            </span></div>
+       {{end}}
 
         {{include GameSlot Header}}
         <section id="content">

@@ -31,10 +31,21 @@
 
     var IGNORE_LOTTERY_ROULETTE_AUTO_UPDATE = false;
 
-    function sound_bet_come() {
-        var audio = new Audio(); 
-        audio.src = '/cached_files/audio/bet_come.mp3'; 
-        audio.autoplay = true; 
+    var can_sound_bet_come = true;
+
+    function sound_bet_come()
+    {
+        if (can_sound_bet_come)
+        {
+            can_sound_bet_come = false;
+            var audio = new Audio();
+            audio.src = '/cached_files/audio/bet_come.mp3';
+            audio.autoplay = true;
+
+            setTimeout(function () {
+                can_sound_bet_come = true;
+            }, 200);
+        }
     }
 
     function sound_winner_setted() {

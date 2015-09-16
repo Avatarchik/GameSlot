@@ -154,10 +154,14 @@ namespace GameSlot.Pages
                     for(int i = 0; i < SteamItems.Count; i++)
                     {
                         XSteamItem item = Helper.SteamItemsHelper.Table.SelectByID(SteamItems[i].ID);
-                        item.Name = BaseFuncs.XSSReplacer(item.Name);
-                        item.RusName = BaseFuncs.XSSReplacer(item.RusName);
-                        Helper.SteamItemsHelper.Table.UpdateByID(item, item.ID);
-                        co++;
+                        if (item.Name.Contains("&#39;"))
+                        {
+                            item.Name = item.Name.Replace("&#39;", "'");
+                            item.RusName = BaseFuncs.XSSReplacer(item.RusName);
+                            Helper.SteamItemsHelper.Table.UpdateByID(item, item.ID);
+                            co++;
+                        }
+                        
                     }
 
                     Logger.ConsoleLog("Updated " + co + " items", ConsoleColor.Cyan, LogLevel.Info);
@@ -169,14 +173,14 @@ namespace GameSlot.Pages
                     WebSocketPage.GetStats();
                 }
 
-                else if (client.GetParam("get_item_by_id") != null)
+                else if (client.GetParam("get_all_items") != null)
                 {
-                    XSteamItem Item;
-                    uint id;
-                    if (uint.TryParse(client.GetParam("get_item_by_id"), out id) && Helper.SteamItemsHelper.Table.SelectByID(id, out Item))
+                    foreach (XSteamItem itm in Helper.SteamItemsHelper.Table.SelectAll())
                     {
-
-                        Logger.ConsoleLog(Item.Name, ConsoleColor.Cyan, LogLevel.Info);
+                        if (itm.Name.Contains("&#39;"))
+                        {
+                            Logger.ConsoleLog(itm.Name, ConsoleColor.Cyan);
+                        }
                     }
 
                 }
