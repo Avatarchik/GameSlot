@@ -254,12 +254,25 @@ namespace GameSlot.Helpers
                         int WinnersBetsItemsCount = 0;
 
                         XLotteryBet[] WinnersBets;
+                        List<ulong> WinnersSteamItems = new List<ulong>();
+                        List<ulong> WinnersChipItems = new List<ulong>();
+
                         this.TableBet.SelectArr(data => 
                         { 
                             if(data.LotteryID == XLottery.ID && data.UserID == WinnerUser.ID)
                             {
                                 WinnersBetsItemsCount += data.SteamItemsNum + data.ChipsNum;
                                 WinnersBetsPrice += data.TotalPrice;
+
+                                for(int i = 0; i < data.SteamItemsNum; i++)
+                                {
+                                    WinnersSteamItems.Add(data.ItemAssertIDs[i]);
+                                }
+
+                                for (int i = 0; i < data.ChipsNum; i++)
+                                {
+                                    WinnersChipItems.Add(data.ChipAssertIDs[i]);
+                                }
                             }
                             return false;
                         }, out WinnersBets);
@@ -293,12 +306,22 @@ namespace GameSlot.Helpers
                             {
                                 for(int i = 0; i < XLotteryPercentages.Length; i++)
                                 {
+                                    if(XLotteryPercentages[i].UserID == WinnerUser.ID)
+                                    {
+                                        continue;
+                                    }
+
                                     XUser GroupOwner = Helper.UserHelper.Table.SelectByID(XLotteryPercentages[i].UserID);
                                     double GroupGetItemPrice = XLotteryPercentages[i].SteamItemsPrice;
                                     double GroupGetChipPrice = XLotteryPercentages[i].ChipPrice;
 
                                     for (int st = 0; st < SteamItems.Count; st++ )
                                     {
+                                        if (WinnersSteamItems.Contains(SteamItems[st].AssertID))
+                                        {
+                                            continue;
+                                        }
+
                                         if (GroupGetItemPrice < Configs.MIN_ITEMS_PRICE)
                                         {
                                             break;
@@ -335,6 +358,11 @@ namespace GameSlot.Helpers
 
                                     for (int ch = 0; ch < Chips.Count; ch++)
                                     {
+                                        if (WinnersChipItems.Contains(Chips[ch].AssertID))
+                                        {
+                                            continue;
+                                        }
+
                                         if (GroupGetChipPrice < Configs.MIN_ITEMS_PRICE)
                                         {
                                             break;
