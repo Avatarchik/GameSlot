@@ -182,7 +182,7 @@ namespace GameSlot
                             Logger.ConsoleLog("Offer sent to steamid: '" + args[1] + "'; Got offer ID: " + args[2]);
                             Offers.Add(args[2], args[1]);
                         }
-                        else if (args[0] == "sending_error") // ошибка запроса шмоток(стим ответил ошибкой 500), скорее всего такого итема у чула нет(например передал кому то со времени последнего апдейта инвентаря)
+                        else if (args[0] == "offer_false") // ошибка запроса шмоток(стим ответил ошибкой 500), скорее всего такого итема у чула нет(например передал кому то со времени последнего апдейта инвентаря)
                         {
                             XBotsOffer XBotsOffer;
                             if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.SteamUserID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XBotsOffer))
@@ -194,7 +194,7 @@ namespace GameSlot
                                 WebSocketPage.SendItemsOffer(XBotsOffer.SteamUserID, 0);
                             }
 
-                            Logger.ConsoleLog("Cant send offer to steamid: '" + args[1] + "'; error occured ");
+                            Logger.ConsoleLog("offer_false: '" + args[1] + "'; error occured ");
                             Offers.Add(args[2], args[1]);
                         }
                         else if (args[0] == "sent_items")// отправка приза
@@ -260,9 +260,9 @@ namespace GameSlot
                                     Logger.ConsoleLog("Trying to decline offer with 0 offer_id status:" + XBotsOffer[i].Status + " UserID:" + XBotsOffer[i].UserID
                                         + " SteamUserID:" + XBotsOffer[i].SteamUserID + "ItemsNum: " + XBotsOffer[i].BotID, ConsoleColor.Yellow, LogLevel.Error);
 
-                                    /*XBotsOffer XBotsOffer_fail = Helper.SteamBotHelper.Table_BotsOffer.SelectByID(XBotsOffer[i].ID);
+                                    XBotsOffer XBotsOffer_fail = Helper.SteamBotHelper.Table_BotsOffer.SelectByID(XBotsOffer[i].ID);
                                     XBotsOffer_fail.Status = 5;
-                                    Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer_fail, XBotsOffer_fail.ID);*/
+                                    Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer_fail, XBotsOffer_fail.ID);
 
                                     continue;
                                 }
