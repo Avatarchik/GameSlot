@@ -402,27 +402,39 @@ namespace GameSlot.Helpers
             UsersInventory = null;
             return false;
         }
-        public bool GetUsersSteamInventory_Json(uint UserID, uint SteamGameID, out string inventory)
+        public bool GetUsersSteamInventory_Json(uint UserID, uint SteamGameID, out string inventory, ushort lang = 0)
         {
             XUser User;
+            string data = "";
             if (this.Table.SelectByID(UserID, out User))
             {
+
+            try_again:
                 try
                 {
                     using (WebClient WebClient = new WebClient())
                     {
-                        string data = WebClient.DownloadString(User.ProfileURL + "inventory/json/" + SteamGameID + "/2?l=english&trading=1");
-                        if (data.Contains("{\"success\":true"))
+                        string l = (lang == 0) ? "english" : "russian";
+                        data = WebClient.DownloadString(User.ProfileURL + "inventory/json/" + SteamGameID + "/2?l=" + l + "&trading=1");
+                        while (data.Contains("{\"success\""))
                         {
-                            inventory = data;
-                            return true;
+                            if (data.Contains("{\"success\":true"))
+                            {
+                                Logger.ConsoleLog("got inventory:" + data.Substring(0, Math.Min(100, data.Length)));
+                                inventory = data;
+                                return true;
+                            }
+                            Thread.Sleep(5000);
                         }
                     }
                 }
-                catch { }
+                catch {
+                    goto try_again;
+                }
             }
 
-            inventory = null;
+            Logger.ConsoleLog("got inventory:" + data);
+            inventory = data;
             return false;
         }
 
@@ -442,14 +454,15 @@ namespace GameSlot.Helpers
                     using (WebClient WebClient = new WebClient())
                     {
 
-                        string data = WebClient.DownloadString(User.ProfileURL + "inventory/json/" + SteamGameID + "/2?l=russian&trading=1");
+                        string data;
+                        bool result = this.GetUsersSteamInventory_Json(User.ID, SteamGameID, out data, 1);
                        // Logger.ConsoleLog(data);
                         if (User.SteamInventoryHash.Equals(BaseFuncs.MD5(data)) && UsersInventories.ContainsKey(SteamGameID) && UsersInventories[SteamGameID].ContainsKey(User.ID)
                             && SteamItemsHelper.LastItemPricesUpdate < UsersInventories[SteamGameID][User.ID].LastUpdate)
                         {
                             UsersInventory = UsersInventories[SteamGameID][User.ID];
                         }
-                        else if (data.Contains("{\"success\":true"))
+                        else if (result)
                         {
                             List<USteamItem> SteamItems = new List<USteamItem>();
                             string[] Item = Regex.Split(data, "{\"id\":\"");
@@ -567,7 +580,9 @@ namespace GameSlot.Helpers
                         }
                     }
                 }
-                catch { }
+                catch (Exception Exception){
+                    Logger.ConsoleLog(Exception);
+                }
 
                 UsersInventory.LastUpdate = Helper.GetCurrentTime();
                 lock (_UsersSteamInventories)
