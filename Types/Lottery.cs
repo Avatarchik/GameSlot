@@ -40,5 +40,7 @@ namespace GameSlot.Types
         public double CentBank;
 
         public double RubCurrency;
+
+
     }
 }

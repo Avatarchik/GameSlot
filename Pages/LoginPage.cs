@@ -51,6 +51,7 @@ namespace GameSlot.Pages
                         {
                             client.Head.GetParams.Clear();
                             this.Init(client);
+                            return false;
                         }
                         else
                         {
@@ -63,6 +64,7 @@ namespace GameSlot.Pages
                                 {
                                     client.Head.GetParams.Clear();
                                     this.Init(client);
+                                    return false;
                                 }
                             }
                         }

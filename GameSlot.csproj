@@ -599,9 +599,6 @@
     <EmbeddedResource Include="Templates\Includes\ProfileModal.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\css\screen.css" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Content\Cache\js\common.js" />
   </ItemGroup>
   <ItemGroup>
@@ -610,6 +607,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\audio\bet_come.mp3" />
     <EmbeddedResource Include="Content\Cache\audio\winner.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\css\screen.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

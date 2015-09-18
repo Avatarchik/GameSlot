@@ -135,23 +135,45 @@
 
                 {{if(GamesNum > ShowNum)}}
                     <div class="nav-sp1">
-                        {{if(From <= 0)}}
-                            <div><a class="diss">В начало</a></div>
-                            <div><a class="diss">Предыдущая</a></div>
+                        {{if(MyLots)}}
+                            {{if(From <= 0)}}
+                                <div><a class="diss">В начало</a></div>
+                                <div><a class="diss">Предыдущая</a></div>
+                            {{end}}
+                            {{else}}
+                                <div><a class="" href='/games-history/{{=PageData["GameURL"]}}/my'>В начало</a></div>
+                                <div><a class="" href='/games-history/{{=PageData["GameURL"]}}/my/?from={{=((From-ShowNum < 0) ? 0 : (From-ShowNum))}}'>Предыдущая</a></div>
+                            {{end}}
+
+                            {{if(GamesNum <= (From+ShowNum))}}
+                                <div><a class="diss">Следующая</a></div>
+                                <div><a class="diss">В конец</a></div>
+                            {{end}}
+                            {{else}}
+                                <div><a href='/games-history/{{=PageData["GameURL"]}}/my/?from={{=(From+ShowNum)}}'>Следующая</a></div>
+                                <div><a href='/games-history/{{=PageData["GameURL"]}}/my/?from={{=GamesNum}}'>В конец</a></div>
+                            {{end}}
                         {{end}}
                         {{else}}
-                            <div><a class="" href='/games-history/{{=PageData["GameURL"]}}'>В начало</a></div>
-                            <div><a class="" href='/games-history/{{=PageData["GameURL"]}}/?from={{=((From-ShowNum < 0) ? 0 : (From-ShowNum))}}'>Предыдущая</a></div>
+                            {{if(From <= 0)}}
+                                <div><a class="diss">В начало</a></div>
+                                <div><a class="diss">Предыдущая</a></div>
+                            {{end}}
+                            {{else}}
+                                <div><a class="" href='/games-history/{{=PageData["GameURL"]}}'>В начало</a></div>
+                                <div><a class="" href='/games-history/{{=PageData["GameURL"]}}/?from={{=((From-ShowNum < 0) ? 0 : (From-ShowNum))}}'>Предыдущая</a></div>
+                            {{end}}
+
+                            {{if(GamesNum <= (From+ShowNum))}}
+                                <div><a class="diss">Следующая</a></div>
+                                <div><a class="diss">В конец</a></div>
+                            {{end}}
+                            {{else}}
+                                <div><a href='/games-history/{{=PageData["GameURL"]}}/?from={{=(From+ShowNum)}}'>Следующая</a></div>
+                                <div><a href='/games-history/{{=PageData["GameURL"]}}/?from={{=GamesNum}}'>В конец</a></div>
+                            {{end}}
                         {{end}}
 
-                        {{if(GamesNum <= (From+ShowNum))}}
-                            <div><a class="diss">Следующая</a></div>
-                            <div><a class="diss">В конец</a></div>
-                        {{end}}
-                        {{else}}
-                            <div><a href='/games-history/{{=PageData["GameURL"]}}/?from={{=(From+ShowNum)}}'>Следующая</a></div>
-                            <div><a href='/games-history/{{=PageData["GameURL"]}}/?from={{=GamesNum}}'>В конец</a></div>
-                        {{end}}
                     </div>
                 {{end}}
             </div>

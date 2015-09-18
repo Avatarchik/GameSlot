@@ -200,6 +200,151 @@ namespace GameSlot.Pages
                         Logger.ConsoleLog("Not found", ConsoleColor.Cyan);
 
                 }
+
+                else if(client.GetParam("update_all_users_top") != null)
+                {
+                    foreach (XUser XUser in Helper.UserHelper.Table.SelectAll())
+                    {
+                        XUser CurUser = Helper.UserHelper.Table.SelectByID(XUser.ID);
+                        CurUser.CSGO_RUB_WonTotalPrice = 0d;
+                        CurUser.CSGO_WonTotalPrice = 0d;
+                        CurUser.CSGO_WonItemsCount = 0;
+
+                        CurUser.DOTA_RUB_WonTotalPrice = 0d;
+                        CurUser.DOTA_WonTotalPrice = 0d;
+                        CurUser.DOTA_WonItemsCount = 0;
+                        //
+                        CurUser.DOTA_TotalBetItemsCount = 0;
+                        CurUser.DOTA_RUB_TotalBetPrice = 0;
+                        CurUser.DOTA_TotalBetPrice = 0;
+
+                        CurUser.CSGO_TotalBetItemsCount = 0;
+                        CurUser.CSGO_RUB_TotalBetPrice = 0;
+                        CurUser.CSGO_TotalBetPrice = 0;
+
+                        List<XLottery> Lotteries;
+                        Helper.LotteryHelper.Table.Select(data => data.WinnersToken > 0 && data.Winner == XUser.ID, out Lotteries);
+                        foreach (XLottery Lottery in Lotteries)
+                        {
+                            List<XLotteryUsersBetsPrice> BetsPrice;
+                            Helper.LotteryHelper.TableUsersBetsPrice.Select(data => data.LotteryID == Lottery.ID && data.UserID != Lottery.Winner, out BetsPrice);
+                            foreach (XLotteryUsersBetsPrice Bet in BetsPrice)
+                            {
+                                if (Lottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                {
+                                    CurUser.DOTA_WonTotalPrice += Bet.TotalBetsPrice;
+                                    CurUser.DOTA_RUB_WonTotalPrice += Bet.TotalBetsPrice * Lottery.RubCurrency;
+                                    CurUser.DOTA_WonItemsCount += Bet.TotalBetsItemsNum;
+                                }
+                                else if (Lottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                {
+                                    CurUser.CSGO_WonTotalPrice += Bet.TotalBetsPrice;
+                                    CurUser.CSGO_RUB_WonTotalPrice += Bet.TotalBetsPrice * Lottery.RubCurrency;
+                                    CurUser.CSGO_WonItemsCount += Bet.TotalBetsItemsNum;
+                                }
+                            }
+                        }
+
+                        // сумма ставок
+                        //List<XLottery> Lotteries2;
+                        Helper.LotteryHelper.Table.Select(data => data.WinnersToken > 0, out Lotteries);
+                        foreach (XLottery Lottery in Lotteries)
+                        {
+                            List<XLotteryUsersBetsPrice> BetsPrice;
+                            Helper.LotteryHelper.TableUsersBetsPrice.Select(data => data.LotteryID == Lottery.ID && data.UserID == XUser.ID, out BetsPrice);
+                            foreach (XLotteryUsersBetsPrice Bet in BetsPrice)
+                            {
+                                if (Lottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                {
+                                    CurUser.DOTA_TotalBetItemsCount += Bet.TotalBetsItemsNum;
+                                    CurUser.DOTA_RUB_TotalBetPrice += Bet.TotalBetsPrice * Lottery.RubCurrency;
+                                    CurUser.DOTA_TotalBetPrice += Bet.TotalBetsPrice;
+                                }
+                                else if (Lottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                {
+                                    CurUser.CSGO_TotalBetItemsCount += Bet.TotalBetsItemsNum;
+                                    CurUser.CSGO_RUB_TotalBetPrice += Bet.TotalBetsPrice * Lottery.RubCurrency;
+                                    CurUser.CSGO_TotalBetPrice += Bet.TotalBetsPrice;
+                                }
+                            }
+                        }
+                        Helper.UserHelper.Table.UpdateByID(CurUser, CurUser.ID);
+                    }          
+                }
+                else if (client.GetParam("update_all_groups_top") != null && client.GetParam("sure") != null)
+                {
+                    foreach (XUser XUser in Helper.UserHelper.Table.SelectAll())
+                    {
+                        XUser CurUser = Helper.UserHelper.Table.SelectByID(XUser.ID);
+                        CurUser.CSGO_RUB_GroupWonTotalPrice = 0d;
+                        CurUser.CSGO_GroupWonTotalPrice = 0d;
+                        CurUser.CSGO_GroupWonItemsCount = 0;
+
+                        CurUser.DOTA_RUB_GroupWonTotalPrice = 0d;
+                        CurUser.DOTA_GroupWonTotalPrice = 0d;
+                        CurUser.DOTA_GroupWonItemsCount = 0;
+
+                        List<XUser> group_users;
+                        Helper.UserHelper.Table.Select(data => (int)data.GroupOwnerID == XUser.ID, out group_users);
+                        foreach (XUser group_user in group_users)
+                        {
+                            List<XLottery> Lotteries;
+                            Helper.LotteryHelper.Table.Select(data => data.WinnersToken > 0 && data.Winner == group_user.ID, out Lotteries);
+                            foreach (XLottery Lottery in Lotteries)
+                            {
+                                List<XLotteryUsersBetsPrice> BetsPrice;
+                                Helper.LotteryHelper.TableUsersBetsPrice.Select(data => data.LotteryID == Lottery.ID && data.UserID != Lottery.Winner, out BetsPrice);
+                                foreach (XLotteryUsersBetsPrice Bet in BetsPrice)
+                                {
+                                    if (Lottery.SteamGameID == Configs.DOTA2_STEAM_GAME_ID)
+                                    {
+                                        CurUser.DOTA_GroupWonTotalPrice += Bet.TotalBetsPrice;
+                                        CurUser.DOTA_RUB_GroupWonTotalPrice += Bet.TotalBetsPrice * Lottery.RubCurrency;
+                                        CurUser.DOTA_GroupWonItemsCount += Bet.TotalBetsItemsNum;
+                                    }
+                                    else if (Lottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                    {
+                                        CurUser.CSGO_GroupWonTotalPrice += Bet.TotalBetsPrice;
+                                        CurUser.CSGO_RUB_GroupWonTotalPrice += Bet.TotalBetsPrice * Lottery.RubCurrency;
+                                        CurUser.CSGO_GroupWonItemsCount += Bet.TotalBetsItemsNum;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        Helper.UserHelper.Table.UpdateByID(CurUser, CurUser.ID);
+                    }
+                }
+
+                else if(client.GetParam("send_lost_items_to_local_usr") != null && client.GetParam("sure") != null)
+                {
+                    List<XBotsOffer> XBotsOffers;
+                    Helper.SteamBotHelper.Table_BotsOffer.Select(data => (data.Status == 0), out XBotsOffers);
+                    int i = 0;
+                    foreach(XBotsOffer offer_d in XBotsOffers)
+                    {
+                        XBotsOffer offer = Helper.SteamBotHelper.Table_BotsOffer.SelectByID(offer_d.ID);
+                        offer.Status = 5;
+                        Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(offer, offer.ID);
+                        Helper.SteamBotHelper.ErrorToSendLocalItem(offer.SteamUserID, offer.SentTime);
+
+                         XUser g_usr;
+                         Helper.UserHelper.SelectBySteamID(offer.SteamUserID, out g_usr);
+                         Logger.ConsoleLog("Sent to " + g_usr.ID + "SteamID " + offer.SteamUserID + " num: " + i++, ConsoleColor.Cyan, LogLevel.Info);
+
+                        WebSocketPage.SendItemsOffer(offer.SteamUserID, 0);
+                    }
+                }
+                
+                else if (client.GetParam("local") != null)
+                {
+                    List<XBotsOffer> XBotsOffers;
+                    Helper.SteamBotHelper.Table_BotsOffer.Select(data => data.SteamUserID == 76561198051486946, out XBotsOffers);
+                    foreach (XBotsOffer offer_d in XBotsOffers)
+                    {
+                        Logger.ConsoleLog(offer_d.ID + ":" + offer_d.Status, ConsoleColor.Cyan, LogLevel.Info);
+                    }
+                }
             }
 
             Random rnd = new Random();

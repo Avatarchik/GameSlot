@@ -27,6 +27,14 @@ namespace GameSlot.Pages.UserPages
             XUser User;
             if (Helper.UserHelper.GetCurrentUser(client, out User))
             {
+                Logger.ConsoleLog("DOTA: DOTA_GroupWonTotalPrice: " + User.DOTA_GroupWonTotalPrice);
+                Logger.ConsoleLog("DOTA: DOTA_RUB_GroupWonTotalPrice: " + User.DOTA_RUB_GroupWonTotalPrice);
+                Logger.ConsoleLog("DOTA: DOTA_GroupWonItemsCount: " + User.DOTA_GroupWonItemsCount);
+
+                Logger.ConsoleLog("CSGO: CSGO_GroupWonTotalPrice: " + User.CSGO_GroupWonTotalPrice);
+                Logger.ConsoleLog("CSGO: CSGO_RUB_GroupWonTotalPrice: " + User.CSGO_RUB_GroupWonTotalPrice);
+                Logger.ConsoleLog("CSGO: CSGO_GroupWonItemsCount: " + User.CSGO_GroupWonItemsCount);
+
                 UGroup group;
                 Helper.GroupHelper.SelectByID(User.ID, out group, out User, client);
 

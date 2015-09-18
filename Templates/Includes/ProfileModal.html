@@ -3,9 +3,10 @@
     function GetUsersProfile(id)
     {
         if (can_GetUsersProfile) {
-            can_GetUsersProfile = false;
-            $("#user_profile_modal #last_games").html("<div style='display:none;' id='last_position'></div>");
             ws.send("GetProfile{{=BaseFuncs.WSplit}}" + id);
+            can_GetUsersProfile = false;
+            $("#user_profile_modal #last_games").html("");
+            
         }
 
         return false;
@@ -52,8 +53,8 @@
                     <p><span>Процент побед:</span><i id="winrate"></i><b></b></p>
                     <p><span>Поставил предметов:</span><i id="total_bets_items"></i><b></b></p>
                     <p><span>Выиграл предметов:</span><i id="total_won_items"></i><b></b></p>
-                    <p><span>Сумма ставок:</span><i id="bets_total_price" class="rb-en1"></i><b></b></p>
-                    <p><span>Сумма выигрышей:</span><i id="jackpot_total_price" class="rb-en1"></i><b></b></p>
+                    <p><span>Поставил на сумму:</span><i id="bets_total_price" class="rb-en1"></i><b></b></p>
+                    <p><span>Прибыль:</span><i id="jackpot_total_price" class="rb-en1"></i><b></b></p>
                 </div>
             </div>
             <div class="tit-mp1" id="game_h_title">Последние игры</div>

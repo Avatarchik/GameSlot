@@ -511,8 +511,7 @@
 
         if (data[0] == "GetProfile")
         {
-            $("#user_profile_modal").attr("style", "");
-            $("#user_profile_modal").addClass("active");
+            $("#user_profile_modal").attr("style", "display:block;");
             $("#user_profile_modal #user_name").text(data[1]);
             $("#user_profile_modal #users_avatar").attr("src", data[2]);
             $("#user_profile_modal #played").text(data[3]);
@@ -542,6 +541,7 @@
             }
 
             var game = data[13].split("↑");
+            var last_games_html = "";
             for(var i = 0; i < game.length -1; i++)
             {
                 var spl = game[i].split(";");
@@ -562,9 +562,9 @@
                     block = block.replace("[won_or_lost_class]", "stts j1");
                     block = block.replace("[won_or_lost]", "Выигрыш");
                 }
-
-                $("#user_profile_modal #last_games #last_position").before(block);
+                last_games_html += block;
             }
+            $("#user_profile_modal #last_games").html(last_games_html);
 
             $(".content-modal1").mCustomScrollbar({
                 horizontalScroll: false,
@@ -1010,7 +1010,7 @@
 
                     rull();
                     rrch();
-                    console.log("LotteryRouletteStarted");
+                    LotteryPageConnect = false;
                 }
             }
 

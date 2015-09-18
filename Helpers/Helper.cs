@@ -23,6 +23,9 @@ namespace GameSlot
 
         public static double Rub_ExchangeRate = 0;
 
+        //public static UHTTPDownloader HTTPSteamDownloader;
+       // public static UHTTPDownloader HTTPSteamPoweredDownloader = new UHTTPDownloader("api.steampowered.com");
+
         public static int GetCurrentTime()
         {
             return (int)(DateTime.Now - new DateTime(2015, 7, 18)).TotalSeconds;

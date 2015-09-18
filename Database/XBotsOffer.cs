@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 34, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 30, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XBotsOffer
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -34,9 +34,5 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.U8)]
         [FieldOffset(22)]
         public ulong OfferID;
-
-        [MarshalAs(UnmanagedType.U4)]
-        [FieldOffset(30)]
-        public uint UserID;
     }
 }

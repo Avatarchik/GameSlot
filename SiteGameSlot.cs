@@ -83,6 +83,7 @@ namespace GameSlot
             Helper.SteamBotHelper = new SteamBotHelper();
             Helper.OrderHelper = new OrderHelper();
 
+            //Helper.HTTPSteamDownloader = new UHTTPDownloader("steamcommunity.com");
             Helper.LotteryHelper.StartLottery(Configs.DOTA2_STEAM_GAME_ID);
             Thread.Sleep(100);
             Helper.LotteryHelper.StartLottery(Configs.CSGO_STEAM_GAME_ID);

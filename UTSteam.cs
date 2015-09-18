@@ -182,7 +182,29 @@ namespace GameSlot
                             Logger.ConsoleLog("Offer sent to steamid: '" + args[1] + "'; Got offer ID: " + args[2]);
                             Offers.Add(args[2], args[1]);
                         }
-                        else if (args[0] == "offer_false") // ошибка запроса шмоток(стим ответил ошибкой 500), скорее всего такого итема у чула нет(например передал кому то со времени последнего апдейта инвентаря)
+
+                        else if (args[0] == "sending_error") // ошибка запроса шмоток(стим ответил ошибкой 500), скорее всего такого итема у чула нет(например передал кому то со времени последнего апдейта инвентаря)
+                        {
+                            XSteamBotProcessItems XSteamBotProcessItem;
+                            if (Helper.SteamBotHelper.Table_Items.SelectOne(bt => bt.UserSteamID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XSteamBotProcessItem))
+                            {
+                                XSteamBotProcessItem.Status = 8;
+                                XSteamBotProcessItem.StatusChangedTime = Helper.GetCurrentTime();
+                                // TODO: отправить уведомление, что не получилось выслать
+                                Helper.SteamBotHelper.Table_Items.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
+
+                                if (UTSteam.ClientsOffer.ContainsKey(XSteamBotProcessItem.UserSteamID))
+                                {
+                                    ulong steamID = XSteamBotProcessItem.UserSteamID;
+                                    UTSteam.ClientsOffer[steamID].SendWebsocket("BetDone" + BaseFuncs.WSplit + "0");
+                                }
+                            }
+
+                            Logger.ConsoleLog("sending_error: '" + args[1] + "'; error occured ");
+                            Offers.Add(args[2], args[1]);
+                        }
+
+                        else if (args[0] == "offer_false")
                         {
                             XBotsOffer XBotsOffer;
                             if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.SteamUserID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XBotsOffer))
@@ -197,6 +219,7 @@ namespace GameSlot
                             Logger.ConsoleLog("offer_false: '" + args[1] + "'; error occured ");
                             Offers.Add(args[2], args[1]);
                         }
+
                         else if (args[0] == "sent_items")// отправка приза
                         {
                             XBotsOffer XBotsOffer;
@@ -251,22 +274,10 @@ namespace GameSlot
                     while (true)
                     {
                         XBotsOffer[] XBotsOffer;
-                        if (Helper.SteamBotHelper.Table_BotsOffer.SelectArr(data => data.Status <= 1 && (data.SentTime + 3660 + 120 < Helper.GetCurrentTime()), out XBotsOffer))
+                        if (Helper.SteamBotHelper.Table_BotsOffer.SelectArr(data => data.Status == 1 && (data.SentTime + 3660 + 120 < Helper.GetCurrentTime()), out XBotsOffer))
                         {
                             for (int i = 0; i < XBotsOffer.Length; i++)
                             {
-                                if (XBotsOffer[i].OfferID == 0)
-                                {
-                                    Logger.ConsoleLog("Trying to decline offer with 0 offer_id status:" + XBotsOffer[i].Status + " UserID:" + XBotsOffer[i].UserID
-                                        + " SteamUserID:" + XBotsOffer[i].SteamUserID + "ItemsNum: " + XBotsOffer[i].BotID, ConsoleColor.Yellow, LogLevel.Error);
-
-                                    XBotsOffer XBotsOffer_fail = Helper.SteamBotHelper.Table_BotsOffer.SelectByID(XBotsOffer[i].ID);
-                                    XBotsOffer_fail.Status = 5;
-                                    Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer_fail, XBotsOffer_fail.ID);
-
-                                    continue;
-                                }
-
                                 UpTunnel.Sender.Send(UTSteam.sk, "decline:" + XBotsOffer[i].OfferID);
                             }
                         }

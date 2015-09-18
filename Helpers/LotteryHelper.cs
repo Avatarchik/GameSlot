@@ -306,14 +306,14 @@ namespace GameSlot.Helpers
                         {
                             WinnerUser.DOTA_WonCount++;
                             WinnerUser.DOTA_WonTotalPrice += LastLottery.JackpotPrice - WinnersBetsPrice;
-                            WinnerUser.DOTA_RUB_WonTotalPrice += WinnerUser.DOTA_WonTotalPrice * LastLottery.RubCurrency;
+                            WinnerUser.DOTA_RUB_WonTotalPrice += ((LastLottery.JackpotPrice - WinnersBetsPrice) * LastLottery.RubCurrency);
                             WinnerUser.DOTA_WonItemsCount += SteamItems.Count + Chips.Count - WinnersBetsItemsCount;
                         }
                         else if (LastLottery.SteamGameID == Configs.CSGO_STEAM_GAME_ID)
                         {
                             WinnerUser.CSGO_WonCount++;
                             WinnerUser.CSGO_WonTotalPrice += LastLottery.JackpotPrice - WinnersBetsPrice;
-                            WinnerUser.CSGO_RUB_WonTotalPrice += WinnerUser.CSGO_WonTotalPrice * LastLottery.RubCurrency;
+                            WinnerUser.CSGO_RUB_WonTotalPrice += ((LastLottery.JackpotPrice - WinnersBetsPrice) * LastLottery.RubCurrency);
                             WinnerUser.CSGO_WonItemsCount += SteamItems.Count + Chips.Count - WinnersBetsItemsCount;
                         }
 
@@ -447,19 +447,19 @@ namespace GameSlot.Helpers
                                 if (WinnerUser.GroupOwnerID == WinnerUser.ID)
                                 {
                                     WinnerUser.DOTA_GroupWonCount++;
-                                    WinnerUser.DOTA_GroupWonItemsCount += WinnerUser.DOTA_WonItemsCount;
+                                    WinnerUser.DOTA_GroupWonItemsCount += (SteamItems.Count - WinnersBetsItemsCount);
 
-                                    WinnerUser.DOTA_GroupWonTotalPrice += WinnerUser.DOTA_WonTotalPrice;
-                                    WinnerUser.DOTA_RUB_GroupWonTotalPrice += WinnerUser.DOTA_RUB_WonTotalPrice;
+                                    WinnerUser.DOTA_GroupWonTotalPrice += (LastLottery.JackpotPrice - WinnersBetsPrice);
+                                    WinnerUser.DOTA_RUB_GroupWonTotalPrice += ((LastLottery.JackpotPrice - WinnersBetsPrice) * LastLottery.RubCurrency);
                                 }
                                 else
                                 {
                                     XUser GroupOwner = Helper.UserHelper.Table.SelectByID((uint)WinnerUser.GroupOwnerID);
                                     GroupOwner.DOTA_GroupWonCount++;
-                                    GroupOwner.DOTA_GroupWonItemsCount += WinnerUser.DOTA_WonItemsCount;
+                                    GroupOwner.DOTA_GroupWonItemsCount += (SteamItems.Count - WinnersBetsItemsCount);
 
-                                    GroupOwner.DOTA_GroupWonTotalPrice += WinnerUser.DOTA_WonTotalPrice;
-                                    GroupOwner.DOTA_RUB_GroupWonTotalPrice += WinnerUser.DOTA_RUB_WonTotalPrice;
+                                    GroupOwner.DOTA_GroupWonTotalPrice += (LastLottery.JackpotPrice - WinnersBetsPrice);
+                                    GroupOwner.DOTA_RUB_GroupWonTotalPrice += ((LastLottery.JackpotPrice - WinnersBetsPrice) * LastLottery.RubCurrency);
 
                                     Helper.UserHelper.Table.UpdateByID(GroupOwner, GroupOwner.ID);
                                 }
@@ -469,19 +469,19 @@ namespace GameSlot.Helpers
                                 if (WinnerUser.GroupOwnerID == WinnerUser.ID)
                                 {
                                     WinnerUser.CSGO_GroupWonCount++;
-                                    WinnerUser.CSGO_GroupWonItemsCount += WinnerUser.CSGO_WonItemsCount;
+                                    WinnerUser.CSGO_GroupWonItemsCount += (SteamItems.Count - WinnersBetsItemsCount);
 
-                                    WinnerUser.CSGO_GroupWonTotalPrice += WinnerUser.CSGO_WonTotalPrice;
-                                    WinnerUser.CSGO_RUB_GroupWonTotalPrice += WinnerUser.CSGO_RUB_WonTotalPrice;
+                                    WinnerUser.CSGO_GroupWonTotalPrice += (LastLottery.JackpotPrice - WinnersBetsPrice);
+                                    WinnerUser.CSGO_RUB_GroupWonTotalPrice += ((LastLottery.JackpotPrice - WinnersBetsPrice) * LastLottery.RubCurrency);
                                 }
                                 else
                                 {
                                     XUser GroupOwner = Helper.UserHelper.Table.SelectByID((uint)WinnerUser.GroupOwnerID);
                                     GroupOwner.CSGO_GroupWonCount++;
-                                    GroupOwner.CSGO_GroupWonItemsCount += WinnerUser.CSGO_WonItemsCount;
+                                    GroupOwner.CSGO_GroupWonItemsCount += (SteamItems.Count - WinnersBetsItemsCount);
 
-                                    GroupOwner.CSGO_GroupWonTotalPrice += WinnerUser.CSGO_WonTotalPrice;
-                                    GroupOwner.CSGO_RUB_GroupWonTotalPrice += WinnerUser.CSGO_RUB_WonTotalPrice;
+                                    GroupOwner.CSGO_GroupWonTotalPrice += (LastLottery.JackpotPrice - WinnersBetsPrice);
+                                    GroupOwner.CSGO_RUB_GroupWonTotalPrice += ((LastLottery.JackpotPrice - WinnersBetsPrice) * LastLottery.RubCurrency);
                                     Helper.UserHelper.Table.UpdateByID(GroupOwner, GroupOwner.ID);
                                 }
                             }

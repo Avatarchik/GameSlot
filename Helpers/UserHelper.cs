@@ -197,7 +197,6 @@ namespace GameSlot.Helpers
             {
                 using (WebClient WebClient = new WebClient())
                 {
-                    WebClient.Encoding = Encoding.UTF8;
                     string data = WebClient.DownloadString("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + Configs.STEAM_API + "&steamids=" + SteamID);
                     if (data.Contains("\"steamid\":"))
                     {
@@ -420,7 +419,7 @@ namespace GameSlot.Helpers
                         {
                             if (data.Contains("{\"success\":true"))
                             {
-                                Logger.ConsoleLog("got inventory:" + data.Substring(0, Math.Min(100, data.Length)));
+                                //Logger.ConsoleLog("got inventory:" + data.Substring(0, Math.Min(100, data.Length)));
                                 inventory = data;
                                 return true;
                             }
@@ -428,7 +427,8 @@ namespace GameSlot.Helpers
                         }
                     }
                 }
-                catch {
+                catch
+                {
                     goto try_again;
                 }
             }
@@ -451,136 +451,133 @@ namespace GameSlot.Helpers
                 }
                 try
                 {
-                    using (WebClient WebClient = new WebClient())
+                    string data;
+                    bool result = this.GetUsersSteamInventory_Json(User.ID, SteamGameID, out data, 1);
+                    // Logger.ConsoleLog(data);
+                    if (User.SteamInventoryHash.Equals(BaseFuncs.MD5(data)) && UsersInventories.ContainsKey(SteamGameID) && UsersInventories[SteamGameID].ContainsKey(User.ID)
+                        && SteamItemsHelper.LastItemPricesUpdate < UsersInventories[SteamGameID][User.ID].LastUpdate)
                     {
+                        UsersInventory = UsersInventories[SteamGameID][User.ID];
+                    }
+                    else if (result)
+                    {
+                        List<USteamItem> SteamItems = new List<USteamItem>();
+                        string[] Item = Regex.Split(data, "{\"id\":\"");
 
-                        string data;
-                        bool result = this.GetUsersSteamInventory_Json(User.ID, SteamGameID, out data, 1);
-                       // Logger.ConsoleLog(data);
-                        if (User.SteamInventoryHash.Equals(BaseFuncs.MD5(data)) && UsersInventories.ContainsKey(SteamGameID) && UsersInventories[SteamGameID].ContainsKey(User.ID)
-                            && SteamItemsHelper.LastItemPricesUpdate < UsersInventories[SteamGameID][User.ID].LastUpdate)
+                        for (int i = 1; i < Item.Length; i++)
                         {
-                            UsersInventory = UsersInventories[SteamGameID][User.ID];
-                        }
-                        else if (result)
-                        {
-                            List<USteamItem> SteamItems = new List<USteamItem>();
-                            string[] Item = Regex.Split(data, "{\"id\":\"");
+                            //Logger.ConsoleLog("On " + i + " from " + (Item.Length - 1));
+                            string classid = Regex.Split(Item[i], "\"classid\":\"")[1].Split('"')[0];
+                            string ItemContent = Regex.Split(data, "{\"appid\":\"" + SteamGameID + "\",\"classid\":\"" + classid + "\"")[1];
 
-                            for (int i = 1; i < Item.Length; i++)
+                            string name = Regex.Split(ItemContent, "\"market_hash_name\":\"")[1].Split('"')[0];
+                            name = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(name));
+
+                            USteamItem SteamItem;
+                            if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem, User.Currency))
                             {
-                                //Logger.ConsoleLog("On " + i + " from " + (Item.Length - 1));
-                                string classid = Regex.Split(Item[i], "\"classid\":\"")[1].Split('"')[0];
-                                string ItemContent = Regex.Split(data, "{\"appid\":\"" + SteamGameID + "\",\"classid\":\"" + classid + "\"")[1];
+                                XSteamItem XSteamItem = new XSteamItem();
+                                XSteamItem.Name = name;
 
-                                string name = Regex.Split(ItemContent, "\"market_hash_name\":\"")[1].Split('"')[0];
-                                name = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(name));
+                                SteamItem = new USteamItem();
 
-                                USteamItem SteamItem;
-                                if (!Helper.SteamItemsHelper.SelectByName(name, SteamGameID, out SteamItem, User.Currency))
+                                SteamItem.Price = XSteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(XSteamItem.Name, SteamGameID);
+                                if (XSteamItem.Price < 0)
                                 {
-                                    XSteamItem XSteamItem = new XSteamItem();
-                                    XSteamItem.Name = name;
+                                    SteamItem.Price = XSteamItem.Price = 0;
+                                }
 
-                                    SteamItem = new USteamItem();
+                                SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
 
-                                    SteamItem.Price = XSteamItem.Price = Helper.SteamItemsHelper.GetMarketPrice(XSteamItem.Name, SteamGameID);
-                                    if (XSteamItem.Price < 0)
+                                XSteamItem.Rarity = Regex.Split(ItemContent, "internal_name\":\"Rarity_")[1].Split('"')[0];
+                                SteamItem.Color = XSteamItem.Color = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0]; ;
+
+                                string RusName = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
+                                XSteamItem.RusName = Helper.SteamItemsHelper.MakeTextFromRealDich(RusName);
+
+                                if (SteamGameID == Configs.CSGO_STEAM_GAME_ID)
+                                {
+                                    if (XSteamItem.Rarity.Contains("_"))
                                     {
-                                        SteamItem.Price = XSteamItem.Price = 0;
+                                        XSteamItem.Rarity = XSteamItem.Rarity.Split('_')[0];
                                     }
+                                }
 
+                                if (User.Currency == 1)
+                                {
+                                    SteamItem.Name = XSteamItem.RusName;
+                                }
+                                else
+                                {
+                                    SteamItem.Name = XSteamItem.Name;
+                                }
+
+                                SteamItem.Image = XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url\":\"")[1].Split('"')[0];
+                                SteamItem.Rarity = XSteamItem.Rarity;
+                                SteamItem.RarityColor = Helper.SteamItemsHelper.GetRarityColor(XSteamItem.Rarity, SteamGameID);
+                                SteamItem.SteamGameID = XSteamItem.SteamGameID = SteamGameID;
+                                SteamItem.ID = Helper.SteamItemsHelper.Table.Insert(XSteamItem);
+                            }
+
+                            string iimgg;
+                            if (!Helper.SteamItemsHelper.GetImageFromMemory(SteamItem.ID, SteamItem.SteamGameID, out iimgg))
+                            {
+                                SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
+                                SteamItem.ID = SteamItemImageQueue.ID = SteamItem.ID;
+                                SteamItemImageQueue.SteamGameID = SteamItem.SteamGameID;
+                                SteamItemImageQueue.ImageURL = SteamItem.Image;
+
+                                Helper.SteamItemsHelper.AddToQueueDownloadImage(SteamItemImageQueue);
+                            }
+
+                            if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
+                            {
+                                SteamItem.AssertID = Convert.ToUInt64(Item[i].Split('"')[0]);
+
+                                XSteamItemsClassID XSteamItemsClassID;
+                                if (!Helper.SteamItemsHelper.Table_ClassID.SelectOne(dt => dt.AssertID == SteamItem.AssertID, out XSteamItemsClassID))
+                                {
+                                    XSteamItemsClassID = new XSteamItemsClassID();
+                                    XSteamItemsClassID.AssertID = SteamItem.AssertID;
+                                    XSteamItemsClassID.ClassID = Convert.ToUInt64(classid);
+                                    Helper.SteamItemsHelper.Table_ClassID.Insert(XSteamItemsClassID);
+                                }
+
+                                if (User.Currency == 1)
+                                {
+                                    SteamItem.Price = SteamItem.Price * Helper.Rub_ExchangeRate;
+                                    SteamItem.Price_Str = SteamItem.Price.ToString("###,###,##0");
+                                }
+                                else
+                                {
                                     SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
-
-                                    XSteamItem.Rarity = Regex.Split(ItemContent, "internal_name\":\"Rarity_")[1].Split('"')[0];
-                                    SteamItem.Color = XSteamItem.Color = Regex.Split(ItemContent, "\"name_color\":\"")[1].Split('"')[0]; ;
-
-                                    string RusName = Regex.Split(ItemContent, "\"market_name\":\"")[1].Split('"')[0];
-                                    XSteamItem.RusName = Helper.SteamItemsHelper.MakeTextFromRealDich(RusName);
-
-                                    if(SteamGameID == Configs.CSGO_STEAM_GAME_ID)
-                                    {
-                                        if(XSteamItem.Rarity.Contains("_"))
-                                        {
-                                            XSteamItem.Rarity = XSteamItem.Rarity.Split('_')[0];
-                                        }
-                                    }
-
-                                    if (User.Currency == 1)
-                                    {
-                                        SteamItem.Name = XSteamItem.RusName;
-                                    }
-                                    else
-                                    {
-                                        SteamItem.Name = XSteamItem.Name;
-                                    }
-
-                                    SteamItem.Image = XSteamItem.Image = "http://steamcommunity-a.akamaihd.net/economy/image/" + Regex.Split(ItemContent, "\"icon_url\":\"")[1].Split('"')[0];
-                                    SteamItem.Rarity = XSteamItem.Rarity;
-                                    SteamItem.RarityColor = Helper.SteamItemsHelper.GetRarityColor(XSteamItem.Rarity, SteamGameID);
-                                    SteamItem.SteamGameID = XSteamItem.SteamGameID = SteamGameID;
-                                    SteamItem.ID = Helper.SteamItemsHelper.Table.Insert(XSteamItem);
                                 }
 
-                                string iimgg;
-                                if(!Helper.SteamItemsHelper.GetImageFromMemory(SteamItem.ID, SteamItem.SteamGameID, out iimgg))
-                                {
-                                    SteamItemImageQueue SteamItemImageQueue = new SteamItemImageQueue();
-                                    SteamItem.ID = SteamItemImageQueue.ID = SteamItem.ID;
-                                    SteamItemImageQueue.SteamGameID = SteamItem.SteamGameID;
-                                    SteamItemImageQueue.ImageURL = SteamItem.Image;
-
-                                    Helper.SteamItemsHelper.AddToQueueDownloadImage(SteamItemImageQueue);
-                                }
-
-                                if (SteamItem.Price >= Configs.MIN_ITEMS_PRICE)
-                                {
-                                    SteamItem.AssertID = Convert.ToUInt64(Item[i].Split('"')[0]);
-
-                                    XSteamItemsClassID XSteamItemsClassID;
-                                    if (!Helper.SteamItemsHelper.Table_ClassID.SelectOne(dt => dt.AssertID == SteamItem.AssertID, out XSteamItemsClassID))
-                                    {
-                                        XSteamItemsClassID = new XSteamItemsClassID();
-                                        XSteamItemsClassID.AssertID = SteamItem.AssertID;
-                                        XSteamItemsClassID.ClassID = Convert.ToUInt64(classid);
-                                        Helper.SteamItemsHelper.Table_ClassID.Insert(XSteamItemsClassID);
-                                    }
-
-                                    if (User.Currency == 1)
-                                    {
-                                        SteamItem.Price = SteamItem.Price * Helper.Rub_ExchangeRate;
-                                        SteamItem.Price_Str = SteamItem.Price.ToString("###,###,##0");
-                                    }
-                                    else
-                                    {
-                                        SteamItem.Price_Str = SteamItem.Price.ToString("###,##0.00");
-                                    }
-
-                                    SteamItems.Add(SteamItem);
-                                    TotalPrice += SteamItem.Price;
-                               }                               
+                                SteamItems.Add(SteamItem);
+                                TotalPrice += SteamItem.Price;
                             }
-
-                            UsersInventory.SteamItems = (from it in SteamItems orderby it.Price descending select it).ToList();
-                            UsersInventory.TotalPrice = TotalPrice;
-                            if (User.Currency == 1)
-                            {
-                                UsersInventory.TotalPrice_Str = TotalPrice.ToString("###,###,##0");
-                            }
-                            else
-                            {
-                                UsersInventory.TotalPrice_Str = TotalPrice.ToString("###,##0.00");
-                            }
-
-                            UsersInventory.Opened = true;
-
-                            XUser cur_usr = this.Table.SelectByID(User.ID);
-                            cur_usr.SteamInventoryHash = BaseFuncs.MD5(data);
-                            this.Table.UpdateByID(cur_usr, User.ID);
                         }
+
+                        UsersInventory.SteamItems = (from it in SteamItems orderby it.Price descending select it).ToList();
+                        UsersInventory.TotalPrice = TotalPrice;
+                        if (User.Currency == 1)
+                        {
+                            UsersInventory.TotalPrice_Str = TotalPrice.ToString("###,###,##0");
+                        }
+                        else
+                        {
+                            UsersInventory.TotalPrice_Str = TotalPrice.ToString("###,##0.00");
+                        }
+
+                        UsersInventory.Opened = true;
+
+                        XUser cur_usr = this.Table.SelectByID(User.ID);
+                        cur_usr.SteamInventoryHash = BaseFuncs.MD5(data);
+                        this.Table.UpdateByID(cur_usr, User.ID);
                     }
                 }
-                catch (Exception Exception){
+                catch (Exception Exception)
+                {
                     Logger.ConsoleLog(Exception);
                 }
 
@@ -776,25 +773,6 @@ namespace GameSlot.Helpers
 
             return false;
         }
-
-       /* public bool CheckSteamTradeURL(ulong partner, string token)
-        {
-            try
-            {
-                using (WebClient WebClient = new WebClient())
-                {
-                    //https://steamcommunity.com/tradeoffer/new/?partner=174498889&token=%22dsfewsdwsadws
-                    string data = WebClient.DownloadString("https://steamcommunity.com/tradeoffer/new/?partner=" + partner + "&token=" + token);
-                    if (!data.Contains("<div class=\"error_page_content\">"))
-                    {
-                        return true;
-                    }
-                }
-            }
-            catch { }
-
-            return false;
-        }*/
 
         public double GetLocalSteamInventoryTotalPrice(uint UserID, uint SteamGameID, out string TotalPrice_Str)
         {

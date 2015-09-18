@@ -14,7 +14,12 @@
     <script>
         var jackpot_price_str = "{{=Lottery.JackpotPrice_Str}}";
         var auth = false;
+        {{if(Lottery.WinnersToken > 0)}}
+        LotteryPageConnect = false;
+        {{end}}
+        {{else}}
         LotteryPageConnect = true;
+        {{end}}
         LotteryPage_LotteryID = "{{=Lottery.ID}}";
 
         {{if(Helper.UserHelper.Authorized(client))}}
