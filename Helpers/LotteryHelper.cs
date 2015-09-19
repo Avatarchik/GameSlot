@@ -426,6 +426,8 @@ namespace GameSlot.Helpers
                             XSItemUsersInventory.AssertID = SteamItem.AssertID;
                             XSItemUsersInventory.SteamGameID = SteamItem.SteamGameID;
                             XSItemUsersInventory.SteamBotID = SteamItem.SteamBotID;
+
+                            Logger.ConsoleLog("SetWinner:" + WinnerUserID + " SteamUserID: " + Helper.UserHelper.Table.SelectByID(WinnerUserID).SteamID + " Bot ID: " + SteamItem.SteamBotID + " ItemID:" + SteamItem.AssertID, ConsoleColor.Cyan, LogLevel.Info);
                             Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
 
                         }
@@ -519,7 +521,7 @@ namespace GameSlot.Helpers
                         {
                             //Logger.ConsoleLog(x + "lolz" + SteamItem.ID, ConsoleColor.DarkGreen);
                             SteamItem.AssertID = XLotteryBet.ItemAssertIDs[x];
-
+                            SteamItem.SteamBotID = XLotteryBet.SteamBotIDs[x];
                             if (currency == 1)
                             {
                                 SteamItem.Price = XLotteryBet.SteamItemsPrice[x] * xlot.RubCurrency;
@@ -798,8 +800,6 @@ namespace GameSlot.Helpers
                 XSteamBotProcessItems.ItemAssertIDs = new ulong[24];
                 XSteamBotProcessItems.SteamItemsNum = 0;
 
-                string SteamInventory_String = null;
-
                 foreach(USteamItem SteamItem in SteamItems)
                 {
                     // check in local inventory
@@ -828,9 +828,7 @@ namespace GameSlot.Helpers
                         // check in steam inventory
                         else
                         {
-                            Helper.UserHelper.GetUsersSteamInventory_Json(User.ID, XLottery.SteamGameID, out SteamInventory_String);
-
-                            if (Helper.UserHelper.IsUserHaveSteamItem_SteamInventory(SteamItem.AssertID, SteamItem.ID, User, XLottery.SteamGameID, SteamInventory_String))
+                            if (Helper.UserHelper.IsUserHaveSteamItem_SteamInventory(SteamItem.AssertID, SteamItem.ID, User, XLottery.SteamGameID))
                             {
                                 //Logger.ConsoleLog("steam item found! :: " + SteamItem.AssertID);
                                 if (!ItemsFromSteamInventory)
@@ -967,6 +965,7 @@ namespace GameSlot.Helpers
                         TotalPrice_Items += XLotteryBet.SteamItemsPrice[XLotteryBet.SteamItemsNum] = Item.Price;
                         XLotteryBet.SteamBotIDs[XLotteryBet.SteamItemsNum] = Item.SteamBotID;
                         XLotteryBet.SteamItemsNum++;
+                        Logger.ConsoleLog("Making Bet:" + User.ID + " SteamUserID: " + User.SteamID + " Bot ID: " + Item.SteamBotID + " ItemID:" + Item.AssertID, ConsoleColor.Cyan, LogLevel.Info);
 
                         XSItemUsersInventory XSItemUsersInventory;
                         Helper.UserHelper.Table_SteamItemUsersInventory.SelectOne(data => !data.Deleted && data.AssertID == Item.AssertID, out XSItemUsersInventory);
@@ -1197,35 +1196,36 @@ namespace GameSlot.Helpers
                         XSteamBotProcessItems.SteamGameID = XLottery.SteamGameID;
 
                         XSteamBotProcessItems.Status = 0;
-                        XSteamBotProcessItems.UserID = User.ID;
 
                         // canceling other offer requests
                         XSteamBotProcessItems[] ProcessItems;
-                        while (Helper.SteamBotHelper.Table_Items.SelectArr(data => data.UserSteamID == User.SteamID && (data.Status <= 1), out ProcessItems))
+                        while (Helper.SteamBotHelper.Table_ProcessItems.SelectArr(data => data.UserSteamID == User.SteamID && (data.Status <= 1), out ProcessItems))
                         {
                             for (int i = 0; i < ProcessItems.Length; i++ )
                             {
                                 if (ProcessItems[i].Status == 0)
                                 {
-                                    XSteamBotProcessItems stb = Helper.SteamBotHelper.Table_Items.SelectByID(ProcessItems[i].ID);
+                                    XSteamBotProcessItems stb = Helper.SteamBotHelper.Table_ProcessItems.SelectByID(ProcessItems[i].ID);
                                     stb.Status = 8;
                                     stb.StatusChangedTime = Helper.GetCurrentTime();
-                                    Helper.SteamBotHelper.Table_Items.UpdateByID(stb, stb.ID);
+                                    Helper.SteamBotHelper.Table_ProcessItems.UpdateByID(stb, stb.ID);
                                 }
-                                else
+                                else if (ProcessItems[i].Status == 1)
                                 {
                                     Logger.ConsoleLog("Trying to decline offer: " + ProcessItems[i].OfferID);
                                     UpTunnel.Sender.Send(UTSteam.sk, "decline:" + ProcessItems[i].OfferID);
 
-                                    while (Helper.SteamBotHelper.Table_Items.SelectByID(ProcessItems[i].ID).Status == 1)
+                                    XSteamBotProcessItems CancelProcess = ProcessItems[i];
+                                    while (CancelProcess.Status == 1)
                                     {
+                                        CancelProcess = Helper.SteamBotHelper.Table_ProcessItems.SelectByID(ProcessItems[i].ID);
                                         Thread.Sleep(100);
                                     }
                                 }
                             }
                         }
 
-                        Helper.SteamBotHelper.Table_Items.Insert(XSteamBotProcessItems);
+                        Helper.SteamBotHelper.Table_ProcessItems.Insert(XSteamBotProcessItems);
                         if (UTSteam.ClientsOffer.ContainsKey(User.SteamID))
                         {
                             UTSteam.ClientsOffer.Remove(User.SteamID);
@@ -1235,7 +1235,7 @@ namespace GameSlot.Helpers
                         UpTunnel.Sender.Send(UTSteam.sk, UTRequestSteamMain);
 
                         //client.SendWebsocket("TradeSent" + BaseFuncs.WSplit + xbot.Name + BaseFuncs.WSplit + ProtectionCode);
-                        Logger.ConsoleLog("Send offer!", ConsoleColor.Green);
+                        Logger.ConsoleLog("Send offer! bot id: " + UTRequestSteamMain.BotID, ConsoleColor.Green);
                         return 2;
                     }
                 }
@@ -1309,7 +1309,7 @@ namespace GameSlot.Helpers
             {
                 XSteamBotProcessItem.Status = Status;
                 XSteamBotProcessItem.StatusChangedTime = Helper.GetCurrentTime();
-                Helper.SteamBotHelper.Table_Items.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
+                Helper.SteamBotHelper.Table_ProcessItems.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
 
                 this.RemoveProcessingBet(XSteamBotProcessItem.UserID, XSteamBotProcessItem.SteamGameID);
             }
@@ -1317,13 +1317,14 @@ namespace GameSlot.Helpers
 
         public XLottery[] TodaysGames(uint SteamGameID, out double JackpotPriceRecord, out int JackpotItemsRecord, ushort currency)
         {
+            int time = (int)(DateTime.Today - new DateTime(2015, 7, 18)).TotalSeconds;
             // TODO: закэшировать эту информацию
             XLottery[] csgo;
             double price = 0d;
             int items = 0;
             Helper.LotteryHelper.Table.SelectArr(data => 
-            { 
-                if(data.SteamGameID == SteamGameID && data.StartTime <= Helper.GetCurrentTime() && data.EndTime >= Helper.GetCurrentTime() - 86400)
+            {
+                if (data.SteamGameID == SteamGameID && data.EndTime >= time)
                 {
                     if (currency == 1)
                     {

@@ -46,7 +46,7 @@ namespace GameSlot
                             {
                                 XSteamBotProcessItem.Status = 2;
                                 XSteamBotProcessItem.StatusChangedTime = Helper.GetCurrentTime();                         
-                                Helper.SteamBotHelper.Table_Items.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
+                                Helper.SteamBotHelper.Table_ProcessItems.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
 
                                 //Logger.ConsoleLog(XSteamBotProcessItem.SteamItemsNum + "::", ConsoleColor.Green);
 
@@ -58,6 +58,12 @@ namespace GameSlot
                                     XSItemUsersInventory.AssertID = XSteamBotProcessItem.ItemAssertIDs[i];
                                     XSItemUsersInventory.SteamGameID = XSteamBotProcessItem.SteamGameID;
                                     XSItemUsersInventory.SteamBotID = XSteamBotProcessItem.SteamBotID;
+
+
+                                    XSteamItemsClassID XSteamItemsClassID;
+                                    Helper.SteamItemsHelper.Table_ClassID.SelectOne(dt => dt.AssertID == XSItemUsersInventory.AssertID, out XSteamItemsClassID);
+                                    Logger.ConsoleLog("Accepted Item to user: " + XSItemUsersInventory.UserID + " SteamUserID: " + XSteamBotProcessItem.UserSteamID + " BotID: " + XSteamBotProcessItem.SteamBotID + "Class ID" + XSteamItemsClassID.ClassID, ConsoleColor.Cyan, LogLevel.Info);
+
 
                                     Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
                                     Helper.UserHelper.DeleteItemFromSteamInventory(XSItemUsersInventory.UserID, XSItemUsersInventory.AssertID, XSItemUsersInventory.SteamGameID);
@@ -114,7 +120,7 @@ namespace GameSlot
                         }
                         else if (args[0] == "state_unknown")//предложение потерялось (статус неизвестен)
                         {
-                            Helper.LotteryHelper.CancelBet(Convert.ToUInt64(args[2]), Convert.ToUInt64(args[1]), 6);
+                            Helper.LotteryHelper.CancelBet(Convert.ToUInt64(args[2]),Convert.ToUInt64(args[1]), 6);
 
                             //Logger.ConsoleLog("User with steamid: '" + args[1] + "' tradeoffer with ID: " + args[2] + " lost!");
                             Offers.Remove(args[2]);
@@ -127,7 +133,7 @@ namespace GameSlot
                             {
                                 Process.Status = 7;
                                 Process.StatusChangedTime = Helper.GetCurrentTime();
-                                Helper.SteamBotHelper.Table_Items.UpdateByID(Process, Process.ID);
+                                Helper.SteamBotHelper.Table_ProcessItems.UpdateByID(Process, Process.ID);
                             }
 
                             else if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.OfferID == Convert.ToUInt64(args[1]), out XBotsOffer))
@@ -147,7 +153,8 @@ namespace GameSlot
                             {
                                 Process.Status = 6;
                                 Process.StatusChangedTime = Helper.GetCurrentTime();
-                                Helper.SteamBotHelper.Table_Items.UpdateByID(Process, Process.ID);
+                                Logger.ConsoleLog("updated Process!");
+                                Helper.SteamBotHelper.Table_ProcessItems.UpdateByID(Process, Process.ID);
                             }
 
                             else if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.OfferID == Convert.ToUInt64(args[1]), out XBotsOffer))
@@ -163,19 +170,24 @@ namespace GameSlot
                         else if (args[0] == "sent_offer") // запрос шмоток
                         {                           
                             XSteamBotProcessItems XSteamBotProcessItem;
-                            if (Helper.SteamBotHelper.Table_Items.SelectOne(bt => bt.UserSteamID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XSteamBotProcessItem))
+                            if (Helper.SteamBotHelper.Table_ProcessItems.SelectOne(bt => bt.UserSteamID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XSteamBotProcessItem))
                             {
+                                Logger.ConsoleLog("Got sent_offer notification");
                                 XSteamBotProcessItem.Status = 1;
                                 XSteamBotProcessItem.SentTime = Helper.GetCurrentTime();
                                 XSteamBotProcessItem.OfferID = Convert.ToUInt64(args[2]);
                                 // TODO: отправит уведомление, что выслано
-                                Helper.SteamBotHelper.Table_Items.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
+                                Helper.SteamBotHelper.Table_ProcessItems.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
 
                                 if(UTSteam.ClientsOffer.ContainsKey(XSteamBotProcessItem.UserSteamID))
                                 {
                                     ulong steamID = XSteamBotProcessItem.UserSteamID;
                                     UTSteam.ClientsOffer[steamID].SendWebsocket("BetDone" + BaseFuncs.WSplit + "2" + BaseFuncs.WSplit + args[2] + BaseFuncs.WSplit
                                         + XSteamBotProcessItem.ProtectionCode + BaseFuncs.WSplit + Helper.SteamBotHelper.Table.SelectByID(XSteamBotProcessItem.SteamBotID).Name);
+                                }
+                                else
+                                {
+                                    Logger.ConsoleLog("No send way client");
                                 }
                             }
 
@@ -186,13 +198,14 @@ namespace GameSlot
                         else if (args[0] == "sending_error") // ошибка запроса шмоток(стим ответил ошибкой 500), скорее всего такого итема у чула нет(например передал кому то со времени последнего апдейта инвентаря)
                         {
                             XSteamBotProcessItems XSteamBotProcessItem;
-                            if (Helper.SteamBotHelper.Table_Items.SelectOne(bt => bt.UserSteamID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XSteamBotProcessItem))
+                            if (Helper.SteamBotHelper.Table_ProcessItems.SelectOne(bt => bt.UserSteamID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XSteamBotProcessItem))
                             {
                                 XSteamBotProcessItem.Status = 8;
                                 XSteamBotProcessItem.StatusChangedTime = Helper.GetCurrentTime();
                                 // TODO: отправить уведомление, что не получилось выслать
-                                Helper.SteamBotHelper.Table_Items.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
+                                Helper.SteamBotHelper.Table_ProcessItems.UpdateByID(XSteamBotProcessItem, XSteamBotProcessItem.ID);
 
+                                Logger.ConsoleLog("Sa" + UTSteam.ClientsOffer.ContainsKey(XSteamBotProcessItem.UserSteamID));
                                 if (UTSteam.ClientsOffer.ContainsKey(XSteamBotProcessItem.UserSteamID))
                                 {
                                     ulong steamID = XSteamBotProcessItem.UserSteamID;
@@ -209,10 +222,7 @@ namespace GameSlot
                             XBotsOffer XBotsOffer;
                             if (Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.SteamUserID == Convert.ToUInt64(args[1]) && bt.Status == 0, out XBotsOffer))
                             {
-                                XBotsOffer.Status = 5;
-                                Helper.SteamBotHelper.Table_BotsOffer.UpdateByID(XBotsOffer, XBotsOffer.ID);
-                                Helper.SteamBotHelper.ErrorToSendLocalItem(XBotsOffer.SteamUserID, XBotsOffer.SentTime);
-
+                                Helper.SteamBotHelper.ErrorToSendLocalItem(XBotsOffer.SteamUserID, XBotsOffer.SentTime, XBotsOffer.BotID);
                                 WebSocketPage.SendItemsOffer(XBotsOffer.SteamUserID, 0);
                             }
 
@@ -256,7 +266,7 @@ namespace GameSlot
                     while (true)
                     {
                         XSteamBotProcessItems[] XSteamBotProcessItems;
-                        if (Helper.SteamBotHelper.Table_Items.SelectArr(data => data.Status == 1 && (data.SentTime + 360 < Helper.GetCurrentTime()), out XSteamBotProcessItems))
+                        if (Helper.SteamBotHelper.Table_ProcessItems.SelectArr(data => data.Status == 1 && (data.SentTime + 180 < Helper.GetCurrentTime()), out XSteamBotProcessItems))
                         {
                             for (int i = 0; i < XSteamBotProcessItems.Length; i++)
                             {

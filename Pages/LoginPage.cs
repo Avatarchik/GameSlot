@@ -19,11 +19,15 @@ namespace GameSlot.Pages
         {
             get { return false; }
         }
+        public override bool MaintenanceAffect
+        {
+            get { return false; }
+        }
         public override bool Init(Client client)
         {
             if(Helper.UserHelper.Authorized(client))
             {
-                BaseFuncs.Show404(client);
+                client.Redirect("/");
                 return false;
             }
 
@@ -49,8 +53,7 @@ namespace GameSlot.Pages
 
                         if (!WebClient.DownloadString(url.Replace("+", "%2B")).Contains("true"))
                         {
-                            client.Head.GetParams.Clear();
-                            this.Init(client);
+                            client.Redirect(this.URL);
                             return false;
                         }
                         else
@@ -62,8 +65,7 @@ namespace GameSlot.Pages
                                 XUser user;
                                 if (!Helper.UserHelper.Auth(SteamID, out user, client))
                                 {
-                                    client.Head.GetParams.Clear();
-                                    this.Init(client);
+                                    client.Redirect(this.URL);
                                     return false;
                                 }
                             }
@@ -72,7 +74,7 @@ namespace GameSlot.Pages
                 }
                 catch(Exception ex)
                 {
-                    Logger.ConsoleLog(ex, ConsoleColor.Red);
+                    Logger.ConsoleLog("login: ex" + ex, ConsoleColor.Red);
                 }
             }
 

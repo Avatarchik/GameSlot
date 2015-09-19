@@ -193,6 +193,8 @@ namespace GameSlot.Helpers
 
         public SteamUser GetSteamData(ulong SteamID)
         {
+            int count = 0;
+            first:
             try
             {
                 using (WebClient WebClient = new WebClient())
@@ -201,7 +203,6 @@ namespace GameSlot.Helpers
                     if (data.Contains("\"steamid\":"))
                     {
                         SteamUser SteamUser = new SteamUser();
-                        SteamUser.Name = BaseFuncs.XSSReplacer(Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(Regex.Split(data, "\"personaname\": \"")[1].Split('"')[0])));
                         SteamUser.Avatar = Regex.Split(data, "\"avatarfull\": \"")[1].Split('"')[0];
                         SteamUser.ProfileURL = Regex.Split(data, "\"profileurl\": \"")[1].Split('"')[0];
                         SteamUser.SteamID = SteamID;
@@ -209,7 +210,14 @@ namespace GameSlot.Helpers
                     }
                 }
             }
-            catch { Logger.ConsoleLog("Failed get steam data!", ConsoleColor.Red); }
+            catch {
+                Logger.ConsoleLog("Failed get steam data!", ConsoleColor.Red);
+                if (count <= 5)
+                {
+                    count++;
+                    goto first;
+                }
+            }
 
             return null;
         }
@@ -664,12 +672,13 @@ namespace GameSlot.Helpers
                         USteamItem USteamItem;
                         if (Helper.SteamItemsHelper.SelectByID(inventory.SteamItemID, inventory.SteamGameID, out USteamItem, user.Currency))
                         {
+                            USteamItem.SteamBotID = inventory.SteamBotID;
+                            USteamItem.AssertID = inventory.AssertID;
+
                             if (tradable)
                             {
                                 if (USteamItem.Price >= Configs.MIN_ITEMS_PRICE)
                                 {
-                                    USteamItem.AssertID = inventory.AssertID;
-
                                     if (user.Currency == 1)
                                     {
                                         USteamItem.Price *= Helper.Rub_ExchangeRate;
@@ -680,8 +689,6 @@ namespace GameSlot.Helpers
                             }
                             else
                             {
-                                USteamItem.AssertID = inventory.AssertID;
-
                                 if (user.Currency == 1)
                                 {
                                     USteamItem.Price *= Helper.Rub_ExchangeRate;
@@ -739,10 +746,10 @@ namespace GameSlot.Helpers
             return this.GetSteamLocalItem(AssertID, ItemID, UserID, out xitem);
         }
 
-        public bool IsUserHaveSteamItem_SteamInventory(ulong AssertID, uint ItemID, XUser User, uint SteamGameID, string UsersInventoryString)
+        public bool IsUserHaveSteamItem_SteamInventory(ulong AssertID, uint ItemID, XUser User, uint SteamGameID)
         {
             UsersInventory UsersInventory;
-            if (User.SteamInventoryHash.Equals(BaseFuncs.MD5(UsersInventoryString)) && this.GetSteamInventory(User.ID, SteamGameID, out UsersInventory))
+            if (this.GetSteamInventory(User.ID, SteamGameID, out UsersInventory))
             {
                 foreach(USteamItem Item in UsersInventory.SteamItems)
                 {
@@ -752,7 +759,7 @@ namespace GameSlot.Helpers
                     }
                 }
             }
-            else
+           /* else
             {
                 //Logger.ConsoleLog("Using parsging for check item!");
                 if (UsersInventoryString.Contains("{\"id\":\"" + AssertID + "\""))
@@ -769,7 +776,7 @@ namespace GameSlot.Helpers
                         return true;
                     }
                 }
-            }
+            }*/
 
             return false;
         }

@@ -52,7 +52,7 @@ namespace GameSlot.Pages.Includes
             {
                 group_page += ClientsGroupPage[key].Count;
             }
-            Logger.ConsoleLog("At now WS clients: [ClientsGroupPage]:" + group_page + " [ClientsLotteryPage]: " + lots, ConsoleColor.Cyan, LogLevel.Info);
+            Logger.ConsoleLog("At now WS clients: [ClientsGroupPage]:" + group_page + " [ClientsLotteryPage]: " + lots, ConsoleColor.Cyan, LogLevel.Warning);
         }
 
         public override bool Init(Client client)
@@ -371,101 +371,7 @@ namespace GameSlot.Pages.Includes
                     uint SteamGameID;
                     if (Helper.UserHelper.GetCurrentUser(client, out user) && uint.TryParse(wsdata[1], out SteamGameID))
                     {
-                        List<USteamItem> SteamItems = Helper.UserHelper.GetSteamLocalInventory(user.ID, SteamGameID);
-                        if(SteamItems.Count > 0)
-                        {
-                            Dictionary<uint, List<UTRequestSteamItem>> BotsRequests = new Dictionary<uint, List<UTRequestSteamItem>>();
-                            Dictionary<long, uint> AssertItemsIDs = new Dictionary<long, uint>();
-
-                            foreach(USteamItem SteamItem in SteamItems)
-                            {
-                                XSItemUsersInventory XSItemUsersInventory;
-                                if(Helper.UserHelper.Table_SteamItemUsersInventory.SelectOne(data => data.AssertID == SteamItem.AssertID && !data.Deleted, out XSItemUsersInventory))
-                                {
-                                    XSItemUsersInventory.Deleted = true;
-                                    Helper.UserHelper.Table_SteamItemUsersInventory.UpdateByID(XSItemUsersInventory, XSItemUsersInventory.ID);
-
-                                    UTRequestSteamItem UTRequestSteamItem = new UTRequestSteamItem();
-                                    UTRequestSteamItem.appid = (int)SteamItem.SteamGameID;
-                                    UTRequestSteamItem.contextid = 2;
-
-                                    UTRequestSteamItem.assertid = (long)SteamItem.AssertID;
-
-                                    AssertItemsIDs.Add((long)SteamItem.AssertID, SteamItem.ID);
-
-                                    if (BotsRequests.ContainsKey(SteamItem.SteamBotID))
-                                    {
-                                        BotsRequests[SteamItem.SteamBotID].Add(UTRequestSteamItem);
-                                    }
-                                    else
-                                    {
-                                        List<UTRequestSteamItem> item_rq = new List<UTRequestSteamItem>();
-                                        item_rq.Add(UTRequestSteamItem);
-                                        BotsRequests.Add(SteamItem.SteamBotID, item_rq);
-                                    }
-                                }
-                            }
-
-                            if (!UTSteam.SendClientOffer.ContainsKey(user.SteamID))
-                            {
-                                UTSteam.SendClientOffer.Add(user.SteamID, client);
-                            }
-                            else if (UTSteam.SendClientOffer[user.SteamID] != client)
-                            {
-                                UTSteam.SendClientOffer[user.SteamID] = client;
-                            }
-
-                            foreach (uint key in BotsRequests.Keys)
-                            {
-                                XBotsOffer XBotsOffer;
-                                while (!Helper.SteamBotHelper.Table_BotsOffer.SelectOne(bt => bt.SteamUserID == user.SteamID && bt.Status == 0, out XBotsOffer))
-                                {
-                                    XBotsOffer = new XBotsOffer();
-                                    XBotsOffer.BotID = key;
-                                    XBotsOffer.SteamUserID = user.SteamID;
-                                    XBotsOffer.SentTime = Helper.GetCurrentTime();
-                                    uint bots_offerid = Helper.SteamBotHelper.Table_BotsOffer.Insert(XBotsOffer);
-
-                                    UTRequestSteamMain UTRequestSteamMain = new UTRequestSteamMain();
-
-                                    foreach (UTRequestSteamItem URequest in BotsRequests[key])
-                                    {
-                                        XBotOffersItem XBotOffersItem = new XBotOffersItem();
-                                        XBotOffersItem.BotsOfferID = bots_offerid;
-                                        XBotOffersItem.AssertID = (ulong)URequest.assertid;
-
-                                        Logger.ConsoleLog("Sending item ID: ");
-                                        Logger.ConsoleLog(AssertItemsIDs[URequest.assertid]);
-
-                                        XBotOffersItem.SteamItemID = AssertItemsIDs[URequest.assertid];
-
-                                        Helper.SteamBotHelper.Table_BotOffersItem.Insert(XBotOffersItem);
-
-                                        XSteamItemsClassID XSteamItemsClassID;
-                                        Helper.SteamItemsHelper.Table_ClassID.SelectOne(dt => dt.AssertID == XBotOffersItem.AssertID, out XSteamItemsClassID);
-                                        URequest.assertid = (long)XSteamItemsClassID.ClassID;
-
-                                        UTRequestSteamMain.Items.Add(URequest);
-
-                                        Logger.ConsoleLog("-----------------------------");
-                                        Logger.ConsoleLog("Item class id: " + URequest.assertid);
-                                        Logger.ConsoleLog("Item contex id: " + URequest.contextid);
-                                        Logger.ConsoleLog("Item app id: " + URequest.appid);
-                                        Logger.ConsoleLog("Steam item id: " + XBotOffersItem.SteamItemID);
-                                    }
-
-                                    UTRequestSteamMain.message = "Peredacha veshhej iz vremennogo inventarja GAMESLOT. Dannoe predlozhenie budet avtomaticheski udaleno spustja chas.";
-                                    UTRequestSteamMain.BotID = (int)key;
-                                    UTRequestSteamMain.steamid = user.SteamID.ToString();
-                                    UTRequestSteamMain.trade_acc_id = user.TradeToken;
-                                    UTRequestSteamMain.SendItems = true;
-
-                                    Logger.ConsoleLog("Sending offer from local inventory... [" + UTRequestSteamMain.Items.Count + "] Bot ID:" + UTRequestSteamMain.BotID);
-                                    UpTunnel.Sender.Send(UTSteam.sk, UTRequestSteamMain);
-                                    Thread.Sleep(300);
-                                }
-                            }
-                        }
+                        Helper.SteamBotHelper.SendLocalItemsToSteam(user, SteamGameID, client);
                     }
                 }
 
