@@ -199,10 +199,12 @@ namespace GameSlot.Helpers
             {
                 using (WebClient WebClient = new WebClient())
                 {
+                    WebClient.Encoding = Encoding.UTF8;
                     string data = WebClient.DownloadString("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + Configs.STEAM_API + "&steamids=" + SteamID);
                     if (data.Contains("\"steamid\":"))
                     {
                         SteamUser SteamUser = new SteamUser();
+                        SteamUser.Name = BaseFuncs.XSSReplacer((Regex.Split(data, "\"personaname\": \"")[1].Split('"')[0]));
                         SteamUser.Avatar = Regex.Split(data, "\"avatarfull\": \"")[1].Split('"')[0];
                         SteamUser.ProfileURL = Regex.Split(data, "\"profileurl\": \"")[1].Split('"')[0];
                         SteamUser.SteamID = SteamID;
