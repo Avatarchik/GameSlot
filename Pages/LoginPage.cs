@@ -25,6 +25,11 @@ namespace GameSlot.Pages
         }
         public override bool Init(Client client)
         {
+            if(client.Closed)
+            {
+                return false;
+            }
+
             if(Helper.UserHelper.Authorized(client))
             {
                 client.Redirect("/");
