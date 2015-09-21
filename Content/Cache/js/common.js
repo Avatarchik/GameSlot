@@ -118,6 +118,26 @@ $(document).ready(function() {
 		}
 	});
 	
+if($(".cont-ll1").length>0) {
+	$(".cont-ll1").mCustomScrollbar({
+		horizontalScroll:false,
+		mouseWheelPixels: 300
+	});
+}
+$('.nav-chat1 li a').click(function(e) {
+	e.preventDefault();
+	$(this).parent().addClass('active').siblings().removeClass('active');
+	$('.ev-item-et1').eq($(this).parent().index()).addClass('active').siblings().removeClass('active');
+});
+$('.tit-chat1').click(function(e) {
+	e.preventDefault();
+	if($('.chat-fix1').attr('dt')=='1') {
+		$('.chat-fix1').attr('dt','0').removeClass('active');
+	}
+	else {
+		$('.chat-fix1').attr('dt','1').addClass('active');
+	}
+});
 if($(".content1").length>0) {
 	$(".content1").mCustomScrollbar({
 		horizontalScroll:false,

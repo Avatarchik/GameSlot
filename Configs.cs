@@ -19,7 +19,7 @@ namespace GameSlot
         // secs:
         public static int LOTTERY_GAME_TIME = 180;
         public static int LOTTERY_EXTRA_TIME = 180;
-        public static int INVENTORY_UPDATE_TIME = 30;
+        public static int INVENTORY_UPDATE_TIME = 20;
 
         public static string STEAM_ITEMS_STORAGE = "SteamItems\\";
         public static string STEAM_IMAGE_TYPE = ".png";

@@ -83,6 +83,7 @@
     <Compile Include="Helpers\SteamBotHelper.cs" />
     <Compile Include="Helpers\SteamItemsHelper.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
+    <Compile Include="Pages\Includes\Chat.cs" />
     <Compile Include="Pages\Includes\ProfileModal.cs" />
     <Compile Include="Pages\Prof.cs" />
     <Compile Include="Pages\TopPlayersPage.cs" />
@@ -180,6 +181,42 @@
     <EmbeddedResource Include="Content\Cache\css\ie8.css" />
     <EmbeddedResource Include="Content\Cache\css\jquery_mCustomScrollbar.css" />
     <EmbeddedResource Include="Content\Cache\css\owl_carousel.css" />
+    <EmbeddedResource Include="Content\Cache\js\accounting_min.js" />
+    <EmbeddedResource Include="Content\Cache\js\actions.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery-ui.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery-ui_min.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery_easing_1_3.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery_formstyler_min.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery_mCustomScrollbar.js" />
+    <EmbeddedResource Include="Content\Cache\js\jquery_placeholder.js" />
+    <EmbeddedResource Include="Content\Cache\js\owl_carousel_min.js" />
+    <EmbeddedResource Include="Content\Cache\js\rull.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\UpHeader.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\wm\wm_our.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\md5-min.js" />
+    <EmbeddedResource Include="Content\Cache\md5.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\TopPlayers.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\ProfileModal.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\js\common.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Cache\audio\bet_come.mp3" />
+    <EmbeddedResource Include="Content\Cache\audio\winner.mp3" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Content\Cache\img\4-5_loading-icon.gif" />
     <EmbeddedResource Include="Content\Cache\img\4_5-load2.png" />
     <EmbeddedResource Include="Content\Cache\img\4_5-load3.png" />
@@ -250,6 +287,8 @@
     <EmbeddedResource Include="Content\Cache\img\btn36.png" />
     <EmbeddedResource Include="Content\Cache\img\btn37.png" />
     <EmbeddedResource Include="Content\Cache\img\btn38.png" />
+    <EmbeddedResource Include="Content\Cache\img\btn39.png" />
+    <EmbeddedResource Include="Content\Cache\img\btn40.png" />
     <EmbeddedResource Include="Content\Cache\img\btn9.png" />
     <EmbeddedResource Include="Content\Cache\img\char1.png" />
     <EmbeddedResource Include="Content\Cache\img\close-modal1.png" />
@@ -304,7 +343,7 @@
     <EmbeddedResource Include="Content\Cache\img\ft7.png" />
     <EmbeddedResource Include="Content\Cache\img\ft8.png" />
     <EmbeddedResource Include="Content\Cache\img\ft9.png" />
-    <EmbeddedResource Include="Content\Cache\img\icons-se98ce02356.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons-s0fa96c5c01.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\alert-ic-tt1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\alert-modal-m1.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\alert-small-ic-ov-item1.png" />
@@ -417,6 +456,8 @@
     <EmbeddedResource Include="Content\Cache\img\icons\rb30.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\rb31.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\rb32.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\rb33.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\rb34.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\rb4.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\rb5.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\rb6.png" />
@@ -465,6 +506,11 @@
     <EmbeddedResource Include="Content\Cache\img\icons\w3.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\w33.png" />
     <EmbeddedResource Include="Content\Cache\img\icons\ya1.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\z-chat1-st1.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\z-chat1-st2.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\z-chat1-st3.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\z-chat1-st4.png" />
+    <EmbeddedResource Include="Content\Cache\img\icons\zm-chat-eft1.png" />
     <EmbeddedResource Include="Content\Cache\img\input-type-tt1.png" />
     <EmbeddedResource Include="Content\Cache\img\ip-date-bg-st1.png" />
     <EmbeddedResource Include="Content\Cache\img\item-bf1.png" />
@@ -559,6 +605,7 @@
     <EmbeddedResource Include="Content\Cache\img\vt11.png" />
     <EmbeddedResource Include="Content\Cache\img\vt2.png" />
     <EmbeddedResource Include="Content\Cache\img\vt22.png" />
+    <EmbeddedResource Include="Content\Cache\img\vt3.png" />
     <EmbeddedResource Include="Content\Cache\img\winner.png" />
     <EmbeddedResource Include="Content\Cache\img\winners2.png" />
     <EmbeddedResource Include="Content\Cache\img\wt1.png" />
@@ -567,49 +614,13 @@
     <EmbeddedResource Include="Content\Cache\img\wt4.png" />
     <EmbeddedResource Include="Content\Cache\img\wt5.png" />
     <EmbeddedResource Include="Content\Cache\img\wt6.png" />
-    <EmbeddedResource Include="Content\Cache\js\accounting_min.js" />
-    <EmbeddedResource Include="Content\Cache\js\actions.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery-ui.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery-ui_min.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery_easing_1_3.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery_formstyler_min.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery_mCustomScrollbar.js" />
-    <EmbeddedResource Include="Content\Cache\js\jquery_placeholder.js" />
-    <EmbeddedResource Include="Content\Cache\js\owl_carousel_min.js" />
-    <EmbeddedResource Include="Content\Cache\js\rull.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\img\vt3.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\Includes\UpHeader.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\wm\wm_our.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\md5-min.js" />
-    <EmbeddedResource Include="Content\Cache\md5.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\TopPlayers.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\Includes\ProfileModal.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\js\common.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\img\icons-sd18a6584c5.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Cache\audio\bet_come.mp3" />
-    <EmbeddedResource Include="Content\Cache\audio\winner.mp3" />
+    <EmbeddedResource Include="Content\Cache\img\zz-chat1.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Cache\css\screen.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Includes\Chat.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
