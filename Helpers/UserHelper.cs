@@ -97,6 +97,18 @@ namespace GameSlot.Helpers
             return UserHelper.ExtraOnlineUsers + UserHelper.OnlineUsers.Count;
         }
 
+        public List<XUser> GetOnlineUsers()
+        {
+            List<uint> UsersID = new List<uint>(UserHelper.OnlineUsers);
+            List<XUser> Users = new List<XUser>();
+            foreach(uint userID in UsersID)
+            {
+                Users.Add(this.Table.SelectByID(userID));
+            }
+
+            return Users;
+        }
+
         public List<uint> GetUpdatingInventoriesThreads()
         {
             return new List<uint>(UserHelper.UpdatingInventoryThreads);
@@ -160,6 +172,7 @@ namespace GameSlot.Helpers
                     try
                     {
                         List<uint> UOnline = new List<uint>();
+                        Dictionary<uint, List<XUser>> GroupOnlineUsers = new Dictionary<uint, List<XUser>>();
 
                         for(int i = 0; i < BaseFuncs.GetOnlineClients<SiteGameSlot>().Count; i++)
                         {
@@ -170,18 +183,33 @@ namespace GameSlot.Helpers
                                 if (this.GetCurrentUser(client, out user) && !UOnline.Contains(user.ID))
                                 {
                                     UOnline.Add(user.ID);
+                                    if(user.GroupOwnerID >= 0)
+                                    {
+                                        if(GroupOnlineUsers.ContainsKey((uint)user.GroupOwnerID))
+                                        {
+                                            GroupOnlineUsers[(uint)user.GroupOwnerID].Add(user);
+                                        }
+                                        else
+                                        {
+                                            List<XUser> group_users = new List<XUser>();
+                                            group_users.Add(user);
+                                            GroupOnlineUsers.Add((uint)user.GroupOwnerID, group_users);
+                                        }
+                                    }
                                 }
                             }
                         }
 
                         int before = UserHelper.OnlineUsers.Count;
                         UserHelper.OnlineUsers = UOnline;
+                        Helper.GroupHelper.UpdateGroupOnlineUsers(GroupOnlineUsers);
 
                         if (before != UOnline.Count)
                         {
                             WebSocketPage.UpdateOnlineUsers(this.GetOnlineNum());
                         }
 
+                        WebSocketPage.UpdateChatGroupUsers();
                         Thread.Sleep(100);
                     }
                     catch (Exception ex){

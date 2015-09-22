@@ -39,6 +39,8 @@ namespace GameSlot.Pages.Includes
         private static Dictionary<uint, List<Client>> ClientsGroupPage = new Dictionary<uint, List<Client>>();
         private static Dictionary<uint, List<Client>> ClientsLotteryPage = new Dictionary<uint,List<Client>>();
 
+        private static Dictionary<uint, List<Client>> GroupClients = new Dictionary<uint, List<Client>>();
+
         public static void GetStats()
         {
             int lots = 0;
@@ -402,6 +404,24 @@ namespace GameSlot.Pages.Includes
                                     client.SendWebsocket("BuyChip" + BaseFuncs.WSplit + "0");
                                 }
                             }
+                        }
+                    }
+                }
+
+                else if(wsdata[0].Equals("GroupChat"))
+                {
+                    uint GroupID;
+                    if (wsdata[1].Equals("Connect") && uint.TryParse(wsdata[2], out GroupID) && Helper.UserHelper.UserExist(GroupID))
+                    {
+                        if(WebSocketPage.GroupClients.ContainsKey(GroupID))
+                        {
+                            WebSocketPage.GroupClients[GroupID].Add(client);
+                        }
+                        else
+                        {
+                            List<Client> Clients = new List<Client>();
+                            Clients.Add(client);
+                            WebSocketPage.GroupClients.Add(GroupID, Clients);
                         }
                     }
                 }
@@ -867,6 +887,29 @@ namespace GameSlot.Pages.Includes
 
                 Logger.ConsoleLog("Total price of steam inventory: " + Inventory.TotalPrice + "|" + Inventory.TotalPrice_Str);
                 WebSocketPage.UpdateInventory(StrItems, Inventory.TotalPrice_Str, SteamItems.Count, client, true);
+            }
+        }
+
+        public static void UpdateChatGroupUsers()
+        {
+            Dictionary<uint, List<XUser>> GroupOnlineUsers = Helper.GroupHelper.GetGroupOnlineUsers();
+
+            foreach(uint GroupID in GroupOnlineUsers.Keys)
+            {
+                string OnlineUsers = "";
+                foreach (XUser User in GroupOnlineUsers[GroupID])
+                {
+                    OnlineUsers += User.Name + "↑" + User.ProfileURL + "↑" + User.ID + "↓";
+                }
+
+                if(WebSocketPage.GroupClients.ContainsKey(GroupID))
+                {
+                    List<Client> Clients = new List<Client>(WebSocketPage.GroupClients[GroupID]);
+                    foreach(Client client in Clients)
+                    {
+                        client.SendWebsocket("GroupChatOnlineUpdate" + BaseFuncs.WSplit + GroupOnlineUsers[GroupID].Count + BaseFuncs.WSplit + OnlineUsers);
+                    }
+                }
             }
         }
     }

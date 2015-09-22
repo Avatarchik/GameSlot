@@ -12,8 +12,33 @@ namespace GameSlot.Helpers
 {
     public class GroupHelper
     {
+        private static Dictionary<uint, List<XUser>> GroupOnlineUsers = new Dictionary<uint, List<XUser>>();
+
         public GroupHelper()
         { 
+        }
+
+        public void UpdateGroupOnlineUsers(Dictionary<uint, List<XUser>> dict)
+        {
+            GroupOnlineUsers = dict;
+        }
+
+        public List<XUser> GetGroupOnlineUsers(uint GroupID)
+        {
+            if(Helper.UserHelper.UserExist(GroupID))
+            {
+                if(GroupHelper.GroupOnlineUsers.ContainsKey(GroupID))
+                {
+                    return new List<XUser>(GroupHelper.GroupOnlineUsers[GroupID]);
+                }
+            }
+
+            return new List<XUser>();
+        }
+
+        public Dictionary<uint, List<XUser>> GetGroupOnlineUsers()
+        {
+            return new Dictionary<uint, List<XUser>>(GroupHelper.GroupOnlineUsers);
         }
 
         public bool SelectByID(uint id, out UGroup group, out XUser Owner, Client client)
