@@ -688,12 +688,22 @@ namespace GameSlot.Helpers
             return this.GetChipInventory(UserID, out TotalPrice);
         }
 
-        public List<USteamItem> GetSteamLocalInventory(uint UserID, uint SteamGameID, bool tradable=true)
+        public List<USteamItem> GetSteamLocalInventory(uint UserID, uint SteamGameID, bool tradable=true, short curr = -1)
         {
             List<USteamItem> Items = new List<USteamItem>();
             XUser user;
             if (this.Table.SelectByID(UserID, out user))
             {
+                ushort currency;
+                if(curr < 0)
+                {
+                    currency = user.Currency;
+                }
+                else
+                {
+                    currency = Convert.ToUInt16(curr);
+                }
+
                 List<XSItemUsersInventory> x_inventory;
                 if (this.Table_SteamItemUsersInventory.Select(data => data.UserID == UserID && !data.Deleted && data.SteamGameID == SteamGameID, out x_inventory))
                 {
@@ -704,12 +714,13 @@ namespace GameSlot.Helpers
                         {
                             USteamItem.SteamBotID = inventory.SteamBotID;
                             USteamItem.AssertID = inventory.AssertID;
+                            USteamItem.AddedDate = inventory.AddedDate;
 
                             if (tradable)
                             {
                                 if (USteamItem.Price >= Configs.MIN_ITEMS_PRICE)
                                 {
-                                    if (user.Currency == 1)
+                                    if (currency == 1)
                                     {
                                         USteamItem.Price *= Helper.Rub_ExchangeRate;
                                         USteamItem.Price_Str = USteamItem.Price.ToString("###,###,##0");
@@ -719,7 +730,7 @@ namespace GameSlot.Helpers
                             }
                             else
                             {
-                                if (user.Currency == 1)
+                                if (currency == 1)
                                 {
                                     USteamItem.Price *= Helper.Rub_ExchangeRate;
                                     USteamItem.Price_Str = USteamItem.Price.ToString("###,###,##0");

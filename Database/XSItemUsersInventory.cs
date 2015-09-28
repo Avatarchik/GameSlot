@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameSlot.Database
 {
-    [StructLayout(LayoutKind.Explicit, Size = 32, CharSet = CharSet.Unicode, Pack = 1)]
+    [StructLayout(LayoutKind.Explicit, Size = 36, CharSet = CharSet.Unicode, Pack = 1)]
     public struct XSItemUsersInventory
     {
         [MarshalAs(UnmanagedType.U4)]
@@ -37,5 +37,9 @@ namespace GameSlot.Database
         [MarshalAs(UnmanagedType.U4)]
         [FieldOffset(28)]
         public uint SteamBotID;
+
+        [MarshalAs(UnmanagedType.I4)]
+        [FieldOffset(32)]
+        public int AddedDate;
     }
 }

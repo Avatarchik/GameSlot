@@ -25,5 +25,12 @@ namespace GameSlot.Types
         public uint SteamGameID;
 
         public uint SteamBotID;
+
+        // for shop
+        public int Num = 0;
+        public double ShopPrice;
+        public string ShopPrice_Str;
+
+        public int AddedDate;
     }
 }

@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\UpServer-master\bin\x64adv\Sites\</OutputPath>
+    <OutputPath>..\..\UpServer-master\bin\x64adv\Sites\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SteamBotUTRequest">
-      <HintPath>..\UpServer-master\bin\x64adv\Modules\SteamBotUTRequest.dll</HintPath>
+      <HintPath>..\..\UpServer-master\bin\x64adv\Modules\SteamBotUTRequest.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -45,15 +45,15 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UpServer">
-      <HintPath>..\UpServer-master\bin\x64adv\UpServer.exe</HintPath>
+      <HintPath>..\..\UpServer-master\bin\x64adv\UpServer.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UpTunnel">
-      <HintPath>..\UpServer-master\bin\x64adv\Modules\UpTunnel.dll</HintPath>
+      <HintPath>..\..\UpServer-master\bin\x64adv\Modules\UpTunnel.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="XData">
-      <HintPath>..\UpServer-master\bin\x64adv\Modules\XData.dll</HintPath>
+      <HintPath>..\..\UpServer-master\bin\x64adv\Modules\XData.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -622,6 +622,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Templates\Includes\Chat.html" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Store\StoreMain.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

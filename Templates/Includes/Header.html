@@ -39,7 +39,7 @@
                     <li class="j5"><a href="https://vk.com/topic-100147635_32542068" target="_blank">FAQ</a></li>
                 </ul>
             </div>
-            <a href="/store" class="store1"><span>Магазин</span></a>
+            <a href="/shop" class="store1"><span>Магазин</span></a>
         </div>
         <div class="ct-t3">
             <span>Лотереи:</span>
@@ -47,6 +47,9 @@
             <a href="/game/dota2" class="j2">dota2</a>
             <a href="/game/teamfortess" class="j3">Team fortress</a>
         </div>
+        {{if(client.URL.Contains("/shop"))}}
+        <div class="shop-ic1"><img src="/cached_files/img/shop-ic1.png" alt=""></div>
+        {{end}}
     </div>
 </header>
 {{include GameSlot ProfileModal}}

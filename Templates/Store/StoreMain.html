@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+{{include GameSlot Head}}
+{{using GameSlot.Types}}
+{{set Dictionary<uint,USteamItem> StoreItems = (Dictionary<uint,USteamItem>)PageData["StoreItems"]}}
+{{set int Page = (int)PageData["Page"]}}
+{{set int ItemsNum = (int)PageData["ItemsNum"]}}
+{{set int ElementsOnPage = (int)PageData["ElementsOnPage"]}}
+{{set uint Game = (uint)PageData["Game"]}}
+    <body class="vn1">
+        <div id="page">
+            {{include GameSlot UpHeader}}
+            <div class="ft-img1">
+                <span>
+                    {{if(Game == Configs.DOTA2_STEAM_GAME_ID)}}
+                        <img src="/cached_files/img/b2.png" alt="">
+                    {{end}}
+                    {{else if(Game == Configs.CSGO_STEAM_GAME_ID)}}
+                        <img src="/cached_files/img/b3.png" alt="">
+                    {{end}}
+                </span>
+            </div>
+            {{include GameSlot Header}}
+            <section id="content">
+                <div class="ct">
+                    <div class="store-page1">
+                        <div class="tit-stor1">
+                            <div class="ll1 j1">Магазин GAMESLOT</div>
+                            <div class="rr-bn1">
+                                <a href="">
+                                    <span class="ft1">все Товары в нашем<br>магазине</span>
+                                    <span class="ft2">чем в официальном<br>магазине steam</span>
+                                    <span class="ft3">стоят на <span><b>40%</b> дешевле</span></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ll-cont1">
+                            <div class="search-bl-store1">
+                                <div class="ll-srh1"><input type="text" value="Поиск по названию"><input type="submit" value=""></div>
+                                <ul>
+                                    <li>Сортировка:</li>
+                                    <li class="active"><a>Новые</a></li>
+                                    <li><a href="">Старые</a></li>
+                                    <li><a href="">Дешевые</a></li>
+                                    <li><a href="">Дорогие</a></li>
+                                </ul>
+                            </div>
+                            <div class="flt-store1">
+                                <div class="tt-fl1">Фильтр по цене:</div>
+                                <div id="slider-range"></div>
+                                <div class="numbs-double1">
+                                    <div>0</div>
+                                    <div>1560</div>
+                                </div>
+                                <div class="ip-slider1">
+                                    <span>От</span>
+                                    <div><input type="text" value="0"></div>
+                                    <span>До</span>
+                                    <div><input type="text" value="1560"></div>
+                                </div>
+                            </div>
+                            <div class="more-items-et-tb1">
+                            {{foreach(uint StoreItemID in StoreItems.Keys)}}
+                                {{set USteamItem StoreItem = StoreItems[StoreItemID]}}
+                                <div class="item1">
+                                    <div class="ev j1"><a target="_blank" href="http://steamcommunity.com/market/listings/{{=StoreItem.SteamGameID}}/{{=Helper.SteamItemsHelper.GetEncodeName(StoreItem.Name)}}" class="ev-ovt-lnk1"><img src="/steam-image/{{=StoreItem.SteamGameID}}/{{=StoreItem.ID}}" height="73px" width="89px" alt="">
+                                        <span><i style="color:#{{=StoreItem.Color}}">{{=StoreItem.Name}}</i><o style="color:{{=StoreItem.RarityColor}}">{{=StoreItem.Rarity}}</o></span>
+                                    </a></div>
+                                    <div class="ev j2">
+                                        <div class="ep-f1">Кол-во</div>
+                                        <div class="nb-s1 nb1">{{=StoreItem.Num}}</div>
+                                    </div>
+                                    <div class="ev j3">
+                                        <div class="ep-f1">Цена в Steam</div>
+                                        <div class="nb-s1 nb2">{{=StoreItem.Price_Str}}</div>
+                                    </div>
+                                    <div class="ev j4">
+                                        <div class="ep-f1">Наша цена</div>
+                                        <div class="nb-s1 nb3">{{=StoreItem.ShopPrice_Str}}</div>
+                                    </div>
+                                    <div class="ev j5"><a href="" class="add-cart-store1"><span>добавить<br>в корзину</span></a></div>
+                                </div>
+                            {{end}}
+                            </div>
+                            {{if(ItemsNum > StoreItems.Count)}}
+                            <div class="modal-page-s1">
+                                <ul>
+                                    {{if(Page == 1)}}
+                                        <li><a class="diss">В начало</a></li>
+                                        <li><a class="diss">Предыдущая</a></li>
+                                    {{end}}
+                                    {{else}}
+                                        <li><a href="/shop?game={{=Game}}&page=1">В начало</a></li>
+                                        <li><a href="/shop?game={{=Game}}&page={{=(Page-1)}}">Предыдущая</a></li>
+                                    {{end}}
+                                    {{if(Page == ItemsNum / ElementsOnPage)}}
+                                        <li><a class="diss">Следующая</a></li>
+                                        <li><a class="diss">В конец</a></li>
+                                    {{end}}
+                                    {{else}}
+                                        <li><a href="/shop?game={{=Game}}&page={{=(Page+1)}}">Следующая</a></li>
+                                        <li><a href="/shop?game={{=Game}}&page={{(ItemsNum / ElementsOnPage)}}">В конец</a></li>
+                                    {{end}}
+                                </ul>
+                            </div>
+                            {{end}}
+                        </div>
+                        <div class="rr-cont1">
+                            <div class="sml-menu1">
+                                <ul>
+                                    <li><a href="" class="j1">Главная</a></li>
+                                    <li><a href="" class="j2">Моя козина</a><div><span>25 предметов <b>2300</b></span></div></li>
+                                    <li><a href="" class="j3">история заказов</a></li>
+                                </ul>
+                            </div>
+                            <div class="mt2-store1">
+                                <ul class="si1">
+                                    {{if(Game == Configs.DOTA2_STEAM_GAME_ID)}}
+                                        <li class="active"><a><span>Dota 2</span></a></li>
+                                        <li><a href="/shop?game={{=Configs.CSGO_STEAM_GAME_ID}}"><span>CS: go</span></a></li>
+                                    {{end}}
+                                    {{else if(Game == Configs.CSGO_STEAM_GAME_ID)}}
+                                        <li><a href="/shop?game={{=Configs.DOTA2_STEAM_GAME_ID}}"><span>Dota 2</span></a></li>
+                                        <li class="active"><a><span>CS: go</span></a></li>
+                                    {{end}}
+                                </ul>
+                                <div class="vn1">
+                                    <div class="ev-main-pt1">Категории товаров:</div>
+                                    <ul>
+                                        <li><a href=""><span>Комментаторы</span><i>12</i><b></b></a></li>
+                                        <li><a href=""><span>Комментаторы</span><i>12</i><b></b></a></li>
+                                        <li><a href=""><span>Комментаторы</span><i>12</i><b></b></a></li>
+                                        <li><a href=""><span>Комментаторы</span><i>12</i><b></b></a></li>
+                                        <li><a href=""><span>Комментаторы</span><i>12</i><b></b></a></li>
+                                        <li><a href=""><span>Комментаторы</span><i>12</i><b></b></a></li>
+                                        <li><a href=""><span>Комментаторы</span><i>12</i><b></b></a></li>
+                                        <li><a href=""><span>Комментаторы</span><i>12</i><b></b></a></li>
+                                    </ul>
+                                </div>
+                                <div class="ev-main-pt2">Герои</div>
+                                <select>
+                                    <option>Все</option>
+                                    <option>Mortal ccoolkd</option>
+                                    <option>Susie alex hopkinss</option>
+                                    <option>dodlo</option>
+                                    <option>Man of the veda</option>
+                                    <option>Mortal ccoolkd</option>
+                                </select>
+                            </div>
+                            <div class="action1">
+                                <div class="tit-act1">Акция</div>
+                                <div class="ft-proc1"></div>
+                                <div class="ep-item1">
+                                    <div>
+                                        <a href="">
+                                            <img src="/cached_files/img/store-img2.png" alt="">
+                                            <i><span>Супер автомат калашникова AK-47</span>Блок с дополнительной информацией</i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="ft-em1">
+                                    <div class="item1">
+                                        <span>Цена в Steam</span>
+                                        <div class="j1">3,000</div>
+                                    </div>
+                                    <div class="item1">
+                                        <span>Наша цена</span>
+                                        <div class="j2">1,500</div>
+                                    </div>
+                                    <div class="item1">
+                                        <span>Цена по акции</span>
+                                        <div class="j3">1,000</div>
+                                    </div>
+                                    <div class="item1">
+                                        <span>Кол-во</span>
+                                        <div>22</div>
+                                    </div>
+                                </div>
+                                <a href="" class="add-cart-nt1">Добавить в корзину</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="up1"></div>
+        {{include GameSlot Footer}}
+    </body>
+</html>

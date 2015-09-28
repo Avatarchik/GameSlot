@@ -170,66 +170,6 @@ $('.back1').click(function(e) {
 	e.preventDefault();
 	$(this).parent().parent().removeClass('active');
 });
-/*$('.cont-ov-items-more1 .item1 a').click(function(e) {
-	e.preventDefault();
-	if($(this).parent().parent().attr('dt')==0) {
-
-	}
-	else if($('.content-ct-item1').length>0) {
-		if($(this).parent().parent().attr('dt')=='scrlnext') {
-			$(this).parent().appendTo($(this).parent().parent().parent().parent().siblings().find('.cont-ov-items-more1'));
-			$('.content-ct-item1').mCustomScrollbar("update");
-		}
-		else {
-			//$(this).parent().appendTo($(this).parent().parent().parent().parent().parent().parent().parent().siblings().find('.cont-ov-items-more1'));
-
-			if($(this).parent().parent().parent().parent().parent().parent().parent().siblings().find('.more24').length>0) {
-				if($(this).parent().parent().parent().parent().parent().parent().parent().siblings().find('.cont-ov-items-more1 .item1').length>23) {
-
-				}
-				else {
-					$(this).parent().appendTo($(this).parent().parent().parent().parent().parent().parent().parent().siblings().find('.cont-ov-items-more1'));
-				}
-			}
-			else {
-				$(this).parent().appendTo($(this).parent().parent().parent().parent().parent().parent().parent().siblings().find('.cont-ov-items-more1'));
-			}
-			$('.content-ct-item1').mCustomScrollbar("update");
-		}
-	}
-	else {
-		if($(this).parent().parent().parent().parent().siblings().find('.more24').length>0) {
-			if($(this).parent().parent().parent().parent().siblings().find('.cont-ov-items-more1 .item1').length>24) {
-
-			}
-			else {
-				$(this).parent().appendTo($(this).parent().parent().parent().parent().siblings().find('.cont-ov-items-more1'));
-			}
-		}
-		else {
-			$(this).parent().appendTo($(this).parent().parent().parent().parent().siblings().find('.cont-ov-items-more1'));
-		}
-	}
-});
-$('.cont-ov-items-more1 .item1 a').click(function(e) {
-	e.preventDefault();
-	if($(this).parent().parent().attr('rtl')=='rr') {
-		$(this).parent().appendTo($('.cont-ov-items-more1[dv='+$(this).parent().parent().attr('numb-dv')+']'));
-	}
-	else if($(this).parent().parent().attr('rtl')=='ll') {
-		if($(this).parent().parent().attr('ft-nav')=='1') {
-			if($(this).parent().attr('dv')==$(this).parent().parent().attr('dv')) {
-				$(this).parent().appendTo($('.ft-cont-ev1[ft-nav-numb='+$(this).parent().parent().attr('ft-nav-numb')+']').find('.active .cont-ov-items-more1'));
-			}
-			else {
-				$(this).parent().appendTo($('.ft-cont-ev1[ft-nav-numb='+$(this).parent().parent().attr('ft-nav-numb')+']').find('.cont-ov-items-more1[dv='+$(this).parent().attr('dv')+']'));
-			}
-		}
-		else {
-			$(this).parent().appendTo($('.cont-ov-items-more1[vn='+$(this).parent().parent().attr('zn')+']'));
-		}
-	}
-});*/
 $('.bg-modal,.close1').click(function() {
 	$('.modal').fadeOut();
 });
@@ -258,14 +198,10 @@ $('.sort-chk1 label:first-child').change(function() {
 });
 $('.klv1 input').keydown(function(e) {
 	if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-             // Allow: Ctrl+A
              (e.keyCode == 65 && e.ctrlKey === true) || 
-             // Allow: home, end, left, right
              (e.keyCode >= 35 && e.keyCode <= 39)) {
-                 // let it happen, don't do anything
              return;
          }
-        // Ensure that it is a number and stop the keypress
         if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
         	e.preventDefault();
         }
@@ -353,13 +289,13 @@ $('.content3 .item1 a,.evr1 a').click(function(e) {
 if($("#slider-range").length>0) {
 	accounting.settings = {
 	                currency: {
-	                    symbol : "",   // default currency symbol is '$'
-	                    format: "%s%v", // controls output: %s = symbol, %v = value/number (can be object: see below)
-	                    decimal : " ",  // decimal point separator
-	                    thousand: " ",  // thousands separator
+	                    symbol : "",  
+	                    format: "%s%v",
+	                    decimal : " ",  
+	                    thousand: " ",  
 	                },
 	                number: {
-	                    precision : 0,  // default precision on numbers is 0
+	                    precision : 0,  
 	                    thousand: ".",
 	                    decimal : "."
 	                }
@@ -393,14 +329,11 @@ if($("#slider-range").length>0) {
 }
 $('.ip-slider1 input').keydown(function(e) {
 		if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-             // Allow: Ctrl+A
+
              (e.keyCode == 65 && e.ctrlKey === true) || 
-             // Allow: home, end, left, right
              (e.keyCode >= 35 && e.keyCode <= 39)) {
-                 // let it happen, don't do anything
              return;
          }
-        // Ensure that it is a number and stop the keypress
         if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
         	e.preventDefault();
         }

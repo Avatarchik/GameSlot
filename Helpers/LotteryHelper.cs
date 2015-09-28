@@ -369,6 +369,7 @@ namespace GameSlot.Helpers
                                             XSItemUsersInventory.AssertID = SteamItems[st].AssertID;
                                             XSItemUsersInventory.SteamGameID = SteamItems[st].SteamGameID;
                                             XSItemUsersInventory.SteamBotID = SteamItems[st].SteamBotID;
+                                            XSItemUsersInventory.AddedDate = Helper.GetCurrentTime();
 
                                             Helper.UserHelper.Table_SteamItemUsersInventory.Insert(XSItemUsersInventory);
                                             GroupGetItemPrice -= SteamItems[st].Price;
